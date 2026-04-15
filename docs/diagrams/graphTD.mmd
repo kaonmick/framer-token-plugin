@@ -1,0 +1,48 @@
+graph TD
+
+A[Plugin Entry] --> B[Import UI]
+
+B --> C[JSON Input]
+C --> D[Parser]
+
+D --> E[Token Classification]
+E --> F[Primitive Tokens]
+E --> G[Semantic Tokens]
+E --> H[Alias Detection]
+
+F --> I[Preview Builder]
+G --> I
+H --> I
+
+I --> J[Preview UI]
+
+J --> K{User Action}
+
+K -->|Apply| L[Mapping Layer]
+K -->|Cancel| B
+
+L --> M[Conflict Detection]
+
+M --> N{Strategy}
+N -->|Skip| O[Apply Partial]
+N -->|Replace| P[Overwrite Existing]
+N -->|New Only| Q[Create Only]
+
+O --> R[Framer Style Creation]
+P --> R
+Q --> R
+
+R --> S[Result Summary]
+
+S --> T[Done]
+
+%% Audit later
+R --> U[Audit Engine]
+
+U --> V[Unused Detection]
+U --> W[Direct Color Detection]
+U --> X[Primitive Misuse]
+
+V --> Y[Audit Report]
+W --> Y
+X --> Y

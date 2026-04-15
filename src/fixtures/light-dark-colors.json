@@ -1,0 +1,56 @@
+{
+  "color": {
+    "light": {
+      "primitive": {
+        "blue": {
+          "500": {
+            "$type": "color",
+            "$value": "#0066ff"
+          }
+        },
+        "surface": {
+          "$type": "color",
+          "$value": "#ffffff"
+        }
+      },
+      "semantic": {
+        "button": {
+          "primary": {
+            "$type": "color",
+            "$value": "{color.primitive.blue.500}"
+          }
+        },
+        "surface": {
+          "$type": "color",
+          "$value": "{color.primitive.surface}"
+        }
+      }
+    },
+    "dark": {
+      "primitive": {
+        "blue": {
+          "500": {
+            "$type": "color",
+            "$value": "#8bb7ff"
+          }
+        },
+        "surface": {
+          "$type": "color",
+          "$value": "#111111"
+        }
+      },
+      "semantic": {
+        "button": {
+          "primary": {
+            "$type": "color",
+            "$value": "{color.primitive.blue.500}"
+          }
+        },
+        "surface": {
+          "$type": "color",
+          "$value": "{color.primitive.surface}"
+        }
+      }
+    }
+  }
+}

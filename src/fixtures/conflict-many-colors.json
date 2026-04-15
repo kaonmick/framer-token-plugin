@@ -1,0 +1,30 @@
+{
+  "color": {
+    "conflict": {
+      "one": {
+        "$type": "color",
+        "$value": "#111111"
+      },
+      "two": {
+        "$type": "color",
+        "$value": "#222222"
+      },
+      "three": {
+        "$type": "color",
+        "$value": "#333333"
+      },
+      "four": {
+        "$type": "color",
+        "$value": "#444444"
+      },
+      "five": {
+        "$type": "color",
+        "$value": "#555555"
+      },
+      "six": {
+        "$type": "color",
+        "$value": "#666666"
+      }
+    }
+  }
+}

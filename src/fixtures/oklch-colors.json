@@ -1,0 +1,42 @@
+{
+  "color": {
+    "primitive": {
+      "violet": {
+        "500": {
+          "$type": "color",
+          "$value": "oklch(62% 0.21 260)"
+        }
+      },
+      "mint": {
+        "500": {
+          "$type": "color",
+          "$value": "oklch(78% 0.16 165 / 0.95)"
+        }
+      },
+      "ink": {
+        "900": {
+          "$type": "color",
+          "$value": "oklch(18% 0.03 250)"
+        }
+      }
+    },
+    "semantic": {
+      "accent": {
+        "primary": {
+          "$type": "color",
+          "$value": "{color.primitive.violet.500}"
+        },
+        "success": {
+          "$type": "color",
+          "$value": "{color.primitive.mint.500}"
+        }
+      },
+      "text": {
+        "strong": {
+          "$type": "color",
+          "$value": "{color.primitive.ink.900}"
+        }
+      }
+    }
+  }
+}

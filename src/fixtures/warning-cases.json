@@ -1,0 +1,36 @@
+{
+  "color": {
+    "duplicate": {
+      "$type": "color",
+      "$value": "#ffffff"
+    },
+    "badNumber": {
+      "$type": "color",
+      "$value": 123
+    },
+    "badFormat": {
+      "$type": "color",
+      "$value": "lab(50% 20 30)"
+    },
+    "semantic": {
+      "missing": {
+        "$type": "color",
+        "$value": "{color.primitive.missing.500}"
+      },
+      "loopA": {
+        "$type": "color",
+        "$value": "{color.semantic.loopB}"
+      },
+      "loopB": {
+        "$type": "color",
+        "$value": "{color.semantic.loopA}"
+      }
+    }
+  },
+  "colors": {
+    "duplicate": {
+      "$type": "color",
+      "$value": "#000000"
+    }
+  }
+}

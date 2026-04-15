@@ -1,0 +1,30 @@
+export const sampleTokenJson = `{
+  "color": {
+    "primitive": {
+      "blue": {
+        "500": {
+          "$type": "color",
+          "$value": "#0066ff"
+        }
+      },
+      "gray": {
+        "900": {
+          "$type": "color",
+          "$value": "#151515"
+        }
+      },
+      "surface": {
+        "$type": "color",
+        "$value": "rgb(246, 246, 246)"
+      }
+    },
+    "semantic": {
+      "button": {
+        "primary": {
+          "$type": "color",
+          "$value": "{color.primitive.blue.500}"
+        }
+      }
+    }
+  }
+}`
