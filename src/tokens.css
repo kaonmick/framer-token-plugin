@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@theme {
+  --text-xs: 12px;
+  --text-xs--line-height: 19.2px;
+  --text-xs-ja: 11px;
+  --text-xs-ja--line-height: 19.2px;
+
+  --text-sm: 14px;
+  --text-sm--line-height: 21.7px;
+  --text-sm-ja: 13px;
+  --text-sm-ja--line-height: 21.7px;
+
+  --text-base: 16px;
+  --text-base--line-height: 24px;
+  --text-base-ja: 15px;
+  --text-base-ja--line-height: 24px;
+
+  --text-lg: 18px;
+  --text-lg--line-height: 26.1px;
+  --text-lg-ja: 17px;
+  --text-lg-ja--line-height: 26.1px;
+
+  --text-xl: 20px;
+  --text-xl--line-height: 28px;
+  --text-xl-ja: 19px;
+  --text-xl-ja--line-height: 28px;
+}
+
+@layer utilities {
+  .text-ui-caption {
+    @apply text-xs;
+  }
+
+  .text-ui-caption:lang(ja) {
+    @apply text-xs-ja;
+  }
+
+  .text-ui-control {
+    @apply text-sm;
+  }
+
+  .text-ui-control:lang(ja) {
+    @apply text-sm-ja;
+  }
+
+  .text-ui-body {
+    @apply text-base;
+  }
+
+  .text-ui-body:lang(ja) {
+    @apply text-base-ja;
+  }
+
+  .text-ui-title {
+    @apply text-xl;
+  }
+
+  .text-ui-title:lang(ja) {
+    @apply text-xl-ja;
+  }
+}

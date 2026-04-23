@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Import summary complete concept</title>
+    <style>
+      :root {
+        color: #17191a;
+        background: #f4f7f5;
+        font-family:
+          "Avenir Next",
+          "Helvetica Neue",
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        letter-spacing: 0;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        width: 420px;
+        margin: 0;
+        background: #f4f7f5;
+      }
+
+      button {
+        font: inherit;
+        letter-spacing: 0;
+        cursor: pointer;
+      }
+
+      .plugin {
+        min-height: 760px;
+        padding: 16px 16px 18px;
+        background:
+          linear-gradient(180deg, rgba(49, 111, 91, 0.08), rgba(244, 247, 245, 0) 174px),
+          #f4f7f5;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      h1,
+      h2,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        color: #151718;
+        font-size: 16px;
+        line-height: 1.2;
+      }
+
+      .run-note {
+        margin-top: 4px;
+        color: #59615d;
+        font-size: 11px;
+        line-height: 1.35;
+      }
+
+      .status-pill {
+        display: inline-flex;
+        min-height: 28px;
+        align-items: center;
+        gap: 6px;
+        padding: 0 10px;
+        border: 1px solid #73a791;
+        border-radius: 999px;
+        background: #e8f4ee;
+        color: #1d6749;
+        font-size: 11px;
+        font-weight: 750;
+        text-transform: uppercase;
+      }
+
+      .status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        background: #25885f;
+      }
+
+      .complete-panel {
+        margin-top: 22px;
+        padding: 18px;
+        border: 1px solid #c8d5cf;
+        border-radius: 8px;
+        background: #ffffff;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 42px minmax(0, 1fr);
+        gap: 12px;
+        align-items: start;
+      }
+
+      .mark {
+        display: grid;
+        width: 42px;
+        height: 42px;
+        place-items: center;
+        border: 1px solid #6ca889;
+        border-radius: 8px;
+        background: #e5f5ed;
+      }
+
+      .mark svg {
+        width: 23px;
+        height: 23px;
+        stroke: #1d744f;
+      }
+
+      .eyebrow {
+        color: #247353;
+        font-size: 11px;
+        font-weight: 800;
+        line-height: 1.2;
+        text-transform: uppercase;
+      }
+
+      .hero h2 {
+        margin-top: 4px;
+        color: #111313;
+        font-size: 24px;
+        line-height: 1.05;
+      }
+
+      .hero p {
+        margin-top: 8px;
+        color: #4b5450;
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 7px;
+        margin-top: 18px;
+      }
+
+      .metric {
+        min-height: 58px;
+        padding: 9px 7px;
+        border: 1px solid #d5ded9;
+        border-radius: 8px;
+        background: #f8faf9;
+      }
+
+      .metric strong {
+        display: block;
+        color: #151718;
+        font-size: 20px;
+        line-height: 1;
+      }
+
+      .metric span {
+        display: block;
+        margin-top: 7px;
+        color: #5b635f;
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 1.15;
+        text-transform: uppercase;
+      }
+
+      .metric.created {
+        border-color: #94c3ad;
+        background: #eff8f3;
+      }
+
+      .metric.replaced {
+        border-color: #8bb2d5;
+        background: #eef6fd;
+      }
+
+      .metric.skipped {
+        border-color: #c9c7bc;
+        background: #f7f7f2;
+      }
+
+      .metric.failed {
+        border-color: #dfa49d;
+        background: #fff3f1;
+      }
+
+      .metric.failed strong {
+        color: #8a352b;
+      }
+
+      .receipt {
+        margin-top: 18px;
+        border-top: 1px solid #e2e8e5;
+        padding-top: 14px;
+      }
+
+      .receipt h3 {
+        margin: 0 0 8px;
+        color: #222625;
+        font-size: 12px;
+        line-height: 1.2;
+        text-transform: uppercase;
+      }
+
+      .change-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .change-row {
+        display: grid;
+        grid-template-columns: 7px minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 9px;
+        min-height: 40px;
+        padding: 8px 0;
+        border-bottom: 1px solid #edf1ef;
+      }
+
+      .change-row:last-child {
+        border-bottom: 0;
+      }
+
+      .rail {
+        width: 7px;
+        height: 28px;
+        border-radius: 999px;
+        background: #2f8a63;
+      }
+
+      .rail.blue {
+        background: #326fba;
+      }
+
+      .rail.gray {
+        background: #858b88;
+      }
+
+      .change-title {
+        overflow: hidden;
+        color: #1d2020;
+        font-size: 12px;
+        font-weight: 750;
+        line-height: 1.2;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .change-detail {
+        margin-top: 3px;
+        overflow: hidden;
+        color: #606965;
+        font-size: 11px;
+        line-height: 1.2;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .tag {
+        min-width: 60px;
+        padding: 4px 7px;
+        border-radius: 999px;
+        background: #e8f4ee;
+        color: #216a4c;
+        font-size: 10px;
+        font-weight: 800;
+        text-align: center;
+        text-transform: uppercase;
+      }
+
+      .tag.replace {
+        background: #eef6fd;
+        color: #2f5f8a;
+      }
+
+      .tag.skip {
+        background: #f0f1ef;
+        color: #606864;
+      }
+
+      .notice {
+        display: grid;
+        grid-template-columns: 18px minmax(0, 1fr);
+        gap: 8px;
+        margin-top: 14px;
+        padding: 10px;
+        border: 1px solid #d7c691;
+        border-radius: 8px;
+        background: #fff8e4;
+        color: #5f4a14;
+      }
+
+      .notice svg {
+        width: 18px;
+        height: 18px;
+        stroke: #7c611c;
+      }
+
+      .notice strong {
+        display: block;
+        font-size: 12px;
+        line-height: 1.25;
+      }
+
+      .notice span {
+        display: block;
+        margin-top: 3px;
+        font-size: 11px;
+        line-height: 1.35;
+      }
+
+      .actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 16px;
+      }
+
+      .primary,
+      .secondary {
+        min-height: 36px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .primary {
+        border: 0;
+        background: #121515;
+        color: #ffffff;
+      }
+
+      .secondary {
+        border: 1px solid #cbd4cf;
+        background: #ffffff;
+        color: #17191a;
+      }
+
+      .compact-context {
+        margin-top: 14px;
+        padding: 11px 12px;
+        border: 1px solid #d7dfda;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.72);
+      }
+
+      .compact-context p {
+        color: #5f6763;
+        font-size: 11px;
+        line-height: 1.45;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="plugin">
+      <div class="topbar">
+        <div>
+          <h1>Token Color Importer</h1>
+          <p class="run-note">primitive-colors.json · completed at 21:48</p>
+        </div>
+        <div class="status-pill"><span class="status-dot"></span>Imported</div>
+      </div>
+
+      <section class="complete-panel" aria-labelledby="complete-title">
+        <div class="hero">
+          <div class="mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12.5l4.2 4.2L19 6.8" />
+            </svg>
+          </div>
+          <div>
+            <div class="eyebrow">Import complete</div>
+            <h2 id="complete-title">24 color styles are ready in Framer.</h2>
+            <p>Light and dark values were grouped into 4 theme pairs. Existing styles were handled with Skip.</p>
+          </div>
+        </div>
+
+        <div class="summary-grid" aria-label="Import result summary">
+          <div class="metric created">
+            <strong>21</strong>
+            <span>Created</span>
+          </div>
+          <div class="metric replaced">
+            <strong>0</strong>
+            <span>Replaced</span>
+          </div>
+          <div class="metric skipped">
+            <strong>3</strong>
+            <span>Skipped</span>
+          </div>
+          <div class="metric failed">
+            <strong>0</strong>
+            <span>Failed</span>
+          </div>
+        </div>
+
+        <div class="receipt">
+          <h3>What changed</h3>
+          <div class="change-list">
+            <div class="change-row">
+              <div class="rail"></div>
+              <div>
+                <div class="change-title">primitive/blue/500</div>
+                <div class="change-detail">Created as color.primitive.blue.500</div>
+              </div>
+              <div class="tag">Created</div>
+            </div>
+            <div class="change-row">
+              <div class="rail blue"></div>
+              <div>
+                <div class="change-title">semantic/background/default</div>
+                <div class="change-detail">Imported with light and dark values</div>
+              </div>
+              <div class="tag">Created</div>
+            </div>
+            <div class="change-row">
+              <div class="rail gray"></div>
+              <div>
+                <div class="change-title">primitive/gray/900</div>
+                <div class="change-detail">Existing Framer style was kept</div>
+              </div>
+              <div class="tag skip">Skipped</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="notice">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 8v5" />
+            <path d="M12 17h.01" />
+            <path d="M10.3 3.6 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0Z" />
+          </svg>
+          <div>
+            <strong>2 warnings were handled during import.</strong>
+            <span>OKLCH values were converted to RGBA for Framer compatibility.</span>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="primary">Done</button>
+          <button class="secondary">View details</button>
+        </div>
+      </section>
+
+      <aside class="compact-context">
+        <p>Next import will reuse the same conflict strategy unless you change it before running.</p>
+      </aside>
+    </main>
+  </body>
+</html>

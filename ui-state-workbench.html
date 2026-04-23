@@ -1,0 +1,959 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>JSON Import UI State Workbench</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #172033;
+        --muted: #5d677a;
+        --line: #cfd6e4;
+        --paper: #fbfcfe;
+        --panel: #ffffff;
+        --ideal: #dff3e6;
+        --blank: #edf1f7;
+        --loading: #e2efff;
+        --partial: #fff0c7;
+        --error: #f8d7da;
+        --note: #ece4ff;
+        --ok: #2f7d4f;
+        --warn: #9a6a00;
+        --bad: #a33b43;
+        --focus: #276ef1;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family:
+          Inter,
+          "Noto Sans JP",
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        line-height: 1.55;
+      }
+
+      button,
+      input,
+      textarea {
+        font: inherit;
+      }
+
+      .page {
+        width: min(1680px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 28px 0 48px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 24px;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 20px;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 28px;
+        letter-spacing: 0;
+      }
+
+      .lead {
+        margin: 0;
+        color: var(--muted);
+        max-width: 920px;
+      }
+
+      .toolbar {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .button {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        color: var(--ink);
+        cursor: pointer;
+        padding: 8px 12px;
+      }
+
+      .button.primary {
+        border-color: var(--focus);
+        background: var(--focus);
+        color: #fff;
+      }
+
+      .button:focus-visible,
+      [contenteditable="true"]:focus-visible,
+      textarea:focus-visible {
+        outline: 3px solid color-mix(in srgb, var(--focus) 30%, transparent);
+        outline-offset: 2px;
+      }
+
+      .section {
+        margin-top: 28px;
+      }
+
+      .section-title {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 10px;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: 20px;
+        letter-spacing: 0;
+      }
+
+      .hint {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .stack-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(220px, 1fr));
+        gap: 12px;
+      }
+
+      .state-column {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        overflow: hidden;
+        min-height: 350px;
+      }
+
+      .state-column header {
+        padding: 14px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .state-column h3 {
+        margin: 0 0 4px;
+        font-size: 17px;
+        letter-spacing: 0;
+      }
+
+      .state-column p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .state-column[data-state="ideal"] header {
+        background: var(--ideal);
+      }
+
+      .state-column[data-state="blank"] header {
+        background: var(--blank);
+      }
+
+      .state-column[data-state="loading"] header {
+        background: var(--loading);
+      }
+
+      .state-column[data-state="partial"] header {
+        background: var(--partial);
+      }
+
+      .state-column[data-state="error"] header {
+        background: var(--error);
+      }
+
+      .mini-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+      }
+
+      .mini-table th,
+      .mini-table td {
+        border-bottom: 1px solid var(--line);
+        padding: 10px;
+        vertical-align: top;
+        font-size: 13px;
+        overflow-wrap: anywhere;
+      }
+
+      .mini-table th {
+        background: #f6f8fb;
+        color: var(--muted);
+        font-weight: 600;
+        text-align: left;
+      }
+
+      .mini-table tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .wide-table-wrap {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        overflow: auto;
+        background: var(--panel);
+      }
+
+      .wide-table {
+        width: 100%;
+        min-width: 1100px;
+        border-collapse: collapse;
+      }
+
+      .wide-table th,
+      .wide-table td {
+        border-bottom: 1px solid var(--line);
+        border-right: 1px solid var(--line);
+        padding: 11px 12px;
+        vertical-align: top;
+        text-align: left;
+        overflow-wrap: anywhere;
+      }
+
+      .wide-table th:last-child,
+      .wide-table td:last-child {
+        border-right: 0;
+      }
+
+      .wide-table tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .wide-table th {
+        background: #f6f8fb;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        padding: 2px 8px;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      .tag.ok {
+        background: var(--ideal);
+        color: var(--ok);
+      }
+
+      .tag.warn {
+        background: var(--partial);
+        color: var(--warn);
+      }
+
+      .tag.bad {
+        background: var(--error);
+        color: var(--bad);
+      }
+
+      .tag.choice {
+        border-color: color-mix(in srgb, var(--focus) 28%, var(--line));
+        background: #e8f0ff;
+        color: var(--focus);
+      }
+
+      .catalog-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      .flow-board {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 16px;
+        overflow: auto;
+      }
+
+      .flow-row {
+        display: grid;
+        grid-template-columns: minmax(180px, 0.9fr) 44px minmax(180px, 0.9fr) 44px minmax(540px, 2fr);
+        gap: 10px;
+        align-items: stretch;
+        min-width: 1080px;
+      }
+
+      .flow-node,
+      .flow-outcome {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        padding: 12px;
+      }
+
+      .flow-node h3,
+      .flow-outcome h3 {
+        margin: 0 0 6px;
+        font-size: 15px;
+        letter-spacing: 0;
+      }
+
+      .flow-node p,
+      .flow-outcome p {
+        margin: 0 0 10px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .flow-node.blank {
+        background: var(--blank);
+      }
+
+      .flow-node.loading {
+        background: var(--loading);
+      }
+
+      .flow-arrow {
+        display: grid;
+        place-items: center;
+        color: var(--muted);
+        font-weight: 700;
+        min-height: 100%;
+      }
+
+      .flow-arrow span {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: #fff;
+      }
+
+      .outcome-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(160px, 1fr));
+        gap: 10px;
+      }
+
+      .flow-outcome.ideal {
+        background: color-mix(in srgb, var(--ideal) 65%, #fff);
+      }
+
+      .flow-outcome.partial {
+        background: color-mix(in srgb, var(--partial) 70%, #fff);
+      }
+
+      .flow-outcome.error {
+        background: color-mix(in srgb, var(--error) 65%, #fff);
+      }
+
+      .catalog-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .catalog-chip {
+        display: inline-flex;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        color: var(--ink);
+        padding: 3px 7px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 12px;
+        line-height: 1.35;
+        white-space: nowrap;
+      }
+
+      .catalog-chip.notice {
+        border-color: color-mix(in srgb, var(--ok) 35%, var(--line));
+        color: var(--ok);
+      }
+
+      .catalog-chip.warning {
+        border-color: color-mix(in srgb, var(--warn) 35%, var(--line));
+        color: var(--warn);
+      }
+
+      .catalog-chip.error {
+        border-color: color-mix(in srgb, var(--bad) 35%, var(--line));
+        color: var(--bad);
+      }
+
+      .catalog-chip.choice {
+        border-color: color-mix(in srgb, var(--focus) 45%, var(--line));
+        background: #eef4ff;
+        color: var(--focus);
+      }
+
+      .memo-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(220px, 1fr));
+        gap: 12px;
+      }
+
+      .memo {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 12px;
+      }
+
+      .memo strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .memo textarea {
+        width: 100%;
+        min-height: 96px;
+        resize: vertical;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 10px;
+        color: var(--ink);
+        background: #fff;
+      }
+
+      [contenteditable="true"] {
+        border-radius: 6px;
+        min-height: 1.4em;
+      }
+
+      .status {
+        color: var(--muted);
+        font-size: 13px;
+        min-width: 170px;
+        text-align: right;
+      }
+
+      @media (max-width: 1180px) {
+        .stack-grid,
+        .catalog-grid,
+        .outcome-grid,
+        .memo-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .topbar {
+          flex-direction: column;
+        }
+
+        .toolbar {
+          justify-content: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page" data-workbench>
+      <div class="topbar">
+        <div>
+          <h1>JSON Import UI State Workbench</h1>
+          <p class="lead">
+            JSONインポートエリアのUI状態、warning/errorカタログ、未決定事項を同じ画面で見ながら壁打ちするための作業台。
+          </p>
+        </div>
+        <div class="toolbar">
+          <button class="button primary" type="button" data-action="save">ブラウザに保存</button>
+          <button class="button" type="button" data-action="export">JSONをコピー</button>
+          <button class="button" type="button" data-action="reset">保存内容をリセット</button>
+          <span class="status" data-status>未保存</span>
+        </div>
+      </div>
+
+      <section class="section" aria-labelledby="stack-title">
+        <div class="section-title">
+          <h2 id="stack-title">UI stack 5パターン</h2>
+          <span class="hint">セルは直接編集できます</span>
+        </div>
+        <div class="wide-table-wrap">
+          <table class="wide-table" data-table="ui-stack">
+            <thead>
+              <tr>
+                <th>UI stack</th>
+                <th>日本語名</th>
+                <th>状態の定義</th>
+                <th>UIで必要な役割</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td contenteditable="true">Ideal State</td>
+                <td contenteditable="true">理想状態</td>
+                <td contenteditable="true">全てのデータが揃い、正常に動作する最終目標の状態。</td>
+                <td contenteditable="true">正常に完了していること、次に実行できる主要操作を明確にする。</td>
+              </tr>
+              <tr>
+                <td contenteditable="true">Blank / Empty State</td>
+                <td contenteditable="true">空状態</td>
+                <td contenteditable="true">データが何も登録されていない初期状態。</td>
+                <td contenteditable="true">ユーザーを次の行動へ導く誘導UIを表示する。</td>
+              </tr>
+              <tr>
+                <td contenteditable="true">Loading State</td>
+                <td contenteditable="true">読み込み中状態</td>
+                <td contenteditable="true">データ取得中の待ち時間。</td>
+                <td contenteditable="true">スケルトンやスピナーを使って不安を軽減する。</td>
+              </tr>
+              <tr>
+                <td contenteditable="true">Partial State</td>
+                <td contenteditable="true">部分的状態</td>
+                <td contenteditable="true">データは一部あるが不完全で、エラーも混在している状態。</td>
+                <td contenteditable="true">改善を促すメッセージを表示する。</td>
+              </tr>
+              <tr>
+                <td contenteditable="true">Error State</td>
+                <td contenteditable="true">エラー状態</td>
+                <td contenteditable="true">何らかの失敗が発生した状態。</td>
+                <td contenteditable="true">原因説明とリトライ手段を提供する。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="state-table-title">
+        <div class="section-title">
+          <h2 id="state-table-title">JSONインポート状態テーブル</h2>
+          <span class="hint">状態とカタログの接続を見るテーブル</span>
+        </div>
+        <div class="wide-table-wrap">
+          <table class="wide-table" data-table="states">
+            <thead>
+              <tr>
+                <th>state_id</th>
+                <th>UI stack</th>
+                <th>判定条件</th>
+                <th>Import可否</th>
+                <th>主なUI</th>
+                <th>CTA</th>
+                <th>catalog refs</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td contenteditable="true">json_import.empty</td>
+                <td contenteditable="true">Blank / Empty</td>
+                <td contenteditable="true">ファイル未選択、またはクリア直後</td>
+                <td><span class="tag bad">不可</span></td>
+                <td contenteditable="true">Drop area / Select button / Paste area</td>
+                <td contenteditable="true">Select JSON</td>
+                <td contenteditable="true">-</td>
+              </tr>
+              <tr>
+                <td contenteditable="true">json_import.loading</td>
+                <td contenteditable="true">Loading</td>
+                <td contenteditable="true">読み込み、parse、validate中</td>
+                <td><span class="tag bad">一時不可</span></td>
+                <td contenteditable="true">progress / filename / status message</td>
+                <td contenteditable="true">Cancel</td>
+                <td contenteditable="true">pending</td>
+              </tr>
+              <tr>
+                <td contenteditable="true">json_import.ideal</td>
+                <td contenteditable="true">Ideal</td>
+                <td contenteditable="true">必要情報が揃い、fatal errorがない</td>
+                <td><span class="tag ok">可</span></td>
+                <td contenteditable="true">success summary / detected tokens</td>
+                <td contenteditable="true">Import</td>
+                <td contenteditable="true">notice.*</td>
+              </tr>
+              <tr>
+                <td contenteditable="true">json_import.partial</td>
+                <td contenteditable="true">Partial</td>
+                <td contenteditable="true">一部に欠損・重複・未対応typeがあるが、取り込み可能</td>
+                <td><span class="tag warn">条件付き可</span></td>
+                <td contenteditable="true">warning summary / review list</td>
+                <td contenteditable="true">Review / Import with warnings</td>
+                <td contenteditable="true">warning.*</td>
+              </tr>
+              <tr>
+                <td contenteditable="true">json_import.error</td>
+                <td contenteditable="true">Error</td>
+                <td contenteditable="true">JSON構文エラー、空、tokenなし、schema不一致</td>
+                <td><span class="tag bad">不可</span></td>
+                <td contenteditable="true">error reason / recovery path</td>
+                <td contenteditable="true">Retry / Select another file</td>
+                <td contenteditable="true">error.*</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="flow-title">
+        <div class="section-title">
+          <h2 id="flow-title">json_import.empty からの派生フロー</h2>
+          <span class="hint">Empty自体はcatalogなし。ユーザー操作後に各catalogへ派生する</span>
+        </div>
+        <div class="flow-board">
+          <div class="flow-row">
+            <article class="flow-node blank">
+              <h3 contenteditable="true">json_import.empty</h3>
+              <p contenteditable="true">JSON未選択。初期状態なのでerror / warning / noticeは発生しない。</p>
+              <div class="catalog-chips">
+                <span class="catalog-chip">catalogなし</span>
+              </div>
+            </article>
+
+            <div class="flow-arrow" aria-hidden="true"><span>→</span></div>
+
+            <article class="flow-node loading">
+              <h3 contenteditable="true">json_import.loading</h3>
+              <p contenteditable="true">Select / Drop / Paste後、file read、parse、validate、pre-import確認へ進む。</p>
+              <div class="catalog-chips">
+                <span class="catalog-chip">pending</span>
+              </div>
+            </article>
+
+            <div class="flow-arrow" aria-hidden="true"><span>→</span></div>
+
+            <div class="outcome-grid">
+              <article class="flow-outcome ideal">
+                <h3 contenteditable="true">json_import.ideal</h3>
+                <p contenteditable="true">fatal errorなし。warningがなければそのままImport可能。</p>
+                <div class="catalog-chips">
+                  <span class="catalog-chip">catalogなし</span>
+                  <span class="catalog-chip notice">notice.oklch_converted_to_rgba</span>
+                  <span class="catalog-chip notice">notice.sorted_by_token_path</span>
+                </div>
+              </article>
+
+              <article class="flow-outcome partial">
+                <h3 contenteditable="true">json_import.partial</h3>
+                <p contenteditable="true">一部tokenをskipまたは調整しつつ、取り込めるtokenが残っている。</p>
+                <div class="catalog-chips">
+                  <span class="catalog-chip warning">warning.unsupported_token</span>
+                  <span class="catalog-chip warning">warning.unsupported_color</span>
+                  <span class="catalog-chip warning">warning.unresolved_alias</span>
+                  <span class="catalog-chip warning">warning.circular_alias</span>
+                  <span class="catalog-chip warning choice">warning.duplicate_style_name</span>
+                  <span class="catalog-chip warning">warning.dark_mode_without_light</span>
+                  <span class="catalog-chip warning choice">warning.existing_style_conflict</span>
+                </div>
+              </article>
+
+              <article class="flow-outcome error">
+                <h3 contenteditable="true">json_import.error</h3>
+                <p contenteditable="true">JSONを取り込めない、またはImport実行前後で処理を止める必要がある。</p>
+                <div class="catalog-chips">
+                  <span class="catalog-chip error">error.invalid_json_syntax</span>
+                  <span class="catalog-chip error">error.empty_json</span>
+                  <span class="catalog-chip error">error.no_tokens_found</span>
+                  <span class="catalog-chip error">error.file_read_failed</span>
+                  <span class="catalog-chip error">error.conflict_check_failed</span>
+                  <span class="catalog-chip error">error.insufficient_permissions</span>
+                  <span class="catalog-chip error">error.import_failed</span>
+                </div>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="catalog-title">
+        <div class="section-title">
+          <h2 id="catalog-title">Notice / Warning / Error Catalog</h2>
+          <span class="hint">parser / import / Framer連携で分けて管理する</span>
+        </div>
+        <div class="catalog-grid">
+          <div class="wide-table-wrap">
+            <table class="wide-table" data-table="notices">
+              <thead>
+                <tr>
+                  <th>catalog_id</th>
+                  <th>発生タイミング</th>
+                  <th>条件</th>
+                  <th>処理</th>
+                  <th>ユーザー向け表示</th>
+                  <th>補足</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td contenteditable="true">notice.oklch_converted_to_rgba</td>
+                  <td contenteditable="true">parse</td>
+                  <td contenteditable="true">OKLCHをFramer互換のrgba()に変換した</td>
+                  <td><span class="tag ok">import可</span></td>
+                  <td contenteditable="true">OKLCHカラーをFramer互換のためrgba()に変換しました。</td>
+                  <td contenteditable="true">失敗ではない。色差が気になる場合だけ元JSONを調整</td>
+                </tr>
+                <tr>
+                  <td contenteditable="true">notice.sorted_by_token_path</td>
+                  <td contenteditable="true">pre-import</td>
+                  <td contenteditable="true">番号付きtokenがJSON内で番号順に並んでいない</td>
+                  <td><span class="tag ok">番号順に整列</span></td>
+                  <td contenteditable="true">番号付きトークンは、番号順に並べて登録します。</td>
+                  <td contenteditable="true">例: blue.100 / blue.200 / blue.500。JSONの記述順ではなく、生成後のstyle pathで自然順に登録</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="wide-table-wrap">
+            <table class="wide-table" data-table="warnings">
+              <thead>
+                <tr>
+                  <th>catalog_id</th>
+                  <th>発生タイミング</th>
+                  <th>条件</th>
+                  <th>処理</th>
+                  <th>解決タイプ</th>
+                  <th>ユーザー向け表示</th>
+                  <th>復帰・改善導線</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td contenteditable="true">warning.unsupported_token</td>
+                  <td contenteditable="true">parse</td>
+                  <td contenteditable="true">color tokenの$valueが文字列ではない</td>
+                  <td><span class="tag warn">該当tokenをskip</span></td>
+                  <td><span class="tag warn">自動skip</span></td>
+                  <td contenteditable="true">値が文字列ではないため、このトークンはスキップしました。</td>
+                  <td contenteditable="true">$valueをhex / rgb(a) / hsl(a) / oklch()文字列に修正</td>
+                </tr>
+                <tr>
+                  <td contenteditable="true">warning.unsupported_color</td>
+                  <td contenteditable="true">parse</td>
+                  <td contenteditable="true">色形式が未対応、または解釈できない</td>
+                  <td><span class="tag warn">該当tokenをskip</span></td>
+                  <td><span class="tag warn">自動skip</span></td>
+                  <td contenteditable="true">色形式が認識できないため、このトークンはスキップしました。</td>
+                  <td contenteditable="true">hex / rgb(a) / hsl(a) / oklch()に変換</td>
+                </tr>
+                <tr>
+                  <td contenteditable="true">warning.unresolved_alias</td>
+                  <td contenteditable="true">parse</td>
+                  <td contenteditable="true">参照先のトークンが見つからない</td>
+                  <td><span class="tag warn">該当tokenをskip</span></td>
+                  <td><span class="tag warn">自動skip</span></td>
+                  <td contenteditable="true">参照先のトークンが見つからないため、このトークンはスキップしました。</td>
+                  <td contenteditable="true">参照pathを修正、または参照先のトークンを追加</td>
+                </tr>
+                <tr>
+                  <td contenteditable="true">warning.circular_alias</td>
+                  <td contenteditable="true">parse</td>
+                  <td contenteditable="true">参照先のトークンが循環している</td>
+                  <td><span class="tag warn">該当tokenをskip</span></td>
+                  <td><span class="tag warn">自動skip</span></td>
+                  <td contenteditable="true">参照先のトークンが循環しているため、このトークンはスキップしました。</td>
+                  <td contenteditable="true">循環しない参照関係に修正</td>
+                </tr>
+                <tr>
+                  <td contenteditable="true">warning.duplicate_style_name</td>
+                  <td contenteditable="true">parse</td>
+                  <td contenteditable="true">JSON内の複数tokenから同じFramer style名が生成される</td>
+                  <td><span class="tag choice">コンフリクトを提示</span></td>
+                  <td><span class="tag choice">択一選択</span></td>
+                  <td contenteditable="true">同じスタイル名が複数あります。プレビューでインポートするトークンを選択してください。</td>
+                  <td contenteditable="true">プレビューでいずれか1つを選択、またはtoken pathを変更してstyle名の重複を解消</td>
+                </tr>
+                <tr>
+                  <td contenteditable="true">warning.dark_mode_without_light</td>
+                  <td contenteditable="true">parse</td>
+                  <td contenteditable="true">dark tokenに対応するlight tokenがない</td>
+                  <td><span class="tag warn">dark階層styleとしてimport可</span></td>
+                  <td><span class="tag warn">確認のみ</span></td>
+                  <td contenteditable="true">ライトモードの設定がありません。このままインポートした場合はダークモードのみのスタイルとして登録されます。</td>
+                  <td contenteditable="true">light/darkペアにしたい場合は対応するlight tokenを追加。dark階層名を残した単体styleとして扱うなら許容</td>
+                </tr>
+                <tr>
+                  <td contenteditable="true">warning.existing_style_conflict</td>
+                  <td contenteditable="true">pre-import</td>
+                  <td contenteditable="true">同じpathのFramer Color Styleが既に存在する</td>
+                  <td><span class="tag choice">コンフリクトを提示</span></td>
+                  <td><span class="tag choice">択一選択</span></td>
+                  <td contenteditable="true">既存のスタイルとの競合があります。プレビューで保持するか置換するか選択してください。</td>
+                  <td contenteditable="true">プレビューで保持または置換を択一で選択</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="wide-table-wrap">
+            <table class="wide-table" data-table="errors">
+              <thead>
+                <tr>
+                  <th>catalog_id</th>
+                  <th>発生タイミング</th>
+                  <th>条件</th>
+                  <th>処理</th>
+                  <th>ユーザー向け表示</th>
+                  <th>復帰導線</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td contenteditable="true">error.invalid_json_syntax</td>
+                  <td contenteditable="true">parse</td>
+                  <td contenteditable="true">JSON.parseに失敗した</td>
+                  <td><span class="tag bad">import不可</span></td>
+                  <td contenteditable="true">JSONが不正です。構文を確認してください。</td>
+                  <td contenteditable="true">該当行を修正して再解析</td>
+                </tr>
+                <tr>
+                  <td contenteditable="true">error.empty_json</td>
+                  <td contenteditable="true">parse</td>
+                  <td contenteditable="true">入力が空、または空白のみ</td>
+                  <td><span class="tag bad">import不可</span></td>
+                  <td contenteditable="true">JSONが入力されていません。</td>
+                  <td contenteditable="true">JSONを貼り付ける、またはファイルを選択</td>
+                </tr>
+                <tr>
+                  <td contenteditable="true">error.no_tokens_found</td>
+                  <td contenteditable="true">parse</td>
+                  <td contenteditable="true">JSONは読めたがimport可能なcolor tokenが0件</td>
+                  <td><span class="tag bad">import不可</span></td>
+                  <td contenteditable="true">インポート可能なカラートークンがありません。</td>
+                  <td contenteditable="true">$type: color / $value / color rootを確認</td>
+                </tr>
+                <tr>
+                  <td contenteditable="true">error.file_read_failed</td>
+                  <td contenteditable="true">file input</td>
+                  <td contenteditable="true">選択ファイルを読み込めない</td>
+                  <td><span class="tag bad">import不可</span></td>
+                  <td contenteditable="true">ファイルを読み込めませんでした。</td>
+                  <td contenteditable="true">別ファイルを選択、またはJSONを直接貼り付け</td>
+                </tr>
+                <tr>
+                  <td contenteditable="true">error.conflict_check_failed</td>
+                  <td contenteditable="true">pre-import</td>
+                  <td contenteditable="true">既存のFramer Color Style一覧を取得できない</td>
+                  <td><span class="tag bad">一時停止</span></td>
+                  <td contenteditable="true">既存のColor Styleを確認できませんでした。</td>
+                  <td contenteditable="true">再試行。権限やFramer API状態を確認</td>
+                </tr>
+                <tr>
+                  <td contenteditable="true">error.insufficient_permissions</td>
+                  <td contenteditable="true">import</td>
+                  <td contenteditable="true">FramerのColor Style作成・更新権限がない</td>
+                  <td><span class="tag bad">import不可</span></td>
+                  <td contenteditable="true">権限が不足しています。</td>
+                  <td contenteditable="true">編集権限のあるプロジェクトで再実行</td>
+                </tr>
+                <tr>
+                  <td contenteditable="true">error.import_failed</td>
+                  <td contenteditable="true">import</td>
+                  <td contenteditable="true">Framer Color Styleの作成・更新に失敗した</td>
+                  <td><span class="tag bad">対象token失敗</span></td>
+                  <td contenteditable="true">インポートに失敗しました。</td>
+                  <td contenteditable="true">失敗理由を表示し、再試行または該当tokenを修正</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="memo-title">
+        <div class="section-title">
+          <h2 id="memo-title">未決定メモ</h2>
+          <span class="hint">壁打ち中の論点置き場</span>
+        </div>
+        <div class="memo-grid">
+          <label class="memo">
+            <strong>duplicate token name</strong>
+            <textarea data-memo="duplicate">上書き / スキップ / ブロックのどれを標準にする？</textarea>
+          </label>
+          <label class="memo">
+            <strong>unsupported schema</strong>
+            <textarea data-memo="schema">変換できる場合はPartial、変換不能ならErrorにする？</textarea>
+          </label>
+          <label class="memo">
+            <strong>UI copy</strong>
+            <textarea data-memo="copy">各stateのprimary messageとCTAを詰める。</textarea>
+          </label>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const storageKey = "json-import-ui-state-workbench:v13";
+      const status = document.querySelector("[data-status]");
+
+      function editableNodes() {
+        return Array.from(document.querySelectorAll('[contenteditable="true"], textarea'));
+      }
+
+      function snapshot() {
+        return editableNodes().map((node, index) => ({
+          index,
+          type: node.tagName.toLowerCase(),
+          value: node.tagName.toLowerCase() === "textarea" ? node.value : node.innerHTML,
+        }));
+      }
+
+      function applySnapshot(items) {
+        const nodes = editableNodes();
+        items.forEach((item) => {
+          const node = nodes[item.index];
+          if (!node) return;
+          if (node.tagName.toLowerCase() === "textarea") {
+            node.value = item.value;
+          } else {
+            node.innerHTML = item.value;
+          }
+        });
+      }
+
+      function setStatus(message) {
+        status.textContent = message;
+      }
+
+      function save() {
+        localStorage.setItem(storageKey, JSON.stringify(snapshot()));
+        setStatus("保存済み");
+      }
+
+      function exportJson() {
+        const payload = JSON.stringify(snapshot(), null, 2);
+        navigator.clipboard.writeText(payload).then(
+          () => setStatus("JSONをコピー済み"),
+          () => setStatus("コピーに失敗")
+        );
+      }
+
+      document.querySelector('[data-action="save"]').addEventListener("click", save);
+      document.querySelector('[data-action="export"]').addEventListener("click", exportJson);
+      document.querySelector('[data-action="reset"]').addEventListener("click", () => {
+        localStorage.removeItem(storageKey);
+        window.location.reload();
+      });
+
+      editableNodes().forEach((node) => {
+        node.addEventListener("input", () => setStatus("未保存の変更あり"));
+      });
+
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        try {
+          applySnapshot(JSON.parse(saved));
+          setStatus("保存内容を復元");
+        } catch {
+          setStatus("保存内容の復元に失敗");
+        }
+      }
+    </script>
+  </body>
+</html>

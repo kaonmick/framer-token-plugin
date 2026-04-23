@@ -1,0 +1,100 @@
+{
+  "color": {
+    "light": {
+      "primitive": {
+        "blue": {
+          "500": {
+            "$type": "color",
+            "$value": "#0066ff"
+          },
+          "600": {
+            "$type": "color",
+            "$value": "#0052cc"
+          }
+        },
+        "gray": {
+          "0": {
+            "$type": "color",
+            "$value": "#ffffff"
+          },
+          "900": {
+            "$type": "color",
+            "$value": "#151515"
+          }
+        }
+      },
+      "semantic": {
+        "background": {
+          "page": {
+            "$type": "color",
+            "$value": "{color.primitive.gray.0}"
+          }
+        },
+        "text": {
+          "body": {
+            "$type": "color",
+            "$value": "{color.primitive.gray.900}"
+          }
+        },
+        "action": {
+          "primary": {
+            "$type": "color",
+            "$value": "{color.primitive.blue.500}"
+          },
+          "broken": {
+            "$type": "color",
+            "$value": "{color.primitive.missing.500}"
+          }
+        }
+      }
+    },
+    "dark": {
+      "primitive": {
+        "blue": {
+          "500": {
+            "$type": "color",
+            "$value": "#8bb7ff"
+          },
+          "600": {
+            "$type": "color",
+            "$value": "#5f9bff"
+          }
+        },
+        "gray": {
+          "0": {
+            "$type": "color",
+            "$value": "#101010"
+          },
+          "900": {
+            "$type": "color",
+            "$value": "#f5f5f5"
+          }
+        }
+      },
+      "semantic": {
+        "background": {
+          "page": {
+            "$type": "color",
+            "$value": "{color.primitive.gray.0}"
+          }
+        },
+        "text": {
+          "body": {
+            "$type": "color",
+            "$value": "{color.primitive.gray.900}"
+          }
+        },
+        "action": {
+          "primary": {
+            "$type": "color",
+            "$value": "{color.primitive.blue.500}"
+          },
+          "broken": {
+            "$type": "color",
+            "$value": "{color.primitive.missing.500}"
+          }
+        }
+      }
+    }
+  }
+}

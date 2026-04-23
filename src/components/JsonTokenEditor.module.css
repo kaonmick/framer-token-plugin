@@ -1,0 +1,22 @@
+.scrollArea {
+  scrollbar-color: #737373 #404040;
+  scrollbar-width: thin;
+}
+
+.scrollArea::-webkit-scrollbar {
+  width: 3px;
+  height: 3px;
+}
+
+.scrollArea::-webkit-scrollbar-track {
+  background: #404040;
+}
+
+.scrollArea::-webkit-scrollbar-thumb {
+  background: #737373;
+  border-radius: 999px;
+}
+
+.scrollArea::-webkit-scrollbar-corner {
+  background: #404040;
+}

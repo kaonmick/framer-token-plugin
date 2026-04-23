@@ -12,6 +12,9 @@
 - `06-codex-handoff.md` — Codex への引き継ぎプロンプト / コンテキスト
 - `07-plugin-registration-flow.md` — ローカル開発から公開までの大まかな流れ
 - `08-technical-validation-plan.md` — Pro 版の中核機能を実装前に検証するための計画
+- `09-design-system.md` — theme token / semantic color / light-dark 対応の叩き台
+- `10-codex-issue-workflow.md` — GitHub Issues で Codex 作業と Kaon 確認を分離する運用ルール
+- `11-component-catalog.md` — コンポーネントと状態を管理するカタログ
 
 ## プロダクト原則
 

@@ -80,3 +80,4 @@ docs/
 - OKLCH変換の確認用JSONは `src/fixtures/oklch-colors.json` にあります。
 - warning表示の確認用JSONは `src/fixtures/warning-cases.json` にあります。
 - JSON構文エラーの確認用JSONは `src/fixtures/error-invalid-json.json` にあります。
+- 大規模JSONは2,000 color tokens程度までを実用目安にします。それ以上の規模は描画・入力操作が重くなる可能性があるため、正式対応する場合は仮想化などの追加最適化が必要です。

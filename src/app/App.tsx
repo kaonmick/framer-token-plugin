@@ -1,5 +1,21 @@
 import { framer, useIsAllowedTo } from "framer-plugin"
 import { useEffect, useMemo, useRef, useState, useTransition } from "react"
+import type { ChangeEvent } from "react"
+import { AppHeader } from "../components/AppHeader.tsx"
+import { ConflictPreview } from "../components/ConflictPreview.tsx"
+import { ImportSummary } from "../components/ImportSummary.tsx"
+import { JsonTokenEditor, type EditorDiagnostic } from "../components/JsonTokenEditor.tsx"
+import { StatsGrid } from "../components/StatsGrid.tsx"
+import { TokenPreviewList } from "../components/TokenPreviewList.tsx"
+import {
+  ActionButton,
+  DialogActions,
+  DialogBackdrop,
+  DialogPanel,
+  FileButton,
+  SectionTitle,
+  SelectControl,
+} from "../components/ui.tsx"
 import conflictManyColorsJson from "../fixtures/conflict-many-colors.json?raw"
 import invalidJsonFixture from "../fixtures/error-invalid-json.json?raw"
 import lightDarkColorsJson from "../fixtures/light-dark-colors.json?raw"
@@ -15,7 +31,7 @@ import type {
   ParseColorTokensResult,
   ParseWarning,
 } from "../lib/types/tokens.ts"
-import { type Language, languageLabels, messages } from "./i18n.ts"
+import { type Language, messages } from "./i18n.ts"
 import { sampleTokenJson } from "./sample.ts"
 
 const MIN_ACTION_FEEDBACK_MS = 1000
@@ -81,6 +97,7 @@ export function App() {
   const hasTokens = parseResult.tokens.length > 0
   const canImport = hasTokens && (isAllowedToImportColorStyles || Boolean(captureMode)) && !isImporting
   const importButtonLabel = isImporting ? t.importing : t.import
+  const importButtonTitle = isAllowedToImportColorStyles || captureMode ? undefined : t.insufficientPermissions
   const primitiveCount = parseResult.tokens.filter(token => token.kind === "primitive").length
   const semanticCount = parseResult.tokens.filter(token => token.kind === "semantic").length
   const modePairCount = parseResult.tokens.filter(token => token.darkValue).length
@@ -92,6 +109,14 @@ export function App() {
     () => Array.from({ length: jsonText.split("\n").length }, (_, index) => index + 1),
     [jsonText]
   )
+  const editorDiagnostics = useMemo(
+    () => buildEditorDiagnostics(parseResult, language),
+    [language, parseResult.error, parseResult.errorLine, parseResult.warnings]
+  )
+
+  useEffect(() => {
+    document.documentElement.lang = language
+  }, [language])
 
   useEffect(() => {
     if (captureMode) {
@@ -171,7 +196,7 @@ export function App() {
     analyzeJson(nextText)
   }
 
-  async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.currentTarget.files?.[0]
     if (!file) return
 
@@ -181,9 +206,9 @@ export function App() {
     event.currentTarget.value = ""
   }
 
-  function handleEditorScroll(event: React.UIEvent<HTMLTextAreaElement>) {
+  function handleEditorScroll(scrollTop: number) {
     if (!lineNumbersRef.current) return
-    lineNumbersRef.current.scrollTop = event.currentTarget.scrollTop
+    lineNumbersRef.current.scrollTop = scrollTop
   }
 
   async function runImport() {
@@ -253,165 +278,73 @@ export function App() {
   }
 
   return (
-    <main className="app-shell" data-capture-mode={captureMode ?? undefined} data-ready="true">
-      <header className="app-header">
-        <div>
-          <h1>{t.title}</h1>
-          <p>{t.description}</p>
-        </div>
-        <div className="language-control">
-          <span className="select-wrap compact">
-            <select
-              aria-label="Language"
-              value={language}
-              onChange={event => {
-                setLanguage(event.currentTarget.value as Language)
-              }}
-            >
-              {Object.entries(languageLabels).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </span>
-        </div>
-      </header>
+    <main
+      className="flex min-h-screen flex-col gap-6 bg-neutral-800 px-5 pb-28 pt-8 font-['Jost','Noto_Sans_JP',ui-sans-serif,system-ui,sans-serif] text-neutral-100 md:gap-16 md:px-16 md:pb-32 md:pt-20"
+      data-capture-mode={captureMode ?? undefined}
+      data-ready="true"
+      lang={language}
+    >
+      <AppHeader language={language} title={t.title} onLanguageChange={setLanguage} />
 
-      <section className="input-section" aria-labelledby="json-heading">
-        <div className="section-title-row">
-          <h2 id="json-heading">{t.json}</h2>
-          <label className="file-button">
-            {t.uploadJson}
-            <input type="file" accept="application/json,.json" onChange={handleFileChange} />
-          </label>
-        </div>
-
-        <div className="json-editor">
-          <div className="line-numbers" ref={lineNumbersRef} aria-hidden="true">
-            {lineNumbers.map(lineNumber => (
-              <span key={lineNumber}>{lineNumber}</span>
-            ))}
-          </div>
-          <textarea
-            className="json-input"
-            value={jsonText}
-            onChange={event => {
-              handleJsonTextChange(event.currentTarget.value)
-            }}
-            onScroll={handleEditorScroll}
-            spellCheck={false}
-            aria-label="JSON token source"
-          />
-        </div>
-
-        <button
-          type="button"
-          className="primary-action"
-          disabled={isPending || isAnalyzing}
-          onClick={() => {
-            void runManualAnalyze()
+      <section className="flex flex-col gap-3" aria-label={t.json}>
+        <JsonTokenEditor
+          diagnostics={editorDiagnostics}
+          labels={{
+            copied: t.copiedJson,
+            copy: t.copyJson,
+            copyFailed: t.copyJsonFailed,
+            resize: t.resizeEditor,
           }}
-        >
-          {isPending || isAnalyzing ? t.analyzing : t.analyze}
-        </button>
-        <p className="helper-text">{t.analyzeHelp}</p>
+          lineNumbers={lineNumbers}
+          lineNumbersRef={lineNumbersRef}
+          value={jsonText}
+          onScroll={handleEditorScroll}
+          onTextChange={handleJsonTextChange}
+        />
+
+        <div className="flex flex-wrap items-center gap-3">
+          <FileButton accept="application/json,.json" size="md" onChange={handleFileChange}>
+            {t.uploadJson}
+          </FileButton>
+          <ActionButton
+            disabled={isPending || isAnalyzing}
+            size="md"
+            variant="outline"
+            onClick={() => {
+              void runManualAnalyze()
+            }}
+          >
+            {isPending || isAnalyzing ? t.analyzing : t.analyze}
+          </ActionButton>
+        </div>
       </section>
 
-      {parseResult.error ? (
-        <section className="message error" aria-live="polite">
-          {formatParseError(parseResult.error, parseResult.errorLine, language)}
-        </section>
-      ) : (
+      {parseResult.error ? null : (
         <>
-          <section className="stats-row" aria-label="Import stats">
-            {stats.map(item => (
-              <div className="stat" key={item.label}>
-                <span>{item.label}</span>
-                <strong>{item.value}</strong>
-              </div>
-            ))}
+          <StatsGrid items={stats} />
+
+          <section className="flex flex-col gap-2.5" aria-labelledby="preview-heading">
+            <SectionTitle id="preview-heading">{t.preview}</SectionTitle>
+            <TokenPreviewList
+              labels={{ alias: t.alias, dark: t.dark, emptyState: t.emptyState, light: t.light }}
+              tokens={parseResult.tokens}
+            />
           </section>
 
-          {parseResult.warnings.length > 0 ? (
-            <section className="message warning" aria-label="Warnings">
-              <h2>{t.warningTitle}</h2>
-              <ul>
-                {parseResult.warnings.map(warning => (
-                  <li key={`${warning.code}:${warning.path}`}>{formatWarning(warning, language)}</li>
-                ))}
-              </ul>
-            </section>
-          ) : null}
-
-          <section className="preview-section" aria-labelledby="preview-heading">
-            <h2 id="preview-heading">{t.preview}</h2>
-            {hasTokens ? (
-              <div className="token-list">
-                {parseResult.tokens.map(token => (
-                  <div className="token-row" key={token.id}>
-                    <span className={token.darkValue ? "swatch-stack paired" : "swatch-stack"} aria-hidden="true">
-                      <span className="swatch" style={{ backgroundColor: token.value }} />
-                      {token.darkValue ? <span className="swatch" style={{ backgroundColor: token.darkValue }} /> : null}
-                    </span>
-                    <div className="token-copy">
-                      <strong>{token.styleName}</strong>
-                      {token.darkSourcePath ? (
-                        <>
-                          <span>{`${t.light}: ${token.sourcePath}`}</span>
-                          <span>{`${t.dark}: ${token.darkSourcePath}`}</span>
-                        </>
-                      ) : (
-                        <span>{token.sourcePath}</span>
-                      )}
-                      {token.aliasPath || token.darkAliasPath ? (
-                        <div className="token-meta">
-                          {token.aliasPath ? (
-                            <span>
-                              {token.darkValue ? `${t.light} ${t.alias}: ` : `${t.alias}: `}
-                              {token.aliasPath}
-                            </span>
-                          ) : null}
-                          {token.darkAliasPath ? <span>{`${t.dark} ${t.alias}: ${token.darkAliasPath}`}</span> : null}
-                        </div>
-                      ) : null}
-                      <code className="token-values">
-                        <span>
-                          {token.darkValue ? `${t.light}: ` : ""}
-                          {token.value}
-                        </span>
-                        {token.darkValue ? (
-                          <span>
-                            {t.dark}: {token.darkValue}
-                          </span>
-                        ) : null}
-                      </code>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="empty-state">{t.emptyState}</p>
-            )}
-          </section>
-
-          <section className="apply-section" aria-labelledby="apply-heading">
-            <h2 id="apply-heading">{t.apply}</h2>
-            <label className="strategy-row">
+          <section className="flex flex-col gap-2.5" aria-labelledby="apply-heading">
+            <SectionTitle id="apply-heading">{t.apply}</SectionTitle>
+            <label className="flex items-center justify-between gap-2.5 text-xs text-neutral-300">
               {t.existingStyles}
-              <span className="select-wrap">
-                <select
-                  value={importStrategy}
-                  onChange={event => {
-                    setImportStrategy(event.currentTarget.value as ImportStrategy)
-                  }}
-                >
-                  <option value="skip">{t.skip}</option>
-                  <option value="replace">{t.replace}</option>
-                </select>
-              </span>
+              <SelectControl
+                value={importStrategy}
+                onChange={event => {
+                  setImportStrategy(event.currentTarget.value as ImportStrategy)
+                }}
+              >
+                <option value="skip">{t.skip}</option>
+                <option value="replace">{t.replace}</option>
+              </SelectControl>
             </label>
-            <p className="helper-text">{importStrategy === "skip" ? t.skipDescription : t.replaceDescription}</p>
             <ConflictPreview
               conflicts={conflicts}
               isChecking={isCheckingConflicts}
@@ -421,19 +354,6 @@ export function App() {
                 setIsConflictListOpen(true)
               }}
             />
-            <div className="fixed-import-bar">
-              <button
-                type="button"
-                className="primary-action"
-                disabled={!canImport}
-                title={isAllowedToImportColorStyles || captureMode ? undefined : t.insufficientPermissions}
-                onClick={() => {
-                  handleImport()
-                }}
-              >
-                {importButtonLabel}
-              </button>
-            </div>
           </section>
 
           {summary ? (
@@ -442,29 +362,40 @@ export function App() {
                 setSummary(null)
               }}
             >
-              <section className="dialog" role="dialog" aria-modal="true" aria-labelledby="summary-dialog-title">
+              <DialogPanel role="dialog" aria-modal="true" aria-labelledby="summary-dialog-title">
                 <ImportSummary
                   summary={summary}
                   language={language}
                   convertedOklchCount={convertedOklchCount}
                   modePairCount={modePairCount}
                 />
-                <div className="dialog-actions single">
-                  <button
-                    type="button"
-                    className="primary-action"
+                <DialogActions className="grid-cols-1">
+                  <ActionButton
                     onClick={() => {
                       setSummary(null)
                     }}
                   >
                     {t.ok}
-                  </button>
-                </div>
-              </section>
+                  </ActionButton>
+                </DialogActions>
+              </DialogPanel>
             </DialogBackdrop>
           ) : null}
         </>
       )}
+
+      <div className="fixed inset-x-0 bottom-0 z-[8] border-t border-neutral-700 bg-neutral-800 px-5 py-3.5 md:px-16 md:py-4">
+        <ActionButton
+          disabled={!canImport}
+          size="md"
+          title={importButtonTitle}
+          onClick={() => {
+            handleImport()
+          }}
+        >
+          {importButtonLabel}
+        </ActionButton>
+      </div>
 
       {isReplaceConfirmOpen ? (
         <DialogBackdrop
@@ -472,24 +403,25 @@ export function App() {
             setIsReplaceConfirmOpen(false)
           }}
         >
-          <section className="dialog" role="dialog" aria-modal="true" aria-labelledby="replace-dialog-title">
-            <h2 id="replace-dialog-title">{t.replaceDialogTitle}</h2>
-            <p>{t.replaceDialogBody}</p>
-            <div className="dialog-actions">
-              <button
-                type="button"
-                className="secondary-action"
+          <DialogPanel role="dialog" aria-modal="true" aria-labelledby="replace-dialog-title">
+            <h2 className="m-0 text-xs leading-tight text-neutral-100" id="replace-dialog-title">
+              {t.replaceDialogTitle}
+            </h2>
+            <p className="m-0 mt-2 text-xs leading-relaxed text-neutral-300">{t.replaceDialogBody}</p>
+            <DialogActions>
+              <ActionButton
+                variant="outline"
                 onClick={() => {
                   setIsReplaceConfirmOpen(false)
                 }}
               >
                 {t.cancel}
-              </button>
-              <button type="button" className="danger-action" onClick={handleConfirmReplace}>
+              </ActionButton>
+              <ActionButton variant="danger" onClick={handleConfirmReplace}>
                 {t.confirmReplace}
-              </button>
-            </div>
-          </section>
+              </ActionButton>
+            </DialogActions>
+          </DialogPanel>
         </DialogBackdrop>
       ) : null}
 
@@ -499,27 +431,30 @@ export function App() {
             setIsConflictListOpen(false)
           }}
         >
-          <section className="dialog" role="dialog" aria-modal="true" aria-labelledby="conflict-list-dialog-title">
-            <h2 id="conflict-list-dialog-title">{t.allConflictsTitle}</h2>
-            <div className="dialog-scroll-list" role="list">
+          <DialogPanel role="dialog" aria-modal="true" aria-labelledby="conflict-list-dialog-title">
+            <h2 className="m-0 text-xs leading-tight text-neutral-100" id="conflict-list-dialog-title">
+              {t.allConflictsTitle}
+            </h2>
+            <div
+              className="mt-2.5 flex max-h-[260px] flex-col gap-1 overflow-auto rounded border border-neutral-600 bg-neutral-900 p-2"
+              role="list"
+            >
               {conflicts.map(conflict => (
-                <div className="dialog-list-item" role="listitem" key={conflict.styleName}>
+                <div className="text-xs leading-[1.35] text-neutral-100 [overflow-wrap:anywhere]" role="listitem" key={conflict.styleName}>
                   {conflict.styleName}
                 </div>
               ))}
             </div>
-            <div className="dialog-actions single">
-              <button
-                type="button"
-                className="primary-action"
+            <DialogActions className="grid-cols-1">
+              <ActionButton
                 onClick={() => {
                   setIsConflictListOpen(false)
                 }}
               >
                 {t.ok}
-              </button>
-            </div>
-          </section>
+              </ActionButton>
+            </DialogActions>
+          </DialogPanel>
         </DialogBackdrop>
       ) : null}
     </main>
@@ -660,26 +595,6 @@ function getManualCaptureImportSummary(importStrategy: ImportStrategy): ImportCo
   }
 }
 
-function DialogBackdrop({
-  children,
-  onClose,
-}: {
-  children: React.ReactNode
-  onClose: () => void
-}) {
-  return (
-    <div
-      className="dialog-backdrop"
-      role="presentation"
-      onClick={event => {
-        if (event.currentTarget === event.target) onClose()
-      }}
-    >
-      {children}
-    </div>
-  )
-}
-
 function waitForMinimumActionFeedback(startedAt: number): Promise<void> {
   const remaining = MIN_ACTION_FEEDBACK_MS - (Date.now() - startedAt)
   if (remaining <= 0) return Promise.resolve()
@@ -688,93 +603,27 @@ function waitForMinimumActionFeedback(startedAt: number): Promise<void> {
   })
 }
 
-function ConflictPreview({
-  conflicts,
-  isChecking,
-  error,
-  language,
-  onShowAll,
-}: {
-  conflicts: ColorStyleConflict[]
-  isChecking: boolean
-  error: string | null
-  language: Language
-  onShowAll: () => void
-}) {
-  const t = messages[language]
-
-  if (isChecking) {
-    return <p className="conflict-preview neutral">{t.checkingConflicts}</p>
+function buildEditorDiagnostics(parseResult: ParseColorTokensResult, language: Language): EditorDiagnostic[] {
+  if (parseResult.error) {
+    return [
+      {
+        line: parseResult.errorLine ?? 1,
+        message: formatParseError(parseResult.error, parseResult.errorLine, language),
+        summary: messages[language].invalidJsonTitle,
+        title: messages[language].invalidJsonTitle,
+        tone: "danger",
+      },
+    ]
   }
 
-  if (error) {
-    return <p className="conflict-preview warning-text">{t.conflictCheckFailed}</p>
-  }
-
-  if (conflicts.length === 0) {
-    return <p className="conflict-preview neutral">{t.noConflicts}</p>
-  }
-
-  return (
-    <section className="conflict-preview conflict" aria-label={t.conflictPreview}>
-      <h3>{t.conflictPreview}</h3>
-      <p>{t.conflictCount.replace("{count}", String(conflicts.length))}</p>
-      <ul>
-        {conflicts.slice(0, 5).map(conflict => (
-          <li key={conflict.styleName}>{conflict.styleName}</li>
-        ))}
-      </ul>
-      {conflicts.length > 5 ? (
-        <>
-          <p>{t.moreConflicts.replace("{count}", String(conflicts.length - 5))}</p>
-          <button type="button" className="secondary-action compact-action" onClick={onShowAll}>
-            {t.showAllConflicts}
-          </button>
-        </>
-      ) : null}
-    </section>
-  )
-}
-
-function ImportSummary({
-  summary,
-  language,
-  convertedOklchCount,
-  modePairCount,
-}: {
-  summary: ImportColorStylesResult
-  language: Language
-  convertedOklchCount: number
-  modePairCount: number
-}) {
-  const t = messages[language]
-  const title = summary.failed > 0 ? t.importFailedTitle : t.importCompleteTitle
-
-  return (
-    <div className="summary-content" aria-label="Import summary">
-      <h2 id="summary-dialog-title">{title}</h2>
-      <div className="summary-area" aria-label={t.summary}>
-        <h3>{t.summary}</h3>
-        <p>
-          {t.created} {summary.created}, {t.replaced} {summary.replaced}, {t.skipped} {summary.skipped}, {t.failed}{" "}
-          {summary.failed}.
-        </p>
-        {convertedOklchCount > 0 ? (
-          <p className="summary-note">{t.conversionNote.replace("{count}", String(convertedOklchCount))}</p>
-        ) : null}
-        {modePairCount > 0 ? (
-          <p className="summary-note">{t.modePairNote.replace("{count}", String(modePairCount))}</p>
-        ) : null}
-        {summary.failures.length > 0 ? (
-          <ul>
-            {summary.failures.map(failure => (
-              <li key={failure.name}>{`${failure.name}: ${failure.reason}`}</li>
-            ))}
-          </ul>
-        ) : null}
-      </div>
-    </div>
-  )
+  return parseResult.warnings.map(warning => ({
+    line: warning.line ?? 1,
+    message: formatWarning(warning, language),
+    path: warning.path,
+    summary: formatWarningSummary(warning, language),
+    title: warning.code,
+    tone: "warning" as const,
+  }))
 }
 
 function formatParseError(error: string, errorLine: number | undefined, language: Language): string {
@@ -791,19 +640,53 @@ function formatWarning(warning: ParseWarning, language: Language): string {
   return `${linePrefix}${warning.path}:\n${formatJapaneseWarning(warning)}`
 }
 
+function formatWarningSummary(warning: ParseWarning, language: Language): string {
+  if (language === "en") {
+    switch (warning.code) {
+      case "circular-alias":
+        return "Circular alias"
+      case "dark-mode-without-light":
+        return "Missing light mode"
+      case "duplicate-style-name":
+        return "Duplicate style name"
+      case "unresolved-alias":
+        return "Missing alias target"
+      case "unsupported-color":
+        return "Unsupported color"
+      case "unsupported-token":
+        return "Invalid token value"
+    }
+  }
+
+  switch (warning.code) {
+    case "circular-alias":
+      return "参照が循環"
+    case "dark-mode-without-light":
+      return "Light設定なし"
+    case "duplicate-style-name":
+      return "スタイル名が重複"
+    case "unresolved-alias":
+      return "参照先なし"
+    case "unsupported-color":
+      return "未対応の色形式"
+    case "unsupported-token":
+      return "値が不正"
+  }
+}
+
 function formatJapaneseWarning(warning: ParseWarning): string {
   switch (warning.code) {
     case "circular-alias":
-      return "aliasの参照が循環している（AがBを参照し、BがAを参照するなど）ため、このtokenはスキップしました。"
+      return "参照先のトークンが循環しているため、このトークンはスキップしました。"
     case "dark-mode-without-light":
-      return "対応するlight tokenがないdark tokenのため、dark階層を残した通常styleとしてインポートします。"
+      return "ライトモードの設定がありません。このままインポートした場合はダークモードのみのスタイルとして登録されます。"
     case "duplicate-style-name":
-      return "同じstyle名があるため、このtokenはスキップしました。"
+      return "同じスタイル名が複数あります。プレビューでインポートするトークンを選択してください。"
     case "unresolved-alias":
-      return "aliasの参照先が見つからないため、このtokenはスキップしました。"
+      return "参照先のトークンが見つからないため、このトークンはスキップしました。"
     case "unsupported-color":
-      return "色形式が認識できないためスキップしました。hex、rgb(a)、hsl(a)、oklch()のいずれかの形式で指定してください。"
+      return "色形式が認識できないため、このトークンはスキップしました。"
     case "unsupported-token":
-      return "color tokenの値が文字列ではないため、このtokenはスキップしました。"
+      return "値が文字列ではないため、このトークンはスキップしました。"
   }
 }

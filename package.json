@@ -13,6 +13,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/fira-code": "^5.2.7",
+    "@fontsource/jost": "^5.2.8",
     "framer-plugin": "^3.6.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -20,10 +22,12 @@
     "vite-plugin-mkcert": "^2.0.0"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.2.3",
     "@types/react": "^18.3.24",
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react": "^5.1.2",
     "playwright": "^1.59.1",
+    "tailwindcss": "^4.2.3",
     "typescript": "^5.9.2",
     "vite": "^8.0.1",
     "vitest": "^4.1.0"

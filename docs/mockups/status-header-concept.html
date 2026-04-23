@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Status-first header concept</title>
+    <style>
+      :root {
+        color: #151515;
+        background: #f7f6f2;
+        font-family:
+          "Avenir Next",
+          "Helvetica Neue",
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        letter-spacing: 0;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        width: 420px;
+        margin: 0;
+        background: #f7f6f2;
+      }
+
+      button,
+      select,
+      textarea {
+        font: inherit;
+        letter-spacing: 0;
+      }
+
+      .plugin {
+        min-height: 720px;
+        padding: 0 16px 88px;
+        background: #f7f6f2;
+      }
+
+      .status-header {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        margin: 0 -16px;
+        padding: 12px 16px 14px;
+        border-bottom: 1px solid #d8d5ca;
+        background: #f7f6f2;
+      }
+
+      .top-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      h1,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: 15px;
+        line-height: 1.2;
+      }
+
+      .source-line {
+        margin-top: 4px;
+        color: #595852;
+        font-size: 11px;
+        line-height: 1.35;
+      }
+
+      select {
+        min-height: 30px;
+        border: 1px solid #cbc7bb;
+        border-radius: 8px;
+        background: #ffffff;
+        color: #151515;
+        font-size: 12px;
+      }
+
+      .status-strip {
+        display: grid;
+        grid-template-columns: 1.25fr 0.75fr 0.75fr 0.9fr;
+        gap: 6px;
+        margin-top: 12px;
+      }
+
+      .status-cell {
+        min-height: 52px;
+        padding: 9px 10px;
+        border: 1px solid #d6d1c3;
+        border-radius: 8px;
+        background: #ffffff;
+      }
+
+      .status-cell strong {
+        display: block;
+        color: #151515;
+        font-size: 17px;
+        line-height: 1;
+      }
+
+      .status-cell span {
+        display: block;
+        margin-top: 5px;
+        color: #5e5c55;
+        font-size: 10px;
+        line-height: 1.2;
+        text-transform: uppercase;
+      }
+
+      .status-cell.valid {
+        border-color: #518e75;
+        background: #edf7f2;
+      }
+
+      .status-cell.warning {
+        border-color: #b78c2f;
+        background: #fff5db;
+      }
+
+      .status-cell.conflict {
+        border-color: #9d6a61;
+        background: #fff0ed;
+      }
+
+      .status-cell.valid strong {
+        color: #196144;
+        font-size: 14px;
+      }
+
+      .status-cell.warning strong {
+        color: #7b540d;
+      }
+
+      .status-cell.conflict strong {
+        color: #74362d;
+      }
+
+      .next-action {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .next-action p {
+        color: #3f3e39;
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      .next-action button {
+        flex: 0 0 auto;
+        min-height: 32px;
+        padding: 0 12px;
+        border: 0;
+        border-radius: 8px;
+        background: #151515;
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 650;
+      }
+
+      .section {
+        margin-top: 18px;
+      }
+
+      .section-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+
+      .section-title h2 {
+        margin: 0;
+        color: #292826;
+        font-size: 12px;
+        line-height: 1.2;
+        text-transform: uppercase;
+      }
+
+      .upload {
+        min-height: 30px;
+        padding: 0 12px;
+        border: 1px solid #cbc7bb;
+        border-radius: 8px;
+        background: #ffffff;
+        color: #151515;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .editor {
+        display: grid;
+        grid-template-columns: 42px minmax(0, 1fr);
+        height: 154px;
+        overflow: hidden;
+        border: 1px solid #bfbbae;
+        border-radius: 8px;
+        background: #ffffff;
+      }
+
+      .lines {
+        padding: 10px 8px;
+        border-right: 1px solid #ddd9cf;
+        background: #f1efe8;
+        color: #68665f;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 11px;
+        line-height: 16px;
+        text-align: right;
+      }
+
+      textarea {
+        width: 100%;
+        height: 100%;
+        resize: none;
+        border: 0;
+        padding: 10px;
+        background: transparent;
+        color: #151515;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 11px;
+        line-height: 16px;
+      }
+
+      .token-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .token-row {
+        display: grid;
+        grid-template-columns: 36px minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 10px;
+        min-height: 60px;
+        padding: 9px 10px;
+        border: 1px solid #d2cec1;
+        border-radius: 8px;
+        background: #ffffff;
+      }
+
+      .swatch {
+        width: 28px;
+        height: 28px;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        border-radius: 8px;
+      }
+
+      .blue {
+        background: #0066ff;
+      }
+
+      .ink {
+        background: #151515;
+      }
+
+      .surface {
+        background: #f5f5f3;
+      }
+
+      .token-name {
+        color: #2a2926;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.25;
+      }
+
+      .token-path {
+        margin-top: 3px;
+        color: #65625b;
+        font-size: 11px;
+        line-height: 1.25;
+      }
+
+      .badge {
+        min-width: 56px;
+        padding: 4px 7px;
+        border-radius: 999px;
+        background: #eef4f7;
+        color: #2d5e6f;
+        font-size: 10px;
+        font-weight: 700;
+        text-align: center;
+        text-transform: uppercase;
+      }
+
+      .badge.warn {
+        background: #fff5db;
+        color: #805914;
+      }
+
+      .fixed-bar {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        padding: 12px 16px 16px;
+        border-top: 1px solid #d8d5ca;
+        background: #f7f6f2;
+      }
+
+      .fixed-bar button {
+        width: 100%;
+        min-height: 32px;
+        border: 0;
+        border-radius: 8px;
+        background: #151515;
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="plugin">
+      <header class="status-header">
+        <div class="top-row">
+          <div>
+            <h1>Token Color Importer</h1>
+            <p class="source-line">primitive-colors.json · analyzed just now</p>
+          </div>
+          <select aria-label="Language">
+            <option>English</option>
+          </select>
+        </div>
+
+        <div class="status-strip" aria-label="Import status">
+          <div class="status-cell valid">
+            <strong>Ready</strong>
+            <span>JSON status</span>
+          </div>
+          <div class="status-cell">
+            <strong>24</strong>
+            <span>Tokens</span>
+          </div>
+          <div class="status-cell warning">
+            <strong>2</strong>
+            <span>Warnings</span>
+          </div>
+          <div class="status-cell conflict">
+            <strong>3</strong>
+            <span>Conflicts</span>
+          </div>
+        </div>
+
+        <div class="next-action">
+          <p>3 existing styles need a decision before import.</p>
+          <button>Review conflicts</button>
+        </div>
+      </header>
+
+      <section class="section">
+        <div class="section-title">
+          <h2>JSON</h2>
+          <button class="upload">Upload JSON</button>
+        </div>
+        <div class="editor">
+          <div class="lines">1<br />2<br />3<br />4<br />5<br />6<br />7<br />8</div>
+          <textarea aria-label="JSON input">{
+  "color": {
+    "primitive": {
+      "blue": {
+        "500": {
+          "$type": "color",
+          "$value": "#0066ff"
+        }</textarea>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">
+          <h2>Preview</h2>
+        </div>
+        <div class="token-list">
+          <div class="token-row">
+            <div class="swatch blue"></div>
+            <div>
+              <div class="token-name">primitive/blue/500</div>
+              <div class="token-path">color.primitive.blue.500 · #0066ff</div>
+            </div>
+            <div class="badge">New</div>
+          </div>
+          <div class="token-row">
+            <div class="swatch ink"></div>
+            <div>
+              <div class="token-name">primitive/gray/900</div>
+              <div class="token-path">color.primitive.gray.900 · #151515</div>
+            </div>
+            <div class="badge warn">Conflict</div>
+          </div>
+          <div class="token-row">
+            <div class="swatch surface"></div>
+            <div>
+              <div class="token-name">primitive/surface</div>
+              <div class="token-path">color.primitive.surface · #f5f5f3</div>
+            </div>
+            <div class="badge">New</div>
+          </div>
+        </div>
+      </section>
+
+      <div class="fixed-bar">
+        <button>Import 21 Color Styles</button>
+      </div>
+    </main>
+  </body>
+</html>
