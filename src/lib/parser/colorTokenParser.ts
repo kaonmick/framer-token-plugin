@@ -3,6 +3,7 @@ import type {
   ColorTokenFormat,
   ColorTokenKind,
   ColorTokenMode,
+  ConflictGroup,
   ParsedColorToken,
   ParseColorTokensResult,
   ParseWarning,
@@ -58,6 +59,7 @@ export function parseColorTokenJson(jsonText: string): ParseColorTokensResult {
 
     return {
       tokens: [],
+      conflictGroups: [],
       warnings: [],
       error: `Invalid JSON: ${errorMessage}`,
       errorLine: findJsonParseErrorLine(errorMessage, jsonText),
@@ -85,9 +87,11 @@ export function parseColorTokenJson(jsonText: string): ParseColorTokensResult {
   }
 
   const lineMap = buildJsonPathLineMap(jsonText)
+  const { tokens, conflictGroups } = buildParsedTokens(resolvedTokens, warnings)
 
   return {
-    tokens: buildParsedTokens(resolvedTokens, warnings),
+    tokens,
+    conflictGroups,
     warnings: warnings.map(warning => ({
       ...warning,
       line: lineMap.get(warning.path),
@@ -381,7 +385,10 @@ function readAliasPath(value: string): string | null {
   return match?.[1]?.trim() ?? null
 }
 
-function buildParsedTokens(tokens: ResolvedRawColorToken[], warnings: ParseWarning[]): ParsedColorToken[] {
+function buildParsedTokens(
+  tokens: ResolvedRawColorToken[],
+  warnings: ParseWarning[]
+): { tokens: ParsedColorToken[]; conflictGroups: ConflictGroup[] } {
   const parsedTokens: ParsedColorToken[] = []
   const tokensByStyleName = new Map<string, { light?: ResolvedRawColorToken; dark?: ResolvedRawColorToken }>()
 
@@ -425,7 +432,7 @@ function buildParsedTokens(tokens: ResolvedRawColorToken[], warnings: ParseWarni
     }
   }
 
-  return dedupeByStyleName(parsedTokens, warnings)
+  return separateConflicts(parsedTokens, warnings)
 }
 
 function toParsedToken(lightToken: ResolvedRawColorToken, darkToken?: ResolvedRawColorToken): ParsedColorToken {
@@ -522,25 +529,37 @@ function isColorRootSegment(segment: string): boolean {
   return normalized === "color" || normalized === "colors" || normalized === "colour" || normalized === "colours"
 }
 
-function dedupeByStyleName(tokens: ParsedColorToken[], warnings: ParseWarning[]): ParsedColorToken[] {
-  const seenStyleNames = new Set<string>()
-  const uniqueTokens: ParsedColorToken[] = []
+function separateConflicts(
+  tokens: ParsedColorToken[],
+  warnings: ParseWarning[]
+): { tokens: ParsedColorToken[]; conflictGroups: ConflictGroup[] } {
+  const groupsByStyleName = new Map<string, ParsedColorToken[]>()
 
   for (const token of tokens) {
-    if (seenStyleNames.has(token.styleName)) {
-      warnings.push({
-        code: "duplicate-style-name",
-        path: token.sourcePath,
-        message: `Duplicate style name "${token.styleName}" was skipped.`,
-      })
-      continue
-    }
-
-    seenStyleNames.add(token.styleName)
-    uniqueTokens.push(token)
+    const group = groupsByStyleName.get(token.styleName) ?? []
+    group.push(token)
+    groupsByStyleName.set(token.styleName, group)
   }
 
-  return uniqueTokens
+  const uniqueTokens: ParsedColorToken[] = []
+  const conflictGroups: ConflictGroup[] = []
+
+  for (const [styleName, candidates] of groupsByStyleName) {
+    if (candidates.length === 1) {
+      uniqueTokens.push(candidates[0]!)
+    } else {
+      for (const candidate of candidates.slice(1)) {
+        warnings.push({
+          code: "duplicate-style-name",
+          path: candidate.sourcePath,
+          message: `Duplicate style name "${styleName}" requires user selection.`,
+        })
+      }
+      conflictGroups.push({ styleName, candidates })
+    }
+  }
+
+  return { tokens: uniqueTokens, conflictGroups }
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {

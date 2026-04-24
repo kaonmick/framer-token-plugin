@@ -2,11 +2,10 @@ import { framer, useIsAllowedTo } from "framer-plugin"
 import { useEffect, useMemo, useRef, useState, useTransition } from "react"
 import type { ChangeEvent } from "react"
 import { AppHeader } from "../components/AppHeader.tsx"
-import { ConflictPreview } from "../components/ConflictPreview.tsx"
 import { ImportSummary } from "../components/ImportSummary.tsx"
 import { JsonTokenEditor, type EditorDiagnostic } from "../components/JsonTokenEditor.tsx"
 import { StatsGrid } from "../components/StatsGrid.tsx"
-import { TokenPreviewList } from "../components/TokenPreviewList.tsx"
+import { TokenCardList } from "../components/TokenCardList.tsx"
 import {
   ActionButton,
   DialogActions,
@@ -14,7 +13,6 @@ import {
   DialogPanel,
   FileButton,
   SectionTitle,
-  SelectControl,
 } from "../components/ui.tsx"
 import conflictManyColorsJson from "../fixtures/conflict-many-colors.json?raw"
 import invalidJsonFixture from "../fixtures/error-invalid-json.json?raw"
@@ -27,7 +25,6 @@ import { parseColorTokenJson } from "../lib/parser/colorTokenParser.ts"
 import type {
   ColorStyleConflict,
   ImportColorStylesResult,
-  ImportStrategy,
   ParseColorTokensResult,
   ParseWarning,
 } from "../lib/types/tokens.ts"
@@ -43,20 +40,15 @@ const CAPTURE_MODES = [
   "warning",
   "invalid-json",
   "conflict",
-  "replace-modal",
   "summary-success",
   "summary-failed",
-  "conflict-list",
 ] as const
 
 type CaptureMode = (typeof CAPTURE_MODES)[number]
 
 interface InitialCaptureState {
   conflicts: ColorStyleConflict[]
-  importStrategy: ImportStrategy
   summary: ImportColorStylesResult | null
-  isReplaceConfirmOpen: boolean
-  isConflictListOpen: boolean
 }
 
 const initialCaptureMode = getCaptureMode()
@@ -80,28 +72,34 @@ export function App() {
   const [language, setLanguage] = useState<Language>("en")
   const [jsonText, setJsonText] = useState(initialJsonText)
   const [parseResult, setParseResult] = useState<ParseColorTokensResult>(initialParseResult)
-  const [importStrategy, setImportStrategy] = useState<ImportStrategy>(initialCaptureState.importStrategy)
   const [conflicts, setConflicts] = useState<ColorStyleConflict[]>(initialCaptureState.conflicts)
   const [conflictError, setConflictError] = useState<string | null>(null)
   const [isCheckingConflicts, setIsCheckingConflicts] = useState(false)
+  const [conflictSelections, setConflictSelections] = useState<Map<string, string>>(new Map())
   const [summary, setSummary] = useState<ImportColorStylesResult | null>(initialCaptureState.summary)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [isImporting, setIsImporting] = useState(false)
-  const [isReplaceConfirmOpen, setIsReplaceConfirmOpen] = useState(initialCaptureState.isReplaceConfirmOpen)
-  const [isConflictListOpen, setIsConflictListOpen] = useState(initialCaptureState.isConflictListOpen)
   const [isPending, startTransition] = useTransition()
   const lineNumbersRef = useRef<HTMLDivElement | null>(null)
 
   const t = messages[language]
   const isAllowedToImportColorStyles = useIsAllowedTo("createColorStyle", "ColorStyle.setAttributes")
-  const hasTokens = parseResult.tokens.length > 0
+  const hasTokens = parseResult.tokens.length > 0 || parseResult.conflictGroups.length > 0
   const canImport = hasTokens && (isAllowedToImportColorStyles || Boolean(captureMode)) && !isImporting
   const importButtonLabel = isImporting ? t.importing : t.import
   const importButtonTitle = isAllowedToImportColorStyles || captureMode ? undefined : t.insufficientPermissions
-  const primitiveCount = parseResult.tokens.filter(token => token.kind === "primitive").length
-  const semanticCount = parseResult.tokens.filter(token => token.kind === "semantic").length
-  const modePairCount = parseResult.tokens.filter(token => token.darkValue).length
-  const convertedOklchCount = parseResult.tokens.reduce(
+
+  const allTokensForStats = useMemo(
+    () => [
+      ...parseResult.tokens,
+      ...parseResult.conflictGroups.flatMap(g => g.candidates.slice(0, 1)),
+    ],
+    [parseResult.tokens, parseResult.conflictGroups]
+  )
+  const primitiveCount = allTokensForStats.filter(token => token.kind === "primitive").length
+  const semanticCount = allTokensForStats.filter(token => token.kind === "semantic").length
+  const modePairCount = allTokensForStats.filter(token => token.darkValue).length
+  const convertedOklchCount = allTokensForStats.reduce(
     (count, token) => count + (token.format === "oklch" ? 1 : 0) + (token.darkFormat === "oklch" ? 1 : 0),
     0
   )
@@ -118,6 +116,40 @@ export function App() {
     document.documentElement.lang = language
   }, [language])
 
+  // Initialize conflict selections when parse result changes
+  useEffect(() => {
+    setConflictSelections(prev => {
+      const next = new Map<string, string>()
+      for (const group of parseResult.conflictGroups) {
+        const defaultId = group.candidates[0]?.id
+        if (defaultId) {
+          next.set(group.styleName, prev.get(group.styleName) ?? defaultId)
+        }
+      }
+      // Carry over existing-style selections that are still relevant
+      for (const [key, value] of prev) {
+        if (value === "existing" && !next.has(key)) {
+          next.set(key, value)
+        }
+      }
+      return next
+    })
+  }, [parseResult.conflictGroups])
+
+  // Add existing-conflict selections when Framer conflict check completes
+  useEffect(() => {
+    if (conflicts.length === 0) return
+    setConflictSelections(prev => {
+      const next = new Map(prev)
+      for (const conflict of conflicts) {
+        if (!next.has(conflict.styleName)) {
+          next.set(conflict.styleName, "existing")
+        }
+      }
+      return next
+    })
+  }, [conflicts])
+
   useEffect(() => {
     if (captureMode) {
       setIsCheckingConflicts(false)
@@ -127,7 +159,7 @@ export function App() {
     let isCurrent = true
 
     async function checkConflicts() {
-      if (parseResult.error || parseResult.tokens.length === 0) {
+      if (parseResult.error || !hasTokens) {
         setConflicts([])
         setConflictError(null)
         setIsCheckingConflicts(false)
@@ -155,7 +187,7 @@ export function App() {
     return () => {
       isCurrent = false
     }
-  }, [captureMode, parseResult.error, parseResult.tokens])
+  }, [captureMode, parseResult.error, parseResult.tokens, hasTokens])
 
   const stats = useMemo(
     () => [
@@ -215,7 +247,7 @@ export function App() {
     if (!canImport) return
 
     if (captureMode) {
-      setSummary(getManualCaptureImportSummary(importStrategy))
+      setSummary(getManualCaptureImportSummary())
       return
     }
 
@@ -224,7 +256,7 @@ export function App() {
     setSummary(null)
 
     try {
-      const result = await importColorStyles(parseResult.tokens, importStrategy)
+      const result = await importColorStyles(parseResult.tokens, parseResult.conflictGroups, conflictSelections)
       await waitForMinimumActionFeedback(importStartedAt)
       setSummary(result)
       void refreshConflicts()
@@ -248,25 +280,9 @@ export function App() {
     }
   }
 
-  function handleImport() {
-    if (!canImport) return
-
-    if (importStrategy === "replace") {
-      setIsReplaceConfirmOpen(true)
-      return
-    }
-
-    void runImport()
-  }
-
-  function handleConfirmReplace() {
-    setIsReplaceConfirmOpen(false)
-    void runImport()
-  }
-
   async function refreshConflicts() {
     if (captureMode) return
-    if (parseResult.error || parseResult.tokens.length === 0) return
+    if (parseResult.error || !hasTokens) return
 
     try {
       const nextConflicts = await findColorStyleConflicts(parseResult.tokens)
@@ -325,33 +341,26 @@ export function App() {
 
           <section className="flex flex-col gap-2.5" aria-labelledby="preview-heading">
             <SectionTitle id="preview-heading">{t.preview}</SectionTitle>
-            <TokenPreviewList
-              labels={{ alias: t.alias, dark: t.dark, emptyState: t.emptyState, light: t.light }}
+            <TokenCardList
               tokens={parseResult.tokens}
-            />
-          </section>
-
-          <section className="flex flex-col gap-2.5" aria-labelledby="apply-heading">
-            <SectionTitle id="apply-heading">{t.apply}</SectionTitle>
-            <label className="flex items-center justify-between gap-2.5 text-xs text-neutral-300">
-              {t.existingStyles}
-              <SelectControl
-                value={importStrategy}
-                onChange={event => {
-                  setImportStrategy(event.currentTarget.value as ImportStrategy)
-                }}
-              >
-                <option value="skip">{t.skip}</option>
-                <option value="replace">{t.replace}</option>
-              </SelectControl>
-            </label>
-            <ConflictPreview
-              conflicts={conflicts}
-              isChecking={isCheckingConflicts}
-              error={conflictError}
-              language={language}
-              onShowAll={() => {
-                setIsConflictListOpen(true)
+              conflictGroups={parseResult.conflictGroups}
+              existingConflicts={conflicts}
+              isCheckingConflicts={isCheckingConflicts}
+              conflictError={conflictError}
+              conflictSelections={conflictSelections}
+              onSelectionChange={(styleName, selectedId) => {
+                setConflictSelections(prev => new Map(prev).set(styleName, selectedId))
+              }}
+              labels={{
+                conflict: t.conflict,
+                newTokens: t.newTokens,
+                whichTokenToUse: t.whichTokenToUse,
+                existingStyle: t.existingStyle,
+                emptyState: t.emptyState,
+                checkingConflicts: t.checkingConflicts,
+                conflictCheckFailed: t.conflictCheckFailed,
+                light: t.light,
+                dark: t.dark,
               }}
             />
           </section>
@@ -390,73 +399,12 @@ export function App() {
           size="md"
           title={importButtonTitle}
           onClick={() => {
-            handleImport()
+            void runImport()
           }}
         >
           {importButtonLabel}
         </ActionButton>
       </div>
-
-      {isReplaceConfirmOpen ? (
-        <DialogBackdrop
-          onClose={() => {
-            setIsReplaceConfirmOpen(false)
-          }}
-        >
-          <DialogPanel role="dialog" aria-modal="true" aria-labelledby="replace-dialog-title">
-            <h2 className="m-0 text-xs leading-tight text-neutral-100" id="replace-dialog-title">
-              {t.replaceDialogTitle}
-            </h2>
-            <p className="m-0 mt-2 text-xs leading-relaxed text-neutral-300">{t.replaceDialogBody}</p>
-            <DialogActions>
-              <ActionButton
-                variant="outline"
-                onClick={() => {
-                  setIsReplaceConfirmOpen(false)
-                }}
-              >
-                {t.cancel}
-              </ActionButton>
-              <ActionButton variant="danger" onClick={handleConfirmReplace}>
-                {t.confirmReplace}
-              </ActionButton>
-            </DialogActions>
-          </DialogPanel>
-        </DialogBackdrop>
-      ) : null}
-
-      {isConflictListOpen ? (
-        <DialogBackdrop
-          onClose={() => {
-            setIsConflictListOpen(false)
-          }}
-        >
-          <DialogPanel role="dialog" aria-modal="true" aria-labelledby="conflict-list-dialog-title">
-            <h2 className="m-0 text-xs leading-tight text-neutral-100" id="conflict-list-dialog-title">
-              {t.allConflictsTitle}
-            </h2>
-            <div
-              className="mt-2.5 flex max-h-[260px] flex-col gap-1 overflow-auto rounded border border-neutral-600 bg-neutral-900 p-2"
-              role="list"
-            >
-              {conflicts.map(conflict => (
-                <div className="text-xs leading-[1.35] text-neutral-100 [overflow-wrap:anywhere]" role="listitem" key={conflict.styleName}>
-                  {conflict.styleName}
-                </div>
-              ))}
-            </div>
-            <DialogActions className="grid-cols-1">
-              <ActionButton
-                onClick={() => {
-                  setIsConflictListOpen(false)
-                }}
-              >
-                {t.ok}
-              </ActionButton>
-            </DialogActions>
-          </DialogPanel>
-        </DialogBackdrop>
-      ) : null}
     </main>
   )
 }
@@ -484,9 +432,7 @@ function getInitialJsonText(captureMode: CaptureMode | null): string {
     case "invalid-json":
       return invalidJsonFixture
     case "conflict":
-    case "replace-modal":
     case "summary-failed":
-    case "conflict-list":
       return conflictManyColorsJson
     case "default":
     case null:
@@ -500,10 +446,7 @@ function getInitialCaptureState(
 ): InitialCaptureState {
   const emptyState: InitialCaptureState = {
     conflicts: [],
-    importStrategy: "skip",
     summary: null,
-    isReplaceConfirmOpen: false,
-    isConflictListOpen: false,
   }
 
   if (!captureMode) return emptyState
@@ -513,13 +456,6 @@ function getInitialCaptureState(
       return {
         ...emptyState,
         conflicts: getCaptureConflicts(parseResult),
-      }
-    case "replace-modal":
-      return {
-        ...emptyState,
-        conflicts: getCaptureConflicts(parseResult),
-        importStrategy: "replace",
-        isReplaceConfirmOpen: true,
       }
     case "summary-success":
       return {
@@ -552,12 +488,6 @@ function getInitialCaptureState(
           ],
         },
       }
-    case "conflict-list":
-      return {
-        ...emptyState,
-        conflicts: getCaptureConflicts(parseResult),
-        isConflictListOpen: true,
-      }
     case "default":
     case "preview-normal":
     case "light-dark":
@@ -572,24 +502,16 @@ function getCaptureConflicts(parseResult: ParseColorTokensResult): ColorStyleCon
   return parseResult.tokens.map(token => ({
     styleName: token.styleName,
     existingPath: token.styleName,
+    existingValue: token.value,
+    existingDarkValue: token.darkValue,
   }))
 }
 
-function getManualCaptureImportSummary(importStrategy: ImportStrategy): ImportColorStylesResult {
-  if (importStrategy === "replace") {
-    return {
-      created: 1,
-      replaced: 5,
-      skipped: 0,
-      failed: 0,
-      failures: [],
-    }
-  }
-
+function getManualCaptureImportSummary(): ImportColorStylesResult {
   return {
     created: 3,
     replaced: 0,
-    skipped: 3,
+    skipped: 0,
     failed: 0,
     failures: [],
   }
