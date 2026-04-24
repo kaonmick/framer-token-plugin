@@ -2,8 +2,8 @@ import { framer } from "framer-plugin"
 import { normalizeStylePath } from "../mapping/styleNames.ts"
 import type {
   ColorStyleConflict,
+  ConflictGroup,
   ImportColorStylesResult,
-  ImportStrategy,
   ParsedColorToken,
 } from "../types/tokens.ts"
 
@@ -22,6 +22,8 @@ export async function findColorStyleConflicts(tokens: ParsedColorToken[]): Promi
       conflicts.push({
         styleName: normalizedTokenPath,
         existingPath: existingStyle.path || existingStyle.name,
+        existingValue: existingStyle.light,
+        existingDarkValue: existingStyle.dark ?? undefined,
       })
     }
   }
@@ -31,7 +33,8 @@ export async function findColorStyleConflicts(tokens: ParsedColorToken[]): Promi
 
 export async function importColorStyles(
   tokens: ParsedColorToken[],
-  strategy: ImportStrategy
+  conflictGroups: ConflictGroup[],
+  conflictSelections: Map<string, string>
 ): Promise<ImportColorStylesResult> {
   const result: ImportColorStylesResult = {
     created: 0,
@@ -44,17 +47,26 @@ export async function importColorStyles(
   const existingStyles = await framer.getColorStyles()
   const stylesByPath = buildStylesByPath(existingStyles)
 
-  for (const token of tokens) {
+  const selectedConflictCandidates = conflictGroups.map(group => {
+    const selectedId = conflictSelections.get(group.styleName)
+    return group.candidates.find(c => c.id === selectedId) ?? group.candidates[0]!
+  })
+
+  const tokensToProcess = [...tokens, ...selectedConflictCandidates]
+
+  for (const token of tokensToProcess) {
     try {
       const normalizedTokenPath = normalizeStylePath(token.styleName)
-      const existingStyle = stylesByPath.get(styleLookupKey(normalizedTokenPath))
+      const selectedId = conflictSelections.get(token.styleName)
 
-      if (existingStyle && strategy === "skip") {
+      if (selectedId === "existing") {
         result.skipped += 1
         continue
       }
 
-      if (existingStyle && strategy === "replace") {
+      const existingStyle = stylesByPath.get(styleLookupKey(normalizedTokenPath))
+
+      if (existingStyle) {
         await existingStyle.setAttributes(colorStyleAttributesForToken(token))
         result.replaced += 1
         continue

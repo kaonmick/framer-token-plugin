@@ -37,8 +37,14 @@ export interface ParseWarning {
   line?: number
 }
 
+export interface ConflictGroup {
+  styleName: string
+  candidates: ParsedColorToken[]
+}
+
 export interface ParseColorTokensResult {
   tokens: ParsedColorToken[]
+  conflictGroups: ConflictGroup[]
   warnings: ParseWarning[]
   error?: string
   errorLine?: number
@@ -54,6 +60,8 @@ export interface ImportFailure {
 export interface ColorStyleConflict {
   styleName: string
   existingPath: string
+  existingValue: string
+  existingDarkValue?: string
 }
 
 export interface ImportColorStylesResult {
