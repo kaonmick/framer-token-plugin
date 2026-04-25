@@ -1,5 +1,6 @@
 node_modules/
 dist/
+dist-ladle/
 .env
 .DS_Store
 .claude/

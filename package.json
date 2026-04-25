@@ -6,6 +6,10 @@
   "scripts": {
     "dev": "vite --mode https",
     "dev:http": "vite",
+    "doc:dev": "npm run docs:dev",
+    "docs:dev": "node scripts/serve-docs.mjs",
+    "catalog:dev": "ladle serve --host 127.0.0.1 --port 61000",
+    "catalog:build": "ladle build",
     "build": "tsc --noEmit && vite build",
     "check": "tsc --noEmit",
     "screenshots": "node scripts/capture-screenshots.mjs",
@@ -22,6 +26,7 @@
     "vite-plugin-mkcert": "^2.0.0"
   },
   "devDependencies": {
+    "@ladle/react": "^5.1.1",
     "@tailwindcss/vite": "^4.2.3",
     "@types/react": "^18.3.24",
     "@types/react-dom": "^18.3.7",
