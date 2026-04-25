@@ -2,32 +2,86 @@
 
 ## 目的
 
-コンポーネント化した UI を、Figma / Tailwind / 実装ファイル / 状態の対応が追える形で管理する。
+コンポーネント化した UI を、Figma / Tailwind / 実装ファイル / Ladle story / 状態の対応が追える形で管理する。
 
-最初は Markdown で軽く管理し、コンポーネント数と状態数が増えたらローカル HTML 作業台または Storybook 相当のカタログへ移行する。
+現在は Ladle を React/Vite ベースのコンポーネントカタログとして使う。Framer API 依存の挙動は Ladle に直接持ち込まず、表示コンポーネントと mock data / fixture で確認する。
+
+Ladle は `.ladle/config.mjs` と `.ladle/vite.config.ts` を使い、Framer plugin 用の `vite.config.ts` とは分離する。これにより `vite-plugin-framer`、`mkcert`、Framer manifest copy は catalog server / build に混ざらない。
+
+## 起動コマンド
+
+```bash
+npm run catalog:dev
+```
+
+起動後、`http://127.0.0.1:61000/` を開く。
+
+静的ビルド確認は次を使う。
+
+```bash
+npm run catalog:build
+```
+
+| 用途 | コマンド | URL / 出力 | 役割 |
+|---|---|---|---|
+| Framer plugin 開発 | `npm run dev` | dev server起動時に表示される `https://framer.com/plugins/open` | Framer Development Plugin から実機確認する。 |
+| Framer plugin HTTP確認 | `npm run dev:http` | `http://localhost:5173/` | ブラウザでPlugin UIだけを確認する。 |
+| Docsify文書確認 | `npm run docs:dev` | `http://127.0.0.1:4173/` | Markdown docs を横断閲覧する。 |
+| React component catalog | `npm run catalog:dev` | `http://127.0.0.1:61000/` | コンポーネントの見た目、props / state、focus-visible、a11y addon を確認する。 |
 
 ## 管理ルール
 
 - コンポーネントを追加・変更したら、このカタログへ entry を追加する。
+- Framer API 依存が薄い表示コンポーネントは `src/components/**/*.stories.tsx` に story を追加する。
 - Figma node が参照できる場合は `Figma` に URL または node ID を記録する。
 - 状態は `default` / `hover` / `active` / `disabled` / `focus-visible` を基本にする。
+- UI stack は `Ideal State` / `Blank / Empty State` / `Loading State` / `Partial State` / `Error State` を基本にする。
+- fixture を使う story は、story 名またはこの文書で前提 fixture を分かるようにする。
 - サイズはコンポーネント API で管理し、画面側の個別 class 直書きを増やさない。
 - 色は raw hex ではなく、Tailwind token または semantic token を優先する。
 
+## Ladle で確認するもの / しないもの
+
+| 項目 | Ladle | Framer 実機 |
+|---|---:|---:|
+| コンポーネントの見た目 | Yes | 最終確認のみ |
+| props / state の組み合わせ | Yes | 必要に応じて |
+| Ideal / Empty / Loading / Partial / Error | Yes | 必要に応じて |
+| a11y / focus-visible / keyboard 確認 | Yes | 必要に応じて |
+| `framer.showUI` | No | Yes |
+| `useIsAllowedTo` | mock まで | Yes |
+| `framer.createColorStyle` | No | Yes |
+| `framer.notify` | No | Yes |
+| iframe サイズや Framer 固有挙動 | No | Yes |
+
 ## Components
 
-| Component | 実装 | Figma | 状態 | メモ |
-|---|---|---|---|---|
-| `AppHeader` | `src/components/AppHeader.tsx` | TBD | default | title と language toggle を管理する。 |
-| `LanguageToggle` | `src/components/LanguageToggle.tsx` | Framer `Gd3hmibM4` | default / selected-ja / focus-visible | `48x24px` track、`20px` thumb。Framer MCP の選択ノード値を基準にする。 |
-| `ActionButton` | `src/components/ui.tsx` | button component | default / hover / active / disabled / focus-visible | CV button を base とする。`variant` と `size` で管理する。 |
-| `FileButton` | `src/components/ui.tsx` | button component | default / hover / active / focus-within | file input を ActionButton と同じ size scale に揃える。 |
-| `SelectControl` | `src/components/ui.tsx` | TBD | default / focus | import strategy などの select を管理する。 |
-| `JsonTokenEditor` | `src/components/JsonTokenEditor.tsx` | editor component | default / focused / diagnostic / copied / tooltip | JSON editor、copy、resize、inline diagnostic を含む。 |
-| `StatsGrid` | `src/components/StatsGrid.tsx` | TBD | default | token counts を表示する。 |
-| `TokenPreviewList` | `src/components/TokenPreviewList.tsx` | TBD | default / empty | import preview を表示する。 |
-| `ConflictPreview` | `src/components/ConflictPreview.tsx` | TBD | neutral / warning / conflict | 既存 style との競合を表示する。 |
-| `ImportSummary` | `src/components/ImportSummary.tsx` | TBD | success / failed | import result modal の内容を表示する。 |
+| Component | 実装 | Story | Figma | 状態 | メモ |
+|---|---|---|---|---|---|
+| `AppHeader` | `src/components/AppHeader.tsx` | TBD | TBD | default | title と language toggle を管理する。 |
+| `LanguageToggle` | `src/components/LanguageToggle.tsx` | TBD | Framer `Gd3hmibM4` | default / selected-ja / focus-visible | `48x24px` track、`20px` thumb。Framer MCP の選択ノード値を基準にする。 |
+| `ActionButton` | `src/components/ui.tsx` | `src/components/ui.stories.tsx` | button component | default / hover / active / disabled / focus-visible | CV button を base とする。`variant` と `size` で管理する。 |
+| `FileButton` | `src/components/ui.tsx` | `src/components/ui.stories.tsx` | button component | default / hover / active / focus-within | file input を ActionButton と同じ size scale に揃える。 |
+| `SelectControl` | `src/components/ui.tsx` | `src/components/ui.stories.tsx` | TBD | default / focus-visible | import strategy などの select を管理する。 |
+| `JsonTokenEditor` | `src/components/JsonTokenEditor.tsx` | `src/components/JsonTokenEditor.stories.tsx` | editor component | default / focused / diagnostic / copied / tooltip | JSON editor、copy、resize、inline diagnostic を含む。 |
+| `StatsGrid` | `src/components/StatsGrid.tsx` | TBD | TBD | default | token counts を表示する。 |
+| `TokenCard` / `TokenCardList` | `src/components/TokenCard.tsx`, `src/components/TokenCardList.tsx` | `src/components/TokenCard.stories.tsx` | TBD | ideal / empty / loading / partial / error / selected / focus-visible | import preview と conflict choice を表示する。 |
+| `ImportSummary` | `src/components/ImportSummary.tsx` | `src/components/ImportSummary.stories.tsx` | TBD | success / failed | import result modal の内容を表示する。 |
+
+## UI stack
+
+| UI stack | Story | Fixture | 確認観点 |
+|---|---|---|---|
+| Ideal State / 理想状態 | `TokenCardList / IdealState` | `catalogTokens` | 正常に import 対象が揃っている状態。 |
+| Blank / Empty State / 空状態 | `TokenCardList / EmptyState` | empty arrays | 対象 token がない時の誘導文。 |
+| Loading State / 読み込み中状態 | `TokenCardList / LoadingState` | `isCheckingConflicts` | 既存 style 確認中の表示。 |
+| Partial State / 部分的状態 | `TokenCardList / PartialState` | `catalogTokens`, `catalogConflictGroups`, `catalogExistingConflicts` | 新規 token と conflict choice が混在する状態。 |
+| Error State / エラー状態 | `TokenCardList / ErrorState` | `conflictError` | 既存 style 確認失敗時の表示。 |
+| Partial State / 部分的状態 | `JsonTokenEditor / DiagnosticState` | `catalogEditorJson`, `catalogEditorDiagnostics` | 変換 notice と未対応値 error が inline diagnostic として混在する状態。 |
+
+## Story fixture
+
+`src/components/catalog.fixtures.ts` は Ladle 専用の軽量 fixture。実 Framer API の戻り値ではなく、表示状態を固定して確認するための mock data として扱う。
 
 ## Button API
 
@@ -55,8 +109,9 @@ CV button を基準にし、以下の API で揃える。
 
 Typography は component 固有値ではなく `src/tokens.css` の semantic utility を使う。日本語 UI では `:lang(ja)` により同階層 token から font-size を 1px 下げる。
 
-## 今後の移行候補
+## 今後の追加候補
 
-- `docs/mockups/component-catalog.html` を追加し、実際の状態をブラウザで一覧確認する。
+- `JsonTokenEditor` の copied / tooltip interaction を Playwright で確認しやすい story に分ける。
+- `LanguageToggle` と `StatsGrid` の story を追加する。
 - Figma MCP の上限解除後、各 component に Figma node ID を紐づける。
 - light / dark 対応時に、ここへ theme token の適用状況を追加する。
