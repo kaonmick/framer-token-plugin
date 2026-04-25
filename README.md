@@ -4,6 +4,8 @@ JSON color tokensをFramerのColor Styleへインポートするプラグイン�
 
 現在の実装はフェーズ1の基本インポート版です。primitive color tokenに加えて、semantic alias tokenを解決してインポートできます。
 
+主要ドキュメントを探すときは、まず `docs/doc-hub.html` をブラウザで開いてください。仕様書、UI作業台、技術検証、spike、運用文書への入口をまとめています。
+
 ## 現在できること
 
 - JSONテキストの貼り付け
@@ -63,6 +65,7 @@ tests/              Parser tests
 docs/
   specs/            Original specification pack
   diagrams/         Diagrams
+  doc-hub.html      Documentation entry page
 ```
 
 ## 仕様メモ

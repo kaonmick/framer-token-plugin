@@ -15,6 +15,7 @@
 - `09-design-system.md` — theme token / semantic color / light-dark 対応の叩き台
 - `10-codex-issue-workflow.md` — GitHub Issues で Codex 作業と Kaon 確認を分離する運用ルール
 - `11-component-catalog.md` — コンポーネントと状態を管理するカタログ
+- `12-ai-operation-usage-design.md` — AI利用ログ、Usage / Costs API、統計件数、モデル運用ルール化の設計
 
 ## プロダクト原則
 

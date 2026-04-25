@@ -335,4 +335,43 @@ describe("parseColorTokenJson", () => {
       ])
     )
   })
+
+  it("separates duplicate style names into conflict groups instead of importing both by default", () => {
+    const result = parseColorTokenJson(`{
+      "color": {
+        "semantic": {
+          "action": {
+            "$type": "color",
+            "$value": "#0066ff"
+          }
+        }
+      },
+      "colors": {
+        "semantic": {
+          "action": {
+            "$type": "color",
+            "$value": "#ff6600"
+          }
+        }
+      }
+    }`)
+
+    expect(result.tokens).toHaveLength(0)
+    expect(result.conflictGroups).toHaveLength(1)
+    expect(result.conflictGroups[0]).toMatchObject({
+      styleName: "semantic/action",
+      candidates: [
+        { sourcePath: "color.semantic.action", value: "#0066ff" },
+        { sourcePath: "colors.semantic.action", value: "#ff6600" },
+      ],
+    })
+    expect(result.warnings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "duplicate-style-name",
+          path: "colors.semantic.action",
+        }),
+      ])
+    )
+  })
 })

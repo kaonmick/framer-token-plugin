@@ -61,6 +61,7 @@ export function TokenCardList({
               <DuplicateConflictGroup
                 key={group.styleName}
                 group={group}
+                existingConflict={existingConflicts.find(c => c.styleName === group.styleName)}
                 selectedId={conflictSelections.get(group.styleName) ?? group.candidates[0]?.id ?? ""}
                 onSelect={id => onSelectionChange(group.styleName, id)}
                 labels={labels}
@@ -119,12 +120,14 @@ export function TokenCardList({
 
 function DuplicateConflictGroup({
   group,
+  existingConflict,
   selectedId,
   onSelect,
   labels,
   showDivider,
 }: {
   group: ConflictGroup
+  existingConflict?: ColorStyleConflict
   selectedId: string
   onSelect: (id: string) => void
   labels: TokenCardListLabels
@@ -135,6 +138,20 @@ function DuplicateConflictGroup({
       {showDivider && <hr className="border-neutral-600" />}
       <div className="flex flex-col gap-2 py-3">
         <p className="m-0 text-center text-[11px] text-neutral-300">{labels.whichTokenToUse}</p>
+        {existingConflict ? (
+          <>
+            <TokenCard
+              badge={{ lightColor: existingConflict.existingValue, darkColor: existingConflict.existingDarkValue }}
+              rows={conflictToRows(existingConflict, labels)}
+              label={labels.existingStyle}
+              radioName={group.styleName}
+              radioValue="existing"
+              checked={selectedId === "existing"}
+              onChange={() => onSelect("existing")}
+            />
+            <hr className="border-dashed border-neutral-600" />
+          </>
+        ) : null}
         {group.candidates.map((candidate, index) => (
           <div key={candidate.id}>
             {index > 0 && <hr className="border-dashed border-neutral-600" />}

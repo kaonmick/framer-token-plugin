@@ -13,12 +13,17 @@ export async function findColorStyleConflicts(tokens: ParsedColorToken[]): Promi
   const existingStyles = await framer.getColorStyles()
   const stylesByPath = buildStylesByPath(existingStyles)
   const conflicts: ColorStyleConflict[] = []
+  const seenStyleNames = new Set<string>()
 
   for (const token of tokens) {
     const normalizedTokenPath = normalizeStylePath(token.styleName)
+    const lookupKey = styleLookupKey(normalizedTokenPath)
+    if (seenStyleNames.has(lookupKey)) continue
+
     const existingStyle = stylesByPath.get(styleLookupKey(normalizedTokenPath))
 
     if (existingStyle) {
+      seenStyleNames.add(lookupKey)
       conflicts.push({
         styleName: normalizedTokenPath,
         existingPath: existingStyle.path || existingStyle.name,

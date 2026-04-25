@@ -19,10 +19,8 @@ const screens = [
   ["05-warning.png", "/?capture=warning"],
   ["06-invalid-json.png", "/?capture=invalid-json"],
   ["07-conflict-preview.png", "/?capture=conflict"],
-  ["08-replace-confirm-modal.png", "/?capture=replace-modal"],
   ["09-import-summary-success.png", "/?capture=summary-success"],
   ["10-import-summary-failed.png", "/?capture=summary-failed"],
-  ["11-conflict-list-modal.png", "/?capture=conflict-list"],
 ]
 
 const projectRoot = process.cwd()

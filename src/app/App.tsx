@@ -25,6 +25,7 @@ import { parseColorTokenJson } from "../lib/parser/colorTokenParser.ts"
 import type {
   ColorStyleConflict,
   ImportColorStylesResult,
+  ParsedColorToken,
   ParseColorTokensResult,
   ParseWarning,
 } from "../lib/types/tokens.ts"
@@ -126,12 +127,6 @@ export function App() {
           next.set(group.styleName, prev.get(group.styleName) ?? defaultId)
         }
       }
-      // Carry over existing-style selections that are still relevant
-      for (const [key, value] of prev) {
-        if (value === "existing" && !next.has(key)) {
-          next.set(key, value)
-        }
-      }
       return next
     })
   }, [parseResult.conflictGroups])
@@ -170,7 +165,7 @@ export function App() {
       setConflictError(null)
 
       try {
-        const nextConflicts = await findColorStyleConflicts(parseResult.tokens)
+        const nextConflicts = await findColorStyleConflicts(getConflictCheckTokens(parseResult))
         if (!isCurrent) return
         setConflicts(nextConflicts)
       } catch (error) {
@@ -285,7 +280,7 @@ export function App() {
     if (parseResult.error || !hasTokens) return
 
     try {
-      const nextConflicts = await findColorStyleConflicts(parseResult.tokens)
+      const nextConflicts = await findColorStyleConflicts(getConflictCheckTokens(parseResult))
       setConflicts(nextConflicts)
       setConflictError(null)
     } catch (error) {
@@ -498,8 +493,15 @@ function getInitialCaptureState(
   }
 }
 
+function getConflictCheckTokens(parseResult: ParseColorTokensResult): ParsedColorToken[] {
+  return [
+    ...parseResult.tokens,
+    ...parseResult.conflictGroups.flatMap(group => group.candidates),
+  ]
+}
+
 function getCaptureConflicts(parseResult: ParseColorTokensResult): ColorStyleConflict[] {
-  return parseResult.tokens.map(token => ({
+  return getConflictCheckTokens(parseResult).map(token => ({
     styleName: token.styleName,
     existingPath: token.styleName,
     existingValue: token.value,
