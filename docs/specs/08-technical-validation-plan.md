@@ -468,7 +468,7 @@ GitHub Milestone: Technical Validation      進捗管理
 
 | ID | タスク | 種別 | 優先度 | 成功条件 | 成果物 |
 | --- | --- | --- | --- | --- | --- |
-| TV-00 | 検証環境とログ置き場を準備する | setup | P0 | 検証 project と docs/spikes がある | `docs/spikes/` |
+| TV-00 | 検証環境とログ置き場を準備する | setup | P0 | 検証 project と docs/spikes がある | `docs/spikes/00-validation-setup.md` |
 | TV-01 | Color Style metadata の保存・復元を検証する | spike | P0 | rename / reopen 後も metadata を読める | `docs/spikes/01-color-style-metadata.md` |
 | TV-02 | duplicate / delete 後の metadata 挙動を確認する | spike | P0 | duplicate / delete の仕様判断ができる | `docs/spikes/01-color-style-metadata.md` |
 | TV-03 | primitive / semantic 疑似リンク同期を検証する | spike | P0 | primitive 変更を semantic に反映できる | `docs/spikes/02-color-style-linking.md` |

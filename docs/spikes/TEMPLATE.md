@@ -10,6 +10,7 @@
 
 ## 検証環境
 
+- Setup log: `docs/spikes/00-validation-setup.md`
 - Framer Plugin SDK version:
 - Framer project:
 - Browser / OS:

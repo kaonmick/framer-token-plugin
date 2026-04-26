@@ -29,6 +29,7 @@
 - Spike
 
   - [Spike README](/spikes/README.md)
+  - [00 Validation Setup](/spikes/00-validation-setup.md)
   - [Spike Template](/spikes/TEMPLATE.md)
   - [01 Color Style Metadata](/spikes/01-color-style-metadata.md)
   - [02 Color Style Linking](/spikes/02-color-style-linking.md)
