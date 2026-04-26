@@ -30,7 +30,7 @@ export function TokenCard({
   const inner = (
     <div
       className={cx(
-        "flex items-center gap-3 rounded border px-3 py-2.5",
+        "flex items-center gap-3 rounded border px-3 py-2.5 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-yellow-300",
         hasRadio && checked
           ? "border-yellow-700/60 bg-yellow-950/50"
           : "border-neutral-600 bg-neutral-700"
