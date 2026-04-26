@@ -13,7 +13,7 @@ Issues はこの repo 全体で管理します。
 - Pro / Free のスコープ判断がこの plugin repo の設計に直結する。
 - 別 repo にすると issue、docs、code、decision log が分散する。
 
-検証用 Framer project は、各 spike の `Evidence` や `検証環境` に project 名 / URL / 状態を記録します。
+検証用 Framer project は、まず `docs/spikes/00-validation-setup.md` に project 名 / URL / 状態を記録し、そのうえで各 spike の `Evidence` や `検証環境` に必要な差分を残します。
 
 ## Milestone
 

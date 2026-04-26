@@ -12,6 +12,7 @@ Issue 運用:
 
 ## Files
 
+- `00-validation-setup.md` — TV-00
 - `TEMPLATE.md` — spike log template
 - `01-color-style-metadata.md` — TV-01 / TV-02
 - `02-color-style-linking.md` — TV-03
@@ -24,3 +25,4 @@ Issue 運用:
 
 検証結果は issue comment だけに残さず、このディレクトリにも記録します。
 GitHub Issue は作業状態管理、spike log は一次情報と判断履歴の保存場所として扱います。
+`00-validation-setup.md` を TV-00 の canonical な setup log とし、Framer project 名 / URL / fixture 起点をまずここに集約します。
