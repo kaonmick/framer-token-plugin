@@ -10,6 +10,7 @@
 - [Roadmap](specs/01-roadmap.md)
 - [MVP Spec](specs/02-mvp-spec.md)
 - [Component Catalog](specs/11-component-catalog.md)
+- [Git Workflow](specs/13-git-workflow.md)
 - [AI Operation Usage Design](specs/12-ai-operation-usage-design.md)
 - [Technical Validation Plan](specs/08-technical-validation-plan.md)
 - [Spike README](spikes/README.md)
@@ -31,3 +32,18 @@ npm run catalog:dev
 ```
 
 起動後、ブラウザで `http://127.0.0.1:61000/` を開きます。Ladle は Framer 実機確認の置き換えではなく、表示・props / state・focus-visible・a11y addon を早く確認するための開発用カタログです。
+
+## Git運用を見る
+
+`main` 同期、merge 後の branch 整理、`squash merge` 前提の考え方は [Git Workflow](specs/13-git-workflow.md) にまとめています。
+
+```bash
+git switch main
+npm run git:sync-main
+```
+
+ローカル branch の整理まで行う場合は次を使います。
+
+```bash
+npm run git:sync-main:cleanup
+```
