@@ -5,6 +5,7 @@ import type {
   ParsedColorToken,
 } from "../lib/types/tokens.ts"
 import type { EditorDiagnostic } from "./JsonTokenEditor.tsx"
+import type { TokenCardRow } from "./TokenCard.tsx"
 
 export const catalogEditorJson = `{
   "color": {
@@ -130,6 +131,40 @@ export const catalogExistingConflicts: ColorStyleConflict[] = [
     styleName: "primitive/blue/500",
     existingPath: "primitive/blue/500",
     existingValue: "#1d4ed8",
+  },
+]
+
+export const catalogStatsItems = [
+  { label: "Color tokens", value: 12 },
+  { label: "Create", value: 8 },
+  { label: "Replace", value: 2 },
+  { label: "Skip", value: 1 },
+]
+
+export const catalogStatsItemsLongLabel = [
+  { label: "Imported semantic color tokens", value: 124 },
+  { label: "Existing styles with replacements", value: 32 },
+  { label: "Conflicts requiring user choice", value: 7 },
+  { label: "Warnings kept as notices", value: 18 },
+]
+
+export const catalogTokenCardRows: TokenCardRow[] = [
+  {
+    value: "#2f6bff",
+    name: "color.primitive.blue.500",
+  },
+]
+
+export const catalogTokenCardModeRows: TokenCardRow[] = [
+  {
+    mode: "Light",
+    value: "#ffffff",
+    name: "color.semantic.background.primary",
+  },
+  {
+    mode: "Dark",
+    value: "#111313",
+    name: "color.semantic.background.primary.dark",
   },
 ]
 

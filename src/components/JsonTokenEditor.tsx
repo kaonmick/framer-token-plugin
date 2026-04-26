@@ -266,7 +266,7 @@ export function JsonTokenEditor({
 
   return (
     <div
-      className="relative grid min-h-[180px] w-full grid-cols-[48px_minmax(0,1fr)] overflow-hidden rounded border border-neutral-200 bg-neutral-700"
+      className="relative grid min-h-[180px] w-full grid-cols-[48px_minmax(0,1fr)] overflow-hidden rounded border border-neutral-200 bg-neutral-700 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-yellow-300"
       data-json-editor="true"
       ref={editorRef}
       style={{ height: editorHeight }}
