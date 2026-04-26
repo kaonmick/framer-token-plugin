@@ -62,6 +62,51 @@ npm run catalog:dev
 | Docsify文書確認 | `npm run docs:dev` | `http://127.0.0.1:4173/` |
 | React component catalog | `npm run catalog:dev` | `http://127.0.0.1:61000/` |
 
+## Git運用
+
+git 運用の最小ルールは `docs/specs/13-git-workflow.md` にまとめています。
+既存の `docs/specs/10-codex-issue-workflow.md` が Issue の進め方を扱うのに対して、こちらは `main` 同期、branch、merge 後の整理を扱います。
+
+- `main` へ直接コミットしない
+- 1 branch は 1 目的に保つ
+- `main` の同期は `fast-forward only` で行う
+- 通常の PR merge 方針は `squash merge` を推奨する
+
+### よく使うコマンド
+
+```bash
+git switch main
+npm run git:sync-main
+```
+
+merge 済みのローカル branch も整理したい場合は次を使います。
+
+```bash
+npm run git:sync-main:cleanup
+```
+
+削除候補だけ先に見たい場合は次を使います。
+
+```bash
+npm run git:sync-main:cleanup:dry-run
+```
+
+| 工程 | 進め方 |
+|---|---|
+| Issue を作成する | ユーザーまたは Codex 依頼 |
+| `main` を最新化する | ユーザーまたは Codex 依頼 |
+| Issue に対応する branch を作る | ユーザーまたは Codex 依頼 |
+| 実装する | ユーザーまたは Codex 依頼 |
+| テスト・機械的確認をする | ユーザーまたは Codex 依頼 |
+| commit する | ユーザーまたは Codex 依頼 |
+| push する | ユーザーまたは Codex 依頼 |
+| PR を作成する | ユーザーまたは Codex 依頼 |
+| PR をレビューする | ユーザー操作マスト |
+| PR を merge する | ユーザー操作マスト |
+| merge 後に remote branch を削除する | 自動 |
+| ローカル `main` を更新する | ユーザーまたは Codex 依頼 |
+| merge 済みのローカル branch を整理する | ユーザーまたは Codex 依頼 |
+
 ## 検証
 
 ```bash

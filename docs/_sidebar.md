@@ -20,6 +20,7 @@
   - [10 Codex Issue Workflow](/specs/10-codex-issue-workflow.md)
   - [11 Component Catalog](/specs/11-component-catalog.md)
   - [12 AI Operation Usage Design](/specs/12-ai-operation-usage-design.md)
+  - [13 Git Workflow](/specs/13-git-workflow.md)
 
 - 開発ログ
 
