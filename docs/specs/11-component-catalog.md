@@ -94,11 +94,13 @@ npm run catalog:build
 | `LanguageToggle / Default`, `Japanese selected`, `FocusVisible` | local state | 英日切替と focus ring を固定 view で確認する。 |
 | `StatsGrid / Default` | `catalogStatsItems` | 基本の件数表示を確認する。 |
 | `StatsGrid / Long label / large number` | `catalogStatsItemsLongLabel` | 長いラベルと3桁値の折り返しを確認する。 |
-| `TokenCard / Overview` | `catalogTokenCardRows`, `catalogTokenCardModeRows`, inline existing style row | Default / Selected / Conflict / FocusVisible を 1 ページで比較する。 |
+| `TokenCard / 0verview` | `catalogTokenCardRows`, `catalogTokenCardModeRows`, inline existing style row | Default / Selected / Conflict / FocusVisible を 1 ページで比較する。 |
 | `TokenCard / Default`, `Selected`, `FocusVisible` | `catalogTokenCardRows`, `catalogTokenCardModeRows` | 単体 card の badge、mode、選択状態を確認する。 |
 | `TokenCard / Conflict` | inline existing style row | 既存 style collision を isolated card で確認する。 |
 | `JsonTokenEditor / Default`, `Focused state`, `Copied state`, `Tooltip state` | `catalogEditorJson` | text focus、copy feedback、hover tooltip を story ごとに確認する。 |
 | `JsonTokenEditor / Diagnostic state` | `catalogEditorJson`, `catalogEditorDiagnostics` | 変換 notice と unsupported value error の混在を確認する。 |
+
+`Overview` 系 story は Ladle の並び順を安定させるため、表示名を `0verview` に統一する。
 
 ## Button API
 

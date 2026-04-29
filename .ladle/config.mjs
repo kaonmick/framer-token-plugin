@@ -16,7 +16,7 @@ const config = {
         tablet: 768,
         desktop: 1024,
       },
-      defaultState: 420,
+      // defaultState: 420,
     },
   },
 }

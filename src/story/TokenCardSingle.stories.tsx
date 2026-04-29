@@ -162,3 +162,5 @@ export const Overview = () => (
     </div>
   </CardSurface>
 )
+
+Overview.storyName = "0verview"
