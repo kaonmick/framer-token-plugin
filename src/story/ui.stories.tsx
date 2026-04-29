@@ -1,7 +1,7 @@
 import { action } from "@ladle/react"
 import type { StoryDefault } from "@ladle/react"
 import type { ReactNode } from "react"
-import { ActionButton, FileButton, SelectControl } from "./ui.tsx"
+import { ActionButton, FileButton, SelectControl } from "../components/ui.tsx"
 import "../tokens.css"
 
 export default {

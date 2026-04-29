@@ -1,7 +1,7 @@
 import { useState } from "react"
 import type { StoryDefault } from "@ladle/react"
 import type { ReactNode } from "react"
-import { TokenCardList } from "./TokenCardList.tsx"
+import { TokenCardList } from "../components/TokenCardList.tsx"
 import {
   catalogConflictGroups,
   catalogExistingConflicts,

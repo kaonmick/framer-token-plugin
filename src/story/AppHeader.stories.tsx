@@ -2,7 +2,7 @@ import { action } from "@ladle/react"
 import { useState } from "react"
 import type { StoryDefault } from "@ladle/react"
 import type { ReactNode } from "react"
-import { AppHeader } from "./AppHeader.tsx"
+import { AppHeader } from "../components/AppHeader.tsx"
 import "../tokens.css"
 
 export default {

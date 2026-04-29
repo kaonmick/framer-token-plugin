@@ -32,11 +32,12 @@ npm run catalog:build
 ## 管理ルール
 
 - コンポーネントを追加・変更したら、このカタログへ entry を追加する。
-- Framer API 依存が薄い表示コンポーネントは `src/components/**/*.stories.tsx` に story を追加する。
+- Framer API 依存が薄い表示コンポーネントは `src/story/**/*.stories.tsx` に story を追加する。
 - Figma node が参照できる場合は `Figma` に URL または node ID を記録する。
 - 状態は `default` / `hover` / `active` / `disabled` / `focus-visible` を基本にする。
 - UI stack は `Ideal State` / `Blank / Empty State` / `Loading State` / `Partial State` / `Error State` を基本にする。
 - fixture を使う story は、story 名またはこの文書で前提 fixture を分かるようにする。
+- Ladle 用の fixture と surface helper は `src/story/` に置き、`src/components/` は実装コンポーネントの master として保つ。
 - サイズはコンポーネント API で管理し、画面側の個別 class 直書きを増やさない。
 - 色は raw hex ではなく、Tailwind token または semantic token を優先する。
 
@@ -58,19 +59,19 @@ npm run catalog:build
 
 | Component | 実装 | Story | Figma | 状態 | メモ |
 |---|---|---|---|---|---|
-| `AppHeader` | `src/components/AppHeader.tsx` | `src/components/AppHeader.stories.tsx` | TBD | default / selected-ja | title と language toggle をまとめて確認する。 |
-| `LanguageToggle` | `src/components/LanguageToggle.tsx` | `src/components/LanguageToggle.stories.tsx` | Framer `Gd3hmibM4` | default / selected-ja / focus-visible | `52x26px` track、`22px` thumb。selected-ja と focus-visible を個別 story で確認する。 |
-| `ActionButton` | `src/components/ui.tsx` | `src/components/ui.stories.tsx` | button component | default / hover / active / disabled / focus-visible | CV button を base とする。`variant` と `size` で管理する。 |
-| `FileButton` | `src/components/ui.tsx` | `src/components/ui.stories.tsx` | button component | default / hover / active / focus-within | file input を ActionButton と同じ size scale に揃える。 |
-| `SelectControl` | `src/components/ui.tsx` | `src/components/ui.stories.tsx` | TBD | default / focus-visible | import strategy などの select を管理する。 |
-| `SectionTitle` / `HelperText` | `src/components/ui.tsx` | `src/components/ui-primitives.stories.tsx` | TBD | default | 見出しと補助文の組み合わせを確認する。 |
-| `MessageBox` | `src/components/ui.tsx` | `src/components/ui-primitives.stories.tsx` | TBD | warning / danger | notice と error の見え分けを固定 fixture で確認する。 |
-| `DialogBackdrop` / `DialogPanel` / `DialogActions` | `src/components/ui.tsx` | `src/components/ui-primitives.stories.tsx` | TBD | modal shell | import result modal の土台を確認する。 |
-| `JsonTokenEditor` | `src/components/JsonTokenEditor.tsx` | `src/components/JsonTokenEditor.stories.tsx` | editor component | default / focused / diagnostic / copied / tooltip | JSON editor、copy、resize、inline diagnostic を含む。focused 用に `focus-within` ring を持つ。 |
-| `StatsGrid` | `src/components/StatsGrid.tsx` | `src/components/StatsGrid.stories.tsx` | TBD | default / long-label-large-number | token counts を表示する。長いラベルと大きい数値の折り返しも確認する。 |
-| `TokenCard` | `src/components/TokenCard.tsx` | `src/components/TokenCardSingle.stories.tsx` | TBD | default / selected / conflict / focus-visible | isolated card として選択状態、既存 style conflict、focus ring を確認する。 |
-| `TokenCardList` | `src/components/TokenCardList.tsx` | `src/components/TokenCard.stories.tsx` | TBD | ideal / empty / loading / partial / error | import preview と conflict choice を表示する。 |
-| `ImportSummary` | `src/components/ImportSummary.tsx` | `src/components/ImportSummary.stories.tsx` | TBD | success / failed | import result modal の内容を表示する。 |
+| `AppHeader` | `src/components/AppHeader.tsx` | `src/story/AppHeader.stories.tsx` | TBD | default / selected-ja | title と language toggle をまとめて確認する。 |
+| `LanguageToggle` | `src/components/LanguageToggle.tsx` | `src/story/LanguageToggle.stories.tsx` | Framer `Gd3hmibM4` | default / selected-ja / focus-visible | `52x26px` track、`22px` thumb。selected-ja と focus-visible を個別 story で確認する。 |
+| `ActionButton` | `src/components/ui.tsx` | `src/story/ui.stories.tsx` | button component | default / hover / active / disabled / focus-visible | CV button を base とする。`variant` と `size` で管理する。 |
+| `FileButton` | `src/components/ui.tsx` | `src/story/ui.stories.tsx` | button component | default / hover / active / focus-within | file input を ActionButton と同じ size scale に揃える。 |
+| `SelectControl` | `src/components/ui.tsx` | `src/story/ui.stories.tsx` | TBD | default / focus-visible | import strategy などの select を管理する。 |
+| `SectionTitle` / `HelperText` | `src/components/ui.tsx` | `src/story/ui-primitives.stories.tsx` | TBD | default | 見出しと補助文の組み合わせを確認する。 |
+| `MessageBox` | `src/components/ui.tsx` | `src/story/ui-primitives.stories.tsx` | TBD | warning / danger | notice と error の見え分けを固定 fixture で確認する。 |
+| `DialogBackdrop` / `DialogPanel` / `DialogActions` | `src/components/ui.tsx` | `src/story/ui-primitives.stories.tsx` | TBD | modal shell | import result modal の土台を確認する。 |
+| `JsonTokenEditor` | `src/components/JsonTokenEditor.tsx` | `src/story/JsonTokenEditor.stories.tsx` | editor component | default / focused / diagnostic / copied / tooltip | JSON editor、copy、resize、inline diagnostic を含む。focused 用に `focus-within` ring を持つ。 |
+| `StatsGrid` | `src/components/StatsGrid.tsx` | `src/story/StatsGrid.stories.tsx` | TBD | default / long-label-large-number | token counts を表示する。長いラベルと大きい数値の折り返しも確認する。 |
+| `TokenCard` | `src/components/TokenCard.tsx` | `src/story/TokenCardSingle.stories.tsx` | TBD | overview / default / selected / conflict / focus-visible | isolated card として選択状態、既存 style conflict、focus ring を確認する。overview story では 1 ページ比較を行う。 |
+| `TokenCardList` | `src/components/TokenCardList.tsx` | `src/story/TokenCard.stories.tsx` | TBD | ideal / empty / loading / partial / error | import preview と conflict choice を表示する。 |
+| `ImportSummary` | `src/components/ImportSummary.tsx` | `src/story/ImportSummary.stories.tsx` | TBD | success / failed | import result modal の内容を表示する。 |
 
 ## UI stack
 
@@ -85,7 +86,7 @@ npm run catalog:build
 
 ## Story fixture
 
-`src/components/catalog.fixtures.ts` は Ladle 専用の軽量 fixture。実 Framer API の戻り値ではなく、表示状態を固定して確認するための mock data として扱う。
+`src/story/catalog.fixtures.ts` は Ladle 専用の軽量 fixture。実 Framer API の戻り値ではなく、表示状態を固定して確認するための mock data として扱う。
 
 | Story | Fixture | 確認観点 |
 |---|---|---|
@@ -93,6 +94,7 @@ npm run catalog:build
 | `LanguageToggle / Default`, `Japanese selected`, `FocusVisible` | local state | 英日切替と focus ring を固定 view で確認する。 |
 | `StatsGrid / Default` | `catalogStatsItems` | 基本の件数表示を確認する。 |
 | `StatsGrid / Long label / large number` | `catalogStatsItemsLongLabel` | 長いラベルと3桁値の折り返しを確認する。 |
+| `TokenCard / Overview` | `catalogTokenCardRows`, `catalogTokenCardModeRows`, inline existing style row | Default / Selected / Conflict / FocusVisible を 1 ページで比較する。 |
 | `TokenCard / Default`, `Selected`, `FocusVisible` | `catalogTokenCardRows`, `catalogTokenCardModeRows` | 単体 card の badge、mode、選択状態を確認する。 |
 | `TokenCard / Conflict` | inline existing style row | 既存 style collision を isolated card で確認する。 |
 | `JsonTokenEditor / Default`, `Focused state`, `Copied state`, `Tooltip state` | `catalogEditorJson` | text focus、copy feedback、hover tooltip を story ごとに確認する。 |

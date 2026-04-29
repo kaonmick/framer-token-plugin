@@ -1,6 +1,6 @@
 import type { StoryDefault } from "@ladle/react"
 import type { ReactNode } from "react"
-import { StatsGrid } from "./StatsGrid.tsx"
+import { StatsGrid } from "../components/StatsGrid.tsx"
 import {
   catalogStatsItems,
   catalogStatsItemsLongLabel,

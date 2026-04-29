@@ -2,8 +2,8 @@ import { action } from "@ladle/react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import type { StoryDefault } from "@ladle/react"
 import type { ReactNode, RefObject } from "react"
-import type { EditorDiagnostic } from "./JsonTokenEditor.tsx"
-import { JsonTokenEditor } from "./JsonTokenEditor.tsx"
+import type { EditorDiagnostic } from "../components/JsonTokenEditor.tsx"
+import { JsonTokenEditor } from "../components/JsonTokenEditor.tsx"
 import {
   catalogEditorDiagnostics,
   catalogEditorJson,

@@ -4,8 +4,8 @@ import type {
   ImportColorStylesResult,
   ParsedColorToken,
 } from "../lib/types/tokens.ts"
-import type { EditorDiagnostic } from "./JsonTokenEditor.tsx"
-import type { TokenCardRow } from "./TokenCard.tsx"
+import type { EditorDiagnostic } from "../components/JsonTokenEditor.tsx"
+import type { TokenCardRow } from "../components/TokenCard.tsx"
 
 export const catalogEditorJson = `{
   "color": {

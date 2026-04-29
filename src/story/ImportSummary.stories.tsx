@@ -1,6 +1,6 @@
 import type { StoryDefault } from "@ladle/react"
 import type { ReactNode } from "react"
-import { ImportSummary } from "./ImportSummary.tsx"
+import { ImportSummary } from "../components/ImportSummary.tsx"
 import { summaryFailed, summarySuccess } from "./catalog.fixtures.ts"
 import "../tokens.css"
 

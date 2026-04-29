@@ -51,6 +51,8 @@ npm run docs:dev
 
 Reactコンポーネントの見た目、props / state の組み合わせ、focus-visible、Ladle の a11y addon を確認する場合は、コンポーネントカタログを使います。Framer API に依存する挙動はここでは mock / fixture までに留め、最終確認は Framer 実機で行います。
 
+Ladle 用の story と fixture は `src/story/` に分離し、`src/components/` はプロジェクトの実装コンポーネントを置く場所として保ちます。
+
 ```bash
 npm run catalog:dev
 ```
@@ -121,12 +123,14 @@ npm run build
 ```text
 src/
   app/              Plugin UI
+  components/       Project master components
   features/         Follow-up feature slices
   lib/
     framer/         Framer API integration
     mapping/        Token path to Framer style name mapping
     parser/         JSON token parser
     types/          Shared TypeScript types
+  story/            Ladle stories and fixtures
   fixtures/         Sample token JSON
 tests/              Parser tests
 scripts/
