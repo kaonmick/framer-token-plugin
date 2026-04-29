@@ -150,6 +150,7 @@ export const catalogStatsItemsLongLabel = [
 
 export const catalogTokenCardRows: TokenCardRow[] = [
   {
+    badge: { color: "#2f6bff" },
     value: "#2f6bff",
     name: "color.primitive.blue.500",
   },
@@ -157,12 +158,16 @@ export const catalogTokenCardRows: TokenCardRow[] = [
 
 export const catalogTokenCardModeRows: TokenCardRow[] = [
   {
-    mode: "Light",
+    badge: { color: "#ffffff" },
+    mode: "light",
+    modeLabel: "Light",
     value: "#ffffff",
     name: "color.semantic.background.primary",
   },
   {
-    mode: "Dark",
+    badge: { color: "#111313", borderColor: "rgba(110, 157, 255, 0.55)" },
+    mode: "dark",
+    modeLabel: "Dark",
     value: "#111313",
     name: "color.semantic.background.primary.dark",
   },

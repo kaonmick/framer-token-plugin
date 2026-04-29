@@ -1,52 +1,66 @@
 import { cx } from "./ui.tsx"
+import darkModeIcon from "../assets/icons/Icons=Dark mode.svg"
+import lightModeIcon from "../assets/icons/Icons=Light mode.svg"
+
+type TokenRowMode = "light" | "dark"
+
+interface TokenBadgeColor {
+  color: string
+  borderColor?: string
+}
 
 export interface TokenCardRow {
-  mode?: string
+  badge?: TokenBadgeColor
+  mode?: TokenRowMode
+  modeLabel?: string
   value: string
   name: string
 }
 
 interface TokenCardProps {
-  badge: { lightColor: string; darkColor?: string }
   rows: TokenCardRow[]
   label?: string
   radioName?: string
   radioValue?: string
   checked?: boolean
   onChange?: () => void
+  className?: string
 }
 
 export function TokenCard({
-  badge,
   rows,
   label,
   radioName,
   radioValue,
   checked = false,
   onChange,
+  className,
 }: TokenCardProps) {
   const hasRadio = radioName !== undefined
 
   const inner = (
     <div
       className={cx(
-        "flex items-center gap-3 rounded border px-3 py-2.5 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-yellow-300",
-        hasRadio && checked
-          ? "border-yellow-700/60 bg-yellow-950/50"
-          : "border-neutral-600 bg-neutral-700"
+        "flex gap-3 rounded-[4px] p-2",
+        hasRadio ? "items-center" : "items-start",
+        checked ? "bg-[#fff08533]" : "",
+        className
       )}
     >
       {hasRadio ? (
-        <input
-          type="radio"
-          name={radioName}
-          value={radioValue}
-          checked={checked}
-          onChange={onChange}
-          className="size-[18px] shrink-0 cursor-pointer accent-yellow-300"
-        />
+        <span className="flex h-9 shrink-0 items-center">
+          <input
+            type="radio"
+            name={radioName}
+            value={radioValue}
+            checked={checked}
+            onChange={onChange}
+            readOnly={onChange === undefined}
+            className="sr-only"
+          />
+          <RadioIndicator checked={checked} />
+        </span>
       ) : null}
-      <ColorBadge lightColor={badge.lightColor} darkColor={badge.darkColor} />
       <TokenRows rows={rows} />
     </div>
   )
@@ -54,7 +68,7 @@ export function TokenCard({
   return (
     <div className="flex flex-col gap-1.5">
       {label ? (
-        <span className="self-start rounded-full border border-neutral-500 px-2 py-0.5 text-[10px] leading-tight text-neutral-300">
+        <span className="inline-flex self-start rounded-[11px] bg-neutral-300 px-2 py-1 text-[11px] leading-none text-neutral-700">
           {label}
         </span>
       ) : null}
@@ -67,47 +81,86 @@ export function TokenCard({
   )
 }
 
-function ColorBadge({ lightColor, darkColor }: { lightColor: string; darkColor?: string }) {
-  if (!darkColor) {
-    return (
-      <span
-        className="block size-5 shrink-0 rounded-full border border-white/20"
-        style={{ backgroundColor: lightColor }}
-        aria-hidden="true"
-      />
-    )
-  }
-
+function TokenRows({ rows }: { rows: TokenCardRow[] }) {
   return (
-    <span className="relative block h-[26px] w-[30px] shrink-0" aria-hidden="true">
-      <span
-        className="absolute left-0 top-0 size-5 rounded-full border border-white/20"
-        style={{ backgroundColor: lightColor }}
-      />
-      <span
-        className="absolute bottom-0 right-0 size-5 rounded-full border border-white/20"
-        style={{ backgroundColor: darkColor }}
-      />
+    <div className="flex min-w-0 flex-1 flex-col gap-3">
+      {rows.map((row, index) => (
+        <div
+          key={`${row.mode ?? "default"}:${row.name}:${index}`}
+          className={cx("flex min-w-0 items-center gap-3", row.mode ? "min-h-[34px]" : "min-h-[30px]")}
+        >
+          <ColorBadge color={row.badge?.color ?? row.value} borderColor={row.badge?.borderColor} />
+          <div className="flex min-w-0 flex-1 flex-col justify-center gap-1">
+            <div className={cx("flex min-w-0 items-center", row.mode ? "gap-2" : "")}>
+              {row.mode ? (
+                <>
+                  <ModeIcon mode={row.mode} />
+                  <span className="sr-only">{row.modeLabel ?? (row.mode === "light" ? "Light" : "Dark")}</span>
+                </>
+              ) : null}
+              <span
+                className="block min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[12px] leading-none text-neutral-50"
+                lang="en"
+              >
+                {row.value}
+              </span>
+            </div>
+            <span
+              className="block min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[14px] leading-none text-neutral-200"
+              lang="en"
+            >
+              {row.name}
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function ColorBadge({ color, borderColor }: { color: string; borderColor?: string }) {
+  return (
+    <span
+      className="block size-[18px] shrink-0 rounded-full border"
+      style={{
+        backgroundColor: color,
+        borderColor: borderColor ?? "rgba(255, 255, 255, 0.2)",
+      }}
+      aria-hidden="true"
+    />
+  )
+}
+
+function RadioIndicator({ checked }: { checked: boolean }) {
+  return (
+    <span className="flex size-4 items-center justify-center">
+      <svg
+        aria-hidden="true"
+        className="block size-4"
+        viewBox="0 0 16 16"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <circle
+          cx="8"
+          cy="8"
+          r="4.75"
+          stroke={checked ? "#FFD400" : "#D4D4D4"}
+          strokeWidth="1.5"
+        />
+        {checked ? <circle cx="8" cy="8" r="2.25" fill="#FFD400" /> : null}
+      </svg>
     </span>
   )
 }
 
-function TokenRows({ rows }: { rows: TokenCardRow[] }) {
+function ModeIcon({ mode }: { mode: TokenRowMode }) {
   return (
-    <div className="flex min-w-0 flex-col gap-0.5">
-      {rows.map((row, index) => (
-        <div key={index} className="flex min-w-0 items-baseline gap-1.5 text-[11px] leading-[1.4]">
-          {row.mode ? (
-            <>
-              <span className="w-[2.5ch] shrink-0 text-right text-neutral-400">{row.mode}</span>
-              <span className="shrink-0 select-none text-neutral-500">|</span>
-            </>
-          ) : null}
-          <span className="shrink-0 font-mono text-neutral-100">{row.value}</span>
-          <span className="shrink-0 select-none text-neutral-500">|</span>
-          <span className="min-w-0 truncate text-neutral-300">{row.name}</span>
-        </div>
-      ))}
-    </div>
+    <img
+      aria-hidden="true"
+      alt=""
+      className="block size-4 shrink-0"
+      src={mode === "light" ? lightModeIcon : darkModeIcon}
+    />
   )
 }

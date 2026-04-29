@@ -104,10 +104,7 @@ export function TokenCardList({
               <div key={token.id}>
                 {index > 0 && <hr className="border-neutral-600" />}
                 <div className="py-1.5">
-                  <TokenCard
-                    badge={{ lightColor: token.value, darkColor: token.darkValue }}
-                    rows={tokenToRows(token, labels)}
-                  />
+                  <TokenCard rows={tokenToRows(token, labels)} />
                 </div>
               </div>
             ))}
@@ -141,7 +138,6 @@ function DuplicateConflictGroup({
         {existingConflict ? (
           <>
             <TokenCard
-              badge={{ lightColor: existingConflict.existingValue, darkColor: existingConflict.existingDarkValue }}
               rows={conflictToRows(existingConflict, labels)}
               label={labels.existingStyle}
               radioName={group.styleName}
@@ -157,7 +153,6 @@ function DuplicateConflictGroup({
             {index > 0 && <hr className="border-dashed border-neutral-600" />}
             <div className={index > 0 ? "pt-2" : ""}>
               <TokenCard
-                badge={{ lightColor: candidate.value, darkColor: candidate.darkValue }}
                 rows={tokenToRows(candidate, labels)}
                 radioName={group.styleName}
                 radioValue={candidate.id}
@@ -194,7 +189,6 @@ function ExistingConflictGroup({
         <p className="m-0 text-center text-[11px] text-neutral-300">{labels.whichTokenToUse}</p>
 
         <TokenCard
-          badge={{ lightColor: conflict.existingValue, darkColor: conflict.existingDarkValue }}
           rows={conflictToRows(conflict, labels)}
           label={labels.existingStyle}
           radioName={token.styleName}
@@ -206,7 +200,6 @@ function ExistingConflictGroup({
         <hr className="border-dashed border-neutral-600" />
 
         <TokenCard
-          badge={{ lightColor: token.value, darkColor: token.darkValue }}
           rows={tokenToRows(token, labels)}
           radioName={token.styleName}
           radioValue={token.id}
@@ -221,11 +214,23 @@ function ExistingConflictGroup({
 function tokenToRows(token: ParsedColorToken, labels: { light: string; dark: string }): TokenCardRow[] {
   if (token.darkValue) {
     return [
-      { mode: labels.light, value: token.value, name: token.sourcePath },
-      { mode: labels.dark, value: token.darkValue, name: token.darkSourcePath ?? token.sourcePath },
+      {
+        badge: { color: token.value },
+        mode: "light",
+        modeLabel: labels.light,
+        value: token.value,
+        name: token.sourcePath,
+      },
+      {
+        badge: { color: token.darkValue },
+        mode: "dark",
+        modeLabel: labels.dark,
+        value: token.darkValue,
+        name: token.darkSourcePath ?? token.sourcePath,
+      },
     ]
   }
-  return [{ value: token.value, name: token.sourcePath }]
+  return [{ badge: { color: token.value }, value: token.value, name: token.sourcePath }]
 }
 
 function conflictToRows(
@@ -234,9 +239,21 @@ function conflictToRows(
 ): TokenCardRow[] {
   if (conflict.existingDarkValue) {
     return [
-      { mode: labels.light, value: conflict.existingValue, name: conflict.existingPath },
-      { mode: labels.dark, value: conflict.existingDarkValue, name: conflict.existingPath },
+      {
+        badge: { color: conflict.existingValue },
+        mode: "light",
+        modeLabel: labels.light,
+        value: conflict.existingValue,
+        name: conflict.existingPath,
+      },
+      {
+        badge: { color: conflict.existingDarkValue },
+        mode: "dark",
+        modeLabel: labels.dark,
+        value: conflict.existingDarkValue,
+        name: conflict.existingPath,
+      },
     ]
   }
-  return [{ value: conflict.existingValue, name: conflict.existingPath }]
+  return [{ badge: { color: conflict.existingValue }, value: conflict.existingValue, name: conflict.existingPath }]
 }
