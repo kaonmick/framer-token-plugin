@@ -19,7 +19,7 @@ function CatalogSurface({ children }: { children: ReactNode }) {
 function Group({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="flex flex-col gap-2" aria-label={title}>
-      <h2 className="m-0 text-xs font-semibold leading-tight text-neutral-300">{title}</h2>
+      <h2 className="m-0 text-xs font-normal leading-tight text-neutral-300">{title}</h2>
       <div className="flex flex-wrap items-center gap-2">{children}</div>
     </section>
   )

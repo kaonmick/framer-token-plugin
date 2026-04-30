@@ -272,7 +272,7 @@ export function JsonTokenEditor({
       style={{ height: editorHeight }}
     >
       <div
-        className="overflow-hidden border-r border-neutral-600 bg-neutral-600/40 p-2 text-right font-['Fira_Code',ui-monospace,SFMono-Regular,Consolas,monospace] text-[11px] leading-4 text-neutral-300 select-none"
+        className="overflow-hidden border-r border-neutral-600 bg-neutral-600/40 p-2 text-right font-['Fira_Code','Noto_Sans_JP'] text-[11px] leading-4 text-neutral-300 select-none"
         ref={lineNumbersRef}
         aria-hidden="true"
         style={{ paddingBottom: editorPaddingBottom }}
@@ -306,13 +306,13 @@ export function JsonTokenEditor({
         >
           <pre
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 m-0 overflow-visible whitespace-pre border-0 bg-transparent p-2 font-['Fira_Code',ui-monospace,SFMono-Regular,Consolas,monospace] text-[11px] leading-4 text-neutral-100"
+            className="pointer-events-none absolute inset-0 m-0 overflow-visible whitespace-pre border-0 bg-transparent p-2 font-['Fira_Code','Noto_Sans_JP'] text-[11px] leading-4 text-neutral-100"
             style={{ paddingBottom: editorPaddingBottom }}
           >
             {renderJsonSyntaxLines(value, diagnosticsByLine, hoveredLine)}
           </pre>
           <textarea
-            className="absolute inset-0 z-[1] h-full w-full resize-none overflow-hidden border-0 bg-transparent p-2 font-['Fira_Code',ui-monospace,SFMono-Regular,Consolas,monospace] text-[11px] leading-4 text-transparent caret-yellow-300 selection:bg-yellow-300/25 focus:outline-none"
+            className="absolute inset-0 z-[1] h-full w-full resize-none overflow-hidden border-0 bg-transparent p-2 font-['Fira_Code','Noto_Sans_JP'] text-[11px] leading-4 text-transparent caret-yellow-300 selection:bg-yellow-300/25 focus:outline-none"
             value={value}
             style={{ paddingBottom: editorPaddingBottom }}
             onChange={event => {
@@ -470,7 +470,7 @@ function EditorDiagnosticTooltip({
     >
       {diagnostics.map((diagnostic, index) => (
         <div className={index > 0 ? "mt-2 border-t border-neutral-700 pt-2" : ""} key={`${diagnostic.line}:${diagnostic.title}:${index}`}>
-          <p className="m-0 font-medium leading-tight" style={{ color: ACCENT_YELLOW_COLOR }}>
+          <p className="m-0 font-normal leading-tight" style={{ color: ACCENT_YELLOW_COLOR }}>
             {diagnostic.title}
           </p>
           <DiagnosticTooltipMessage message={diagnostic.message} />

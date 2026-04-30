@@ -16,8 +16,12 @@ export default {
 const labels = {
   conflict: "Conflict",
   newTokens: "New Token",
-  whichTokenToUse: "どのトークンを使用しますか？",
+  whichTokenToUse: "どのトークンを登録しますか？",
   existingStyle: "既存のスタイル",
+  existingStyleConflictTitle: "Existing style conflict",
+  existingStyleConflictDescription: "既存のスタイルとの競合があります。登録するトークンを選択してください。",
+  duplicateStyleNameTitle: "Duplicate style name",
+  duplicateStyleNameDescription: "同じスタイル名が複数あります。インポートするトークンを選択してください。",
   emptyState: "インポート可能なカラートークンがありません。",
   checkingConflicts: "既存のカラースタイルを確認中...",
   conflictCheckFailed: "既存のカラースタイルを確認できませんでした。",
@@ -27,8 +31,8 @@ const labels = {
 
 function ListSurface({ children }: { children: ReactNode }) {
   return (
-    <main className="min-h-screen bg-neutral-950 p-6 text-neutral-100">
-      <div className="max-w-[420px]">{children}</div>
+    <main className="min-h-screen bg-neutral-900 p-6 text-neutral-100">
+      <div className="max-w-[336px]">{children}</div>
     </main>
   )
 }

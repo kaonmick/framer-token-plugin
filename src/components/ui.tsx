@@ -103,7 +103,7 @@ export function SelectControl({ children, className, ...selectProps }: SelectHTM
 
 export function SectionTitle({ children, className, ...headingProps }: HTMLAttributes<HTMLHeadingElement>) {
   return (
-    <h2 className={cx("m-0 text-base font-semibold leading-tight text-neutral-100", className)} {...headingProps}>
+    <h2 className={cx("m-0 text-base font-normal leading-tight text-neutral-100", className)} {...headingProps}>
       {children}
     </h2>
   )

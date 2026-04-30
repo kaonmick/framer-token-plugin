@@ -38,7 +38,7 @@ function OverviewSection({
   return (
     <section className="flex flex-col gap-3 rounded-2xl border border-neutral-800 bg-neutral-900/60 p-4">
       <div className="flex flex-col gap-1">
-        <h2 className="text-sm font-semibold text-neutral-100">{title}</h2>
+        <h2 className="text-sm font-normal text-neutral-100">{title}</h2>
         <p className="text-xs leading-5 text-neutral-400">{description}</p>
       </div>
       {children}
@@ -94,7 +94,7 @@ export const Overview = () => (
         <p className="text-xs uppercase tracking-[0.24em] text-neutral-500">
           TokenCard states
         </p>
-        <h1 className="text-2xl font-semibold text-neutral-50">TokenCard overview</h1>
+        <h1 className="text-2xl font-normal text-neutral-50">TokenCard overview</h1>
         <p className="max-w-2xl text-sm leading-6 text-neutral-400">
           Default、Selectable、Selected、Conflict を 1 ページで並べて確認するための
           story。badge、mode 表示、radio の有無、既存 style conflict の差分をまとめて見る。
