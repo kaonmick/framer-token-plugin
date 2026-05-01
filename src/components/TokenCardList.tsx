@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import type { ColorStyleConflict, ConflictGroup, ParsedColorToken } from "../lib/types/tokens.ts"
 import { TokenCard, type TokenCardRow } from "./TokenCard.tsx"
 
@@ -6,6 +7,10 @@ interface TokenCardListLabels {
   newTokens: string
   whichTokenToUse: string
   existingStyle: string
+  existingStyleConflictTitle: string
+  existingStyleConflictDescription: string
+  duplicateStyleNameTitle: string
+  duplicateStyleNameDescription: string
   emptyState: string
   checkingConflicts: string
   conflictCheckFailed: string
@@ -42,178 +47,216 @@ export function TokenCardList({
   const hasExistingConflicts = existingConflicts.length > 0
   const hasConflicts = hasJsonConflicts || hasExistingConflicts
   const hasNewTokens = newTokens.length > 0
+  const shouldShowConflictSection = hasConflicts || isCheckingConflicts || conflictError !== null
 
-  if (!hasConflicts && !hasNewTokens && !isCheckingConflicts) {
+  if (!hasConflicts && !hasNewTokens && !isCheckingConflicts && !conflictError) {
     return (
-      <p className="m-0 rounded border border-dashed border-neutral-500 p-3.5 text-center text-xs text-neutral-300">
+      <p className="m-0 rounded-[4px] bg-neutral-700 px-4 py-3 text-center text-[13px] leading-[1.5] text-neutral-200">
         {labels.emptyState}
       </p>
     )
   }
 
   return (
-    <div className="flex flex-col gap-5">
-      {(hasConflicts || isCheckingConflicts) && (
-        <section className="flex flex-col gap-2" aria-label={labels.conflict}>
-          <h3 className="m-0 text-sm font-semibold leading-tight text-neutral-100">{labels.conflict}</h3>
-          <div className="flex flex-col gap-0 border-l-2 border-orange-600 pl-3">
-            {conflictGroups.map((group, groupIndex) => (
-              <DuplicateConflictGroup
-                key={group.styleName}
-                group={group}
-                existingConflict={existingConflicts.find(c => c.styleName === group.styleName)}
-                selectedId={conflictSelections.get(group.styleName) ?? group.candidates[0]?.id ?? ""}
-                onSelect={id => onSelectionChange(group.styleName, id)}
-                labels={labels}
-                showDivider={groupIndex > 0}
-              />
-            ))}
+    <div className="flex flex-col gap-4">
+      {shouldShowConflictSection && (
+        <PreviewSection title={labels.conflict} accentClassName="bg-[#733e0a]" ariaLabel={labels.conflict}>
+          {hasConflicts ? (
+            <div className="flex flex-col gap-10">
+              {hasExistingConflicts && (
+                <ConflictBlock
+                  title={labels.existingStyleConflictTitle}
+                  description={labels.existingStyleConflictDescription}
+                >
+                  {existingConflictTokens.map(token => {
+                    const conflict = existingConflicts.find(c => c.styleName === token.styleName)
+                    const selectedId = conflictSelections.get(token.styleName) ?? "existing"
+                    if (!conflict) return null
+                    return (
+                      <ConflictItem
+                        key={token.styleName}
+                        styleName={token.styleName}
+                        question={labels.whichTokenToUse}
+                      >
+                        <CardStack>
+                          <TokenCard
+                            className="w-full"
+                            rows={conflictToRows(conflict, labels)}
+                            label={labels.existingStyle}
+                            radioName={token.styleName}
+                            radioValue="existing"
+                            checked={selectedId === "existing"}
+                            onChange={() => onSelectionChange(token.styleName, "existing")}
+                          />
+                          <TokenCard
+                            className="w-full"
+                            rows={tokenToRows(token, labels)}
+                            radioName={token.styleName}
+                            radioValue={token.id}
+                            checked={selectedId === token.id}
+                            onChange={() => onSelectionChange(token.styleName, token.id)}
+                          />
+                        </CardStack>
+                      </ConflictItem>
+                    )
+                  })}
+                </ConflictBlock>
+              )}
 
-            {existingConflictTokens.map((token, index) => {
-              const conflict = existingConflicts.find(c => c.styleName === token.styleName)
-              if (!conflict) return null
-              return (
-                <ExistingConflictGroup
-                  key={token.styleName}
-                  token={token}
-                  conflict={conflict}
-                  selectedId={conflictSelections.get(token.styleName) ?? "existing"}
-                  onSelect={id => onSelectionChange(token.styleName, id)}
-                  labels={labels}
-                  showDivider={index > 0 || conflictGroups.length > 0}
-                />
-              )
-            })}
-
-            {isCheckingConflicts && !conflictError && !hasConflicts && (
-              <p className="m-0 py-2 text-xs text-neutral-300">{labels.checkingConflicts}</p>
-            )}
-
-            {conflictError && (
-              <p className="m-0 py-2 text-xs text-red-300">{labels.conflictCheckFailed}</p>
-            )}
-          </div>
-        </section>
+              {hasJsonConflicts && (
+                <ConflictBlock
+                  title={labels.duplicateStyleNameTitle}
+                  description={labels.duplicateStyleNameDescription}
+                >
+                  {conflictGroups.map(group => {
+                    const selectedId = conflictSelections.get(group.styleName) ?? group.candidates[0]?.id ?? ""
+                    return (
+                      <ConflictItem
+                        key={group.styleName}
+                        styleName={group.styleName}
+                        question={labels.whichTokenToUse}
+                      >
+                        <CardStack>
+                          {group.candidates.map(candidate => (
+                            <TokenCard
+                              key={candidate.id}
+                              className="w-full"
+                              rows={tokenToRows(candidate, labels)}
+                              radioName={group.styleName}
+                              radioValue={candidate.id}
+                              checked={selectedId === candidate.id}
+                              onChange={() => onSelectionChange(group.styleName, candidate.id)}
+                            />
+                          ))}
+                        </CardStack>
+                      </ConflictItem>
+                    )
+                  })}
+                </ConflictBlock>
+              )}
+            </div>
+          ) : (
+            <StatusMessage
+              tone={conflictError ? "error" : "default"}
+              title={conflictError ? labels.conflictCheckFailed : labels.checkingConflicts}
+              detail={conflictError ?? undefined}
+            />
+          )}
+        </PreviewSection>
       )}
 
       {hasNewTokens && (
-        <section className="flex flex-col gap-2" aria-label={labels.newTokens}>
-          <h3 className="m-0 text-sm font-semibold leading-tight text-neutral-100">{labels.newTokens}</h3>
-          <div className="flex flex-col border-l-2 border-green-600 pl-3">
-            {newTokens.map((token, index) => (
-              <div key={token.id}>
-                {index > 0 && <hr className="border-neutral-600" />}
-                <div className="py-1.5">
-                  <TokenCard
-                    badge={{ lightColor: token.value, darkColor: token.darkValue }}
-                    rows={tokenToRows(token, labels)}
-                  />
-                </div>
+        <PreviewSection title={labels.newTokens} accentClassName="bg-[#0d542b]" ariaLabel={labels.newTokens}>
+          <div className="flex flex-col gap-4">
+            {newTokens.map(token => (
+              <div key={token.id} className="flex flex-col gap-4">
+                <TokenCard className="w-full" rows={tokenToRows(token, labels)} />
               </div>
             ))}
           </div>
-        </section>
+        </PreviewSection>
       )}
     </div>
   )
 }
 
-function DuplicateConflictGroup({
-  group,
-  existingConflict,
-  selectedId,
-  onSelect,
-  labels,
-  showDivider,
+function PreviewSection({
+  title,
+  accentClassName,
+  ariaLabel,
+  children,
 }: {
-  group: ConflictGroup
-  existingConflict?: ColorStyleConflict
-  selectedId: string
-  onSelect: (id: string) => void
-  labels: TokenCardListLabels
-  showDivider: boolean
+  title: string
+  accentClassName: string
+  ariaLabel: string
+  children: ReactNode
 }) {
   return (
-    <div>
-      {showDivider && <hr className="border-neutral-600" />}
-      <div className="flex flex-col gap-2 py-3">
-        <p className="m-0 text-center text-[11px] text-neutral-300">{labels.whichTokenToUse}</p>
-        {existingConflict ? (
-          <>
-            <TokenCard
-              badge={{ lightColor: existingConflict.existingValue, darkColor: existingConflict.existingDarkValue }}
-              rows={conflictToRows(existingConflict, labels)}
-              label={labels.existingStyle}
-              radioName={group.styleName}
-              radioValue="existing"
-              checked={selectedId === "existing"}
-              onChange={() => onSelect("existing")}
-            />
-            <hr className="border-dashed border-neutral-600" />
-          </>
-        ) : null}
-        {group.candidates.map((candidate, index) => (
-          <div key={candidate.id}>
-            {index > 0 && <hr className="border-dashed border-neutral-600" />}
-            <div className={index > 0 ? "pt-2" : ""}>
-              <TokenCard
-                badge={{ lightColor: candidate.value, darkColor: candidate.darkValue }}
-                rows={tokenToRows(candidate, labels)}
-                radioName={group.styleName}
-                radioValue={candidate.id}
-                checked={candidate.id === selectedId}
-                onChange={() => onSelect(candidate.id)}
-              />
-            </div>
-          </div>
-        ))}
+    <section className="flex flex-col gap-1" aria-label={ariaLabel}>
+      <h3 className="m-0 font-['Jost','Noto_Sans_JP'] text-[16px] leading-none font-normal text-neutral-100">
+        {title}
+      </h3>
+      <div className="flex overflow-hidden rounded-[4px] bg-neutral-700">
+        <div className={`w-1 shrink-0 self-stretch ${accentClassName}`} aria-hidden="true" />
+        <div className="min-w-0 flex-1 p-4">{children}</div>
       </div>
+    </section>
+  )
+}
+
+function ConflictBlock({
+  title,
+  description,
+  children,
+}: {
+  title: string
+  description: string
+  children: ReactNode
+}) {
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1">
+          <p className="m-0 font-['Jost','Noto_Sans_JP'] text-[14px] leading-[1.5] font-normal text-neutral-200">
+            {title}
+          </p>
+          <p className="m-0 text-[11px] leading-[1.5] text-neutral-300">{description}</p>
+        </div>
+      </div>
+      <div className="flex flex-col gap-6">{children}</div>
     </div>
   )
 }
 
-function ExistingConflictGroup({
-  token,
-  conflict,
-  selectedId,
-  onSelect,
-  labels,
-  showDivider,
+function ConflictItem({
+  styleName,
+  question,
+  children,
 }: {
-  token: ParsedColorToken
-  conflict: ColorStyleConflict
-  selectedId: string
-  onSelect: (id: string) => void
-  labels: TokenCardListLabels
-  showDivider: boolean
+  styleName: string
+  question: string
+  children: ReactNode
 }) {
   return (
-    <div>
-      {showDivider && <hr className="border-neutral-600" />}
-      <div className="flex flex-col gap-2 py-3">
-        <p className="m-0 text-center text-[11px] text-neutral-300">{labels.whichTokenToUse}</p>
+    <div className="flex flex-col gap-4 rounded-[4px] border border-[#737373] p-2">
+      <SelectionPrompt styleName={styleName} question={question} />
+      {children}
+    </div>
+  )
+}
 
-        <TokenCard
-          badge={{ lightColor: conflict.existingValue, darkColor: conflict.existingDarkValue }}
-          rows={conflictToRows(conflict, labels)}
-          label={labels.existingStyle}
-          radioName={token.styleName}
-          radioValue="existing"
-          checked={selectedId === "existing"}
-          onChange={() => onSelect("existing")}
-        />
+function SelectionPrompt({ styleName, question }: { styleName: string; question: string }) {
+  return (
+    <div className="flex flex-col items-center text-center text-neutral-200">
+      <p className="m-0 font-['Jost','Noto_Sans_JP'] text-[14px] leading-[1.4]" lang="en">
+        {`"${styleName}"`}
+      </p>
+      <p className="m-0 text-[12px] leading-[1.4]">{question}</p>
+    </div>
+  )
+}
 
-        <hr className="border-dashed border-neutral-600" />
+function CardStack({ children }: { children: ReactNode }) {
+  return <div className="flex flex-col gap-2">{children}</div>
+}
 
-        <TokenCard
-          badge={{ lightColor: token.value, darkColor: token.darkValue }}
-          rows={tokenToRows(token, labels)}
-          radioName={token.styleName}
-          radioValue={token.id}
-          checked={selectedId === token.id}
-          onChange={() => onSelect(token.id)}
-        />
-      </div>
+function StatusMessage({
+  title,
+  detail,
+  tone,
+}: {
+  title: string
+  detail?: string
+  tone: "default" | "error"
+}) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <p className="m-0 text-[13px] leading-[1.5] text-neutral-100">{title}</p>
+      {detail ? (
+        <p className={`m-0 text-[11px] leading-[1.5] ${tone === "error" ? "text-red-200" : "text-neutral-300"}`}>
+          {detail}
+        </p>
+      ) : null}
     </div>
   )
 }
@@ -221,11 +264,23 @@ function ExistingConflictGroup({
 function tokenToRows(token: ParsedColorToken, labels: { light: string; dark: string }): TokenCardRow[] {
   if (token.darkValue) {
     return [
-      { mode: labels.light, value: token.value, name: token.sourcePath },
-      { mode: labels.dark, value: token.darkValue, name: token.darkSourcePath ?? token.sourcePath },
+      {
+        badge: { color: token.value },
+        mode: "light",
+        modeLabel: labels.light,
+        value: token.value,
+        name: token.styleName,
+      },
+      {
+        badge: { color: token.darkValue },
+        mode: "dark",
+        modeLabel: labels.dark,
+        value: token.darkValue,
+        name: token.styleName,
+      },
     ]
   }
-  return [{ value: token.value, name: token.sourcePath }]
+  return [{ badge: { color: token.value }, value: token.value, name: token.styleName }]
 }
 
 function conflictToRows(
@@ -234,9 +289,21 @@ function conflictToRows(
 ): TokenCardRow[] {
   if (conflict.existingDarkValue) {
     return [
-      { mode: labels.light, value: conflict.existingValue, name: conflict.existingPath },
-      { mode: labels.dark, value: conflict.existingDarkValue, name: conflict.existingPath },
+      {
+        badge: { color: conflict.existingValue },
+        mode: "light",
+        modeLabel: labels.light,
+        value: conflict.existingValue,
+        name: conflict.styleName,
+      },
+      {
+        badge: { color: conflict.existingDarkValue },
+        mode: "dark",
+        modeLabel: labels.dark,
+        value: conflict.existingDarkValue,
+        name: conflict.styleName,
+      },
     ]
   }
-  return [{ value: conflict.existingValue, name: conflict.existingPath }]
+  return [{ badge: { color: conflict.existingValue }, value: conflict.existingValue, name: conflict.styleName }]
 }

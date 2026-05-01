@@ -290,7 +290,7 @@ export function App() {
 
   return (
     <main
-      className="flex min-h-screen flex-col gap-6 bg-neutral-800 px-5 pb-28 pt-8 font-['Jost','Noto_Sans_JP',ui-sans-serif,system-ui,sans-serif] text-neutral-100 md:gap-16 md:px-16 md:pb-32 md:pt-20"
+      className="flex min-h-screen flex-col gap-6 bg-neutral-800 px-5 pb-28 pt-8 font-['Jost','Noto_Sans_JP'] text-neutral-100 md:gap-16 md:px-16 md:pb-32 md:pt-20"
       data-capture-mode={captureMode ?? undefined}
       data-ready="true"
       lang={language}
@@ -351,6 +351,10 @@ export function App() {
                 newTokens: t.newTokens,
                 whichTokenToUse: t.whichTokenToUse,
                 existingStyle: t.existingStyle,
+                existingStyleConflictTitle: t.existingStyleConflictTitle,
+                existingStyleConflictDescription: t.existingStyleConflictDescription,
+                duplicateStyleNameTitle: t.duplicateStyleNameTitle,
+                duplicateStyleNameDescription: t.duplicateStyleNameDescription,
                 emptyState: t.emptyState,
                 checkingConflicts: t.checkingConflicts,
                 conflictCheckFailed: t.conflictCheckFailed,

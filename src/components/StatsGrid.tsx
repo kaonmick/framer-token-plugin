@@ -16,7 +16,9 @@ export function StatsGrid({ items }: StatsGridProps) {
           key={item.label}
         >
           <span className="text-[11px] text-neutral-300">{item.label}</span>
-          <strong className="text-base leading-tight text-neutral-100 [overflow-wrap:anywhere]">{item.value}</strong>
+          <span className="text-base font-normal leading-tight text-neutral-100 [overflow-wrap:anywhere]">
+            {item.value}
+          </span>
         </div>
       ))}
     </section>

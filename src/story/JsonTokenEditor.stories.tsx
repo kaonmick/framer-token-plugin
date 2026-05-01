@@ -2,8 +2,8 @@ import { action } from "@ladle/react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import type { StoryDefault } from "@ladle/react"
 import type { ReactNode, RefObject } from "react"
-import type { EditorDiagnostic } from "./JsonTokenEditor.tsx"
-import { JsonTokenEditor } from "./JsonTokenEditor.tsx"
+import type { EditorDiagnostic } from "../components/JsonTokenEditor.tsx"
+import { JsonTokenEditor } from "../components/JsonTokenEditor.tsx"
 import {
   catalogEditorDiagnostics,
   catalogEditorJson,
@@ -31,7 +31,7 @@ function EditorSurface({
   return (
     <main className="min-h-screen bg-neutral-950 p-6 text-neutral-100" ref={surfaceRef}>
       <div className="flex max-w-[640px] flex-col gap-3">
-        <h2 className="m-0 text-xs font-semibold leading-tight text-neutral-300">JsonTokenEditor</h2>
+        <h2 className="m-0 text-xs font-normal leading-tight text-neutral-300">JsonTokenEditor</h2>
         {children}
       </div>
     </main>

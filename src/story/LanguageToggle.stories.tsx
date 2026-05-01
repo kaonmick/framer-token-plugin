@@ -2,7 +2,7 @@ import { action } from "@ladle/react"
 import { useState } from "react"
 import type { StoryDefault } from "@ladle/react"
 import type { ReactNode } from "react"
-import { LanguageToggle } from "./LanguageToggle.tsx"
+import { LanguageToggle } from "../components/LanguageToggle.tsx"
 import "../tokens.css"
 
 export default {

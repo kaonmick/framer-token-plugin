@@ -1,6 +1,6 @@
 /** @type {import("@ladle/react").UserConfig} */
 const config = {
-  stories: "src/components/**/*.stories.tsx",
+  stories: "src/story/**/*.stories.tsx",
   viteConfig: ".ladle/vite.config.ts",
   port: 61000,
   outDir: "dist-ladle",
@@ -16,7 +16,7 @@ const config = {
         tablet: 768,
         desktop: 1024,
       },
-      defaultState: 420,
+      // defaultState: 420,
     },
   },
 }

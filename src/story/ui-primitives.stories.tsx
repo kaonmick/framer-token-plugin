@@ -9,7 +9,7 @@ import {
   HelperText,
   MessageBox,
   SectionTitle,
-} from "./ui.tsx"
+} from "../components/ui.tsx"
 import "../tokens.css"
 
 export default {
