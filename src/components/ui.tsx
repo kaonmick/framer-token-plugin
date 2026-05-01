@@ -12,7 +12,6 @@ export function cx(...classes: ClassValue[]): string {
   return classes.filter(Boolean).join(" ")
 }
 
-const formFocusRingClass = "focus:outline-2 focus:outline-offset-2 focus:outline-yellow-300"
 const buttonBaseClass = cx(
   "inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-full border font-normal leading-[1.2] transition-colors",
   "disabled:cursor-not-allowed"
@@ -40,8 +39,7 @@ const selectWrapClass = cx(
 )
 const selectClass = cx(
   "h-8 min-h-8 w-full cursor-pointer appearance-none rounded-full border border-neutral-200",
-  "bg-neutral-800 px-2 pr-7 text-xs text-neutral-100",
-  formFocusRingClass
+  "bg-neutral-800 px-2 pr-7 text-xs text-neutral-100"
 )
 
 export const tokenTextClass = "block min-w-0 max-w-full overflow-hidden truncate"

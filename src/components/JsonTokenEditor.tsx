@@ -312,7 +312,7 @@ export function JsonTokenEditor({
             {renderJsonSyntaxLines(value, diagnosticsByLine, hoveredLine)}
           </pre>
           <textarea
-            className="absolute inset-0 z-[1] h-full w-full resize-none overflow-hidden border-0 bg-transparent p-2 font-['Fira_Code','Noto_Sans_JP'] text-[11px] leading-4 text-transparent caret-yellow-300 selection:bg-yellow-300/25 focus:outline-none"
+            className="absolute inset-0 z-[1] h-full w-full resize-none overflow-hidden border-0 bg-transparent p-2 font-['Fira_Code','Noto_Sans_JP'] text-[11px] leading-4 text-transparent caret-yellow-300 selection:bg-yellow-300/25"
             value={value}
             style={{ paddingBottom: editorPaddingBottom }}
             onChange={event => {
