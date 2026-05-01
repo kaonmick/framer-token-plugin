@@ -13,10 +13,7 @@ export function LanguageToggle({ language, onLanguageChange }: LanguageTogglePro
   return (
     <button
       type="button"
-      className={cx(
-        "relative h-[26px] w-[52px] shrink-0 cursor-pointer overflow-visible rounded-full bg-neutral-600 p-0 font-normal text-ui-control text-neutral-200",
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-300"
-      )}
+      className="relative h-[26px] w-[52px] shrink-0 cursor-pointer overflow-visible rounded-full bg-neutral-600 p-0 font-normal text-ui-control text-neutral-200"
       lang="en"
       aria-label={isEnglish ? "Language: English. Switch to Japanese." : "Language: Japanese. Switch to English."}
       aria-pressed={!isEnglish}

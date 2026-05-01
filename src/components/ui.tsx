@@ -12,12 +12,10 @@ export function cx(...classes: ClassValue[]): string {
   return classes.filter(Boolean).join(" ")
 }
 
-const focusRingClass = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-300"
 const formFocusRingClass = "focus:outline-2 focus:outline-offset-2 focus:outline-yellow-300"
 const buttonBaseClass = cx(
   "inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-full border font-normal leading-[1.2] transition-colors",
-  "disabled:cursor-not-allowed",
-  focusRingClass
+  "disabled:cursor-not-allowed"
 )
 
 const buttonSizeClass = {
@@ -80,7 +78,6 @@ export function FileButton({ accept, children, className, onChange, size = "sm" 
       className={cx(
         "relative inline-flex cursor-pointer items-center justify-center overflow-hidden rounded-full",
         "border border-neutral-200 bg-transparent font-normal leading-[1.2] text-neutral-200 transition-colors hover:bg-neutral-700 active:bg-neutral-700",
-        "focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-yellow-300",
         buttonSizeClass[size],
         className
       )}

@@ -390,7 +390,7 @@ function buildParsedTokens(
   warnings: ParseWarning[]
 ): { tokens: ParsedColorToken[]; conflictGroups: ConflictGroup[] } {
   const parsedTokens: ParsedColorToken[] = []
-  const tokensByStyleName = new Map<string, { light?: ResolvedRawColorToken; dark?: ResolvedRawColorToken }>()
+  const tokensByCandidateKey = new Map<string, { light?: ResolvedRawColorToken; dark?: ResolvedRawColorToken }>()
 
   for (const token of tokens) {
     if (!token.mode) {
@@ -398,7 +398,8 @@ function buildParsedTokens(
       continue
     }
 
-    const groupedToken = tokensByStyleName.get(token.styleName) ?? {}
+    const candidateKey = pathToSourcePath(token.stylePath)
+    const groupedToken = tokensByCandidateKey.get(candidateKey) ?? {}
     if (groupedToken[token.mode]) {
       warnings.push({
         code: "duplicate-style-name",
@@ -409,10 +410,10 @@ function buildParsedTokens(
     }
 
     groupedToken[token.mode] = token
-    tokensByStyleName.set(token.styleName, groupedToken)
+    tokensByCandidateKey.set(candidateKey, groupedToken)
   }
 
-  for (const groupedToken of tokensByStyleName.values()) {
+  for (const groupedToken of tokensByCandidateKey.values()) {
     if (groupedToken.light) {
       if (groupedToken.dark || groupedToken.light.modeSource === "value") {
         parsedTokens.push(toParsedToken(groupedToken.light, groupedToken.dark))

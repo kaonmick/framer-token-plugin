@@ -374,4 +374,114 @@ describe("parseColorTokenJson", () => {
       ])
     )
   })
+
+  it("keeps four light dark duplicate candidates in one conflict group", () => {
+    const result = parseColorTokenJson(`{
+      "color": {
+        "light": {
+          "semantic": {
+            "surface": {
+              "$type": "color",
+              "$value": "#ffffff"
+            }
+          }
+        },
+        "dark": {
+          "semantic": {
+            "surface": {
+              "$type": "color",
+              "$value": "#111111"
+            }
+          }
+        }
+      },
+      "colors": {
+        "light": {
+          "semantic": {
+            "surface": {
+              "$type": "color",
+              "$value": "#f5f5f5"
+            }
+          }
+        },
+        "dark": {
+          "semantic": {
+            "surface": {
+              "$type": "color",
+              "$value": "#151515"
+            }
+          }
+        }
+      },
+      "colour": {
+        "light": {
+          "semantic": {
+            "surface": {
+              "$type": "color",
+              "$value": "#ededed"
+            }
+          }
+        },
+        "dark": {
+          "semantic": {
+            "surface": {
+              "$type": "color",
+              "$value": "#1d1d1d"
+            }
+          }
+        }
+      },
+      "colours": {
+        "light": {
+          "semantic": {
+            "surface": {
+              "$type": "color",
+              "$value": "#e5e5e5"
+            }
+          }
+        },
+        "dark": {
+          "semantic": {
+            "surface": {
+              "$type": "color",
+              "$value": "#252525"
+            }
+          }
+        }
+      }
+    }`)
+
+    expect(result.tokens).toHaveLength(0)
+    expect(result.conflictGroups).toHaveLength(1)
+    expect(result.conflictGroups[0]?.styleName).toBe("semantic/surface")
+    expect(result.conflictGroups[0]?.candidates).toHaveLength(4)
+    expect(result.conflictGroups[0]?.candidates).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          sourcePath: "color.light.semantic.surface",
+          darkSourcePath: "color.dark.semantic.surface",
+          value: "#ffffff",
+          darkValue: "#111111",
+        }),
+        expect.objectContaining({
+          sourcePath: "colors.light.semantic.surface",
+          darkSourcePath: "colors.dark.semantic.surface",
+          value: "#f5f5f5",
+          darkValue: "#151515",
+        }),
+        expect.objectContaining({
+          sourcePath: "colour.light.semantic.surface",
+          darkSourcePath: "colour.dark.semantic.surface",
+          value: "#ededed",
+          darkValue: "#1d1d1d",
+        }),
+        expect.objectContaining({
+          sourcePath: "colours.light.semantic.surface",
+          darkSourcePath: "colours.dark.semantic.surface",
+          value: "#e5e5e5",
+          darkValue: "#252525",
+        }),
+      ])
+    )
+  })
 })

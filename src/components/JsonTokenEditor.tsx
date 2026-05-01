@@ -266,7 +266,7 @@ export function JsonTokenEditor({
 
   return (
     <div
-      className="relative grid min-h-[180px] w-full grid-cols-[48px_minmax(0,1fr)] overflow-hidden rounded border border-neutral-200 bg-neutral-700 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-yellow-300"
+      className="relative grid min-h-[180px] w-full grid-cols-[48px_minmax(0,1fr)] overflow-hidden rounded border border-neutral-200 bg-neutral-700"
       data-json-editor="true"
       ref={editorRef}
       style={{ height: editorHeight }}
@@ -343,7 +343,7 @@ export function JsonTokenEditor({
       <button
         aria-describedby={isCopyTooltipVisible ? "json-copy-tooltip" : undefined}
         aria-label={getCopyButtonLabel(copyState, labels)}
-        className="absolute right-2 top-2 z-10 inline-flex size-7 cursor-pointer items-center justify-center rounded bg-transparent text-neutral-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-300"
+        className="absolute right-2 top-2 z-10 inline-flex size-7 cursor-pointer items-center justify-center rounded bg-transparent text-neutral-200"
         type="button"
         onBlur={hideCopyTooltip}
         onClick={event => {
@@ -379,7 +379,7 @@ export function JsonTokenEditor({
         aria-valuemax={MAX_EDITOR_HEIGHT}
         aria-valuemin={MIN_EDITOR_HEIGHT}
         aria-valuenow={editorHeight}
-        className="absolute bottom-0 right-0 z-10 inline-flex size-6 cursor-ns-resize items-center justify-center rounded text-neutral-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-300"
+        className="absolute bottom-0 right-0 z-10 inline-flex size-6 cursor-ns-resize items-center justify-center rounded text-neutral-200"
         role="separator"
         tabIndex={0}
         onKeyDown={handleResizeKeyDown}

@@ -12,7 +12,6 @@ import {
   DialogBackdrop,
   DialogPanel,
   FileButton,
-  SectionTitle,
 } from "../components/ui.tsx"
 import conflictManyColorsJson from "../fixtures/conflict-many-colors.json?raw"
 import invalidJsonFixture from "../fixtures/error-invalid-json.json?raw"
@@ -186,21 +185,12 @@ export function App() {
 
   const stats = useMemo(
     () => [
-      { label: t.primitive, value: primitiveCount },
-      { label: t.semantic, value: semanticCount },
-      { label: t.lightDark, value: modePairCount },
-      { label: t.warnings, value: parseResult.warnings.length },
+      { label: messages.en.primitive, value: primitiveCount },
+      { label: messages.en.semantic, value: semanticCount },
+      { label: messages.en.lightDark, value: modePairCount },
+      { label: messages.en.warnings, value: parseResult.warnings.length },
     ],
-    [
-      modePairCount,
-      parseResult.warnings.length,
-      primitiveCount,
-      semanticCount,
-      t.lightDark,
-      t.primitive,
-      t.semantic,
-      t.warnings,
-    ]
+    [modePairCount, parseResult.warnings.length, primitiveCount, semanticCount]
   )
 
   function analyzeJson(nextText = jsonText) {
@@ -334,8 +324,7 @@ export function App() {
         <>
           <StatsGrid items={stats} />
 
-          <section className="flex flex-col gap-2.5" aria-labelledby="preview-heading">
-            <SectionTitle id="preview-heading">{t.preview}</SectionTitle>
+          <section aria-label={t.preview}>
             <TokenCardList
               tokens={parseResult.tokens}
               conflictGroups={parseResult.conflictGroups}
