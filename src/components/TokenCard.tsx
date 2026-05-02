@@ -56,7 +56,7 @@ export function TokenCard({
             checked={checked}
             onChange={onChange}
             readOnly={onChange === undefined}
-            className="m-0 shrink-0"
+            className="m-0 shrink-0 accent-[var(--color-yellow-300)]"
           />
         </span>
       ) : null}

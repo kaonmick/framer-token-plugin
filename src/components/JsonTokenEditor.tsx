@@ -312,7 +312,7 @@ export function JsonTokenEditor({
             {renderJsonSyntaxLines(value, diagnosticsByLine, hoveredLine)}
           </pre>
           <textarea
-            className="absolute inset-0 z-[1] h-full w-full resize-none overflow-hidden border-0 bg-transparent p-2 font-['Fira_Code','Noto_Sans_JP'] text-[11px] leading-4 text-transparent caret-yellow-300 selection:bg-yellow-300/25"
+            className="absolute inset-0 z-[1] h-full w-full resize-none overflow-hidden border-0 bg-transparent p-2 font-['Fira_Code','Noto_Sans_JP'] text-[11px] leading-4 text-transparent caret-yellow-300 selection:bg-yellow-300/25 focus:outline-none"
             value={value}
             style={{ paddingBottom: editorPaddingBottom }}
             onChange={event => {
@@ -379,7 +379,7 @@ export function JsonTokenEditor({
         aria-valuemax={MAX_EDITOR_HEIGHT}
         aria-valuemin={MIN_EDITOR_HEIGHT}
         aria-valuenow={editorHeight}
-        className="absolute bottom-0 right-0 z-10 inline-flex size-6 cursor-ns-resize items-center justify-center rounded text-neutral-200"
+        className="absolute bottom-1 right-1 z-10 inline-flex size-6 cursor-ns-resize items-center justify-center rounded text-neutral-200"
         role="separator"
         tabIndex={0}
         onKeyDown={handleResizeKeyDown}
