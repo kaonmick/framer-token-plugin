@@ -683,6 +683,7 @@
                 <tr>
                   <th>catalog_id</th>
                   <th>発生タイミング</th>
+                  <th>実UIでの表示場所</th>
                   <th>条件</th>
                   <th>処理</th>
                   <th>ユーザー向け表示</th>
@@ -693,6 +694,7 @@
                 <tr>
                   <td contenteditable="true">notice.oklch_converted_to_rgba</td>
                   <td contenteditable="true">parse</td>
+                  <td contenteditable="true">Import summary dialog の補足文</td>
                   <td contenteditable="true">OKLCHをFramer互換のrgba()に変換した</td>
                   <td><span class="tag ok">import可</span></td>
                   <td contenteditable="true">OKLCHカラーをFramer互換のためrgba()に変換しました。</td>
@@ -701,6 +703,7 @@
                 <tr>
                   <td contenteditable="true">notice.sorted_by_token_path</td>
                   <td contenteditable="true">pre-import</td>
+                  <td contenteditable="true">現状は実UI未表示（catalogのみ）</td>
                   <td contenteditable="true">番号付きtokenがJSON内で番号順に並んでいない</td>
                   <td><span class="tag ok">番号順に整列</span></td>
                   <td contenteditable="true">番号付きトークンは、番号順に並べて登録します。</td>
@@ -716,6 +719,7 @@
                 <tr>
                   <th>catalog_id</th>
                   <th>発生タイミング</th>
+                  <th>実UIでの表示場所</th>
                   <th>条件</th>
                   <th>処理</th>
                   <th>解決タイプ</th>
@@ -727,6 +731,7 @@
                 <tr>
                   <td contenteditable="true">warning.unsupported_token</td>
                   <td contenteditable="true">parse</td>
+                  <td contenteditable="true">JSON editor の行診断</td>
                   <td contenteditable="true">color tokenの$valueが文字列ではない</td>
                   <td><span class="tag warn">該当tokenをskip</span></td>
                   <td><span class="tag warn">自動skip</span></td>
@@ -736,6 +741,7 @@
                 <tr>
                   <td contenteditable="true">warning.unsupported_color</td>
                   <td contenteditable="true">parse</td>
+                  <td contenteditable="true">JSON editor の行診断</td>
                   <td contenteditable="true">色形式が未対応、または解釈できない</td>
                   <td><span class="tag warn">該当tokenをskip</span></td>
                   <td><span class="tag warn">自動skip</span></td>
@@ -745,6 +751,7 @@
                 <tr>
                   <td contenteditable="true">warning.unresolved_alias</td>
                   <td contenteditable="true">parse</td>
+                  <td contenteditable="true">JSON editor の行診断</td>
                   <td contenteditable="true">参照先のトークンが見つからない</td>
                   <td><span class="tag warn">該当tokenをskip</span></td>
                   <td><span class="tag warn">自動skip</span></td>
@@ -754,6 +761,7 @@
                 <tr>
                   <td contenteditable="true">warning.circular_alias</td>
                   <td contenteditable="true">parse</td>
+                  <td contenteditable="true">JSON editor の行診断</td>
                   <td contenteditable="true">参照先のトークンが循環している</td>
                   <td><span class="tag warn">該当tokenをskip</span></td>
                   <td><span class="tag warn">自動skip</span></td>
@@ -763,15 +771,17 @@
                 <tr>
                   <td contenteditable="true">warning.duplicate_style_name</td>
                   <td contenteditable="true">parse</td>
+                  <td contenteditable="true">Preview の Conflict セクション内 token card</td>
                   <td contenteditable="true">JSON内の複数tokenから同じFramer style名が生成される</td>
                   <td><span class="tag choice">コンフリクトを提示</span></td>
                   <td><span class="tag choice">択一選択</span></td>
-                  <td contenteditable="true">同じスタイル名が複数あります。プレビューでインポートするトークンを選択してください。</td>
+                  <td contenteditable="true">同じスタイル名が複数あります。インポートするトークンを選択してください。</td>
                   <td contenteditable="true">プレビューでいずれか1つを選択、またはtoken pathを変更してstyle名の重複を解消</td>
                 </tr>
                 <tr>
                   <td contenteditable="true">warning.dark_mode_without_light</td>
                   <td contenteditable="true">parse</td>
+                  <td contenteditable="true">JSON editor の行診断</td>
                   <td contenteditable="true">dark tokenに対応するlight tokenがない</td>
                   <td><span class="tag warn">dark階層styleとしてimport可</span></td>
                   <td><span class="tag warn">確認のみ</span></td>
@@ -781,10 +791,11 @@
                 <tr>
                   <td contenteditable="true">warning.existing_style_conflict</td>
                   <td contenteditable="true">pre-import</td>
+                  <td contenteditable="true">Preview の Conflict セクション内 token card</td>
                   <td contenteditable="true">同じpathのFramer Color Styleが既に存在する</td>
                   <td><span class="tag choice">コンフリクトを提示</span></td>
                   <td><span class="tag choice">択一選択</span></td>
-                  <td contenteditable="true">既存のスタイルとの競合があります。プレビューで保持するか置換するか選択してください。</td>
+                  <td contenteditable="true">既存のスタイルとの競合があります。登録するトークンを選択してください。</td>
                   <td contenteditable="true">プレビューで保持または置換を択一で選択</td>
                 </tr>
               </tbody>
@@ -797,6 +808,7 @@
                 <tr>
                   <th>catalog_id</th>
                   <th>発生タイミング</th>
+                  <th>実UIでの表示場所</th>
                   <th>条件</th>
                   <th>処理</th>
                   <th>ユーザー向け表示</th>
@@ -807,6 +819,7 @@
                 <tr>
                   <td contenteditable="true">error.invalid_json_syntax</td>
                   <td contenteditable="true">parse</td>
+                  <td contenteditable="true">JSON editor の行診断</td>
                   <td contenteditable="true">JSON.parseに失敗した</td>
                   <td><span class="tag bad">import不可</span></td>
                   <td contenteditable="true">JSONが不正です。構文を確認してください。</td>
@@ -815,6 +828,7 @@
                 <tr>
                   <td contenteditable="true">error.empty_json</td>
                   <td contenteditable="true">parse</td>
+                  <td contenteditable="true">現状は専用表示未実装（Preview empty state と統合想定）</td>
                   <td contenteditable="true">入力が空、または空白のみ</td>
                   <td><span class="tag bad">import不可</span></td>
                   <td contenteditable="true">JSONが入力されていません。</td>
@@ -823,6 +837,7 @@
                 <tr>
                   <td contenteditable="true">error.no_tokens_found</td>
                   <td contenteditable="true">parse</td>
+                  <td contenteditable="true">Preview の empty state</td>
                   <td contenteditable="true">JSONは読めたがimport可能なcolor tokenが0件</td>
                   <td><span class="tag bad">import不可</span></td>
                   <td contenteditable="true">インポート可能なカラートークンがありません。</td>
@@ -831,6 +846,7 @@
                 <tr>
                   <td contenteditable="true">error.file_read_failed</td>
                   <td contenteditable="true">file input</td>
+                  <td contenteditable="true">現状は専用表示未実装</td>
                   <td contenteditable="true">選択ファイルを読み込めない</td>
                   <td><span class="tag bad">import不可</span></td>
                   <td contenteditable="true">ファイルを読み込めませんでした。</td>
@@ -839,6 +855,7 @@
                 <tr>
                   <td contenteditable="true">error.conflict_check_failed</td>
                   <td contenteditable="true">pre-import</td>
+                  <td contenteditable="true">Preview の Conflict セクション内 status message</td>
                   <td contenteditable="true">既存のFramer Color Style一覧を取得できない</td>
                   <td><span class="tag bad">一時停止</span></td>
                   <td contenteditable="true">既存のColor Styleを確認できませんでした。</td>
@@ -847,6 +864,7 @@
                 <tr>
                   <td contenteditable="true">error.insufficient_permissions</td>
                   <td contenteditable="true">import</td>
+                  <td contenteditable="true">画面下部の Import button の disabled title</td>
                   <td contenteditable="true">FramerのColor Style作成・更新権限がない</td>
                   <td><span class="tag bad">import不可</span></td>
                   <td contenteditable="true">権限が不足しています。</td>
@@ -855,6 +873,7 @@
                 <tr>
                   <td contenteditable="true">error.import_failed</td>
                   <td contenteditable="true">import</td>
+                  <td contenteditable="true">Import summary dialog</td>
                   <td contenteditable="true">Framer Color Styleの作成・更新に失敗した</td>
                   <td><span class="tag bad">対象token失敗</span></td>
                   <td contenteditable="true">インポートに失敗しました。</td>
@@ -889,7 +908,7 @@
     </main>
 
     <script>
-      const storageKey = "json-import-ui-state-workbench:v13";
+      const storageKey = "json-import-ui-state-workbench:v14";
       const status = document.querySelector("[data-status]");
 
       function editableNodes() {

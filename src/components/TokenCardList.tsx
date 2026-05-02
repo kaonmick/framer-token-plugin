@@ -58,7 +58,7 @@ export function TokenCardList({
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-8">
       {shouldShowConflictSection && (
         <PreviewSection title={labels.conflict} accentClassName="bg-[#733e0a]" ariaLabel={labels.conflict}>
           {hasConflicts ? (
@@ -148,8 +148,11 @@ export function TokenCardList({
       {hasNewTokens && (
         <PreviewSection title={labels.newTokens} accentClassName="bg-[#0d542b]" ariaLabel={labels.newTokens}>
           <div className="flex flex-col gap-4">
-            {newTokens.map(token => (
-              <div key={token.id} className="flex flex-col gap-4">
+            {newTokens.map((token, index) => (
+              <div
+                key={token.id}
+                className={`flex flex-col gap-4${index < newTokens.length - 1 ? " border-b border-[#737373] pb-4" : ""}`}
+              >
                 <TokenCard className="w-full" rows={tokenToRows(token, labels)} />
               </div>
             ))}
@@ -172,10 +175,10 @@ function PreviewSection({
   children: ReactNode
 }) {
   return (
-    <section className="flex flex-col gap-1" aria-label={ariaLabel}>
-      <h3 className="m-0 font-['Jost','Noto_Sans_JP'] text-[16px] leading-none font-normal text-neutral-100">
+    <section className="flex flex-col gap-[6px]" aria-label={ariaLabel}>
+      <h2 className="m-0 font-['Jost','Noto_Sans_JP'] text-[16px] leading-none font-normal text-neutral-100">
         {title}
-      </h3>
+      </h2>
       <div className="flex overflow-hidden rounded-[4px] bg-neutral-700">
         <div className={`w-1 shrink-0 self-stretch ${accentClassName}`} aria-hidden="true" />
         <div className="min-w-0 flex-1 p-4">{children}</div>

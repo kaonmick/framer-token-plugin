@@ -56,9 +56,8 @@ export function TokenCard({
             checked={checked}
             onChange={onChange}
             readOnly={onChange === undefined}
-            className="sr-only"
+            className="m-0 shrink-0 accent-[var(--color-yellow-300)]"
           />
-          <RadioIndicator checked={checked} />
         </span>
       ) : null}
       <TokenRows rows={rows} />
@@ -128,29 +127,6 @@ function ColorBadge({ color, borderColor }: { color: string; borderColor?: strin
       }}
       aria-hidden="true"
     />
-  )
-}
-
-function RadioIndicator({ checked }: { checked: boolean }) {
-  return (
-    <span className="flex size-4 items-center justify-center">
-      <svg
-        aria-hidden="true"
-        className="block size-4"
-        viewBox="0 0 16 16"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <circle
-          cx="8"
-          cy="8"
-          r="4.75"
-          stroke={checked ? "#FFD400" : "#D4D4D4"}
-          strokeWidth="1.5"
-        />
-        {checked ? <circle cx="8" cy="8" r="2.25" fill="#FFD400" /> : null}
-      </svg>
-    </span>
   )
 }
 

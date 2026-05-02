@@ -5,6 +5,7 @@ import type {
   ReactNode,
   SelectHTMLAttributes,
 } from "react"
+import { useRef } from "react"
 
 type ClassValue = string | false | null | undefined
 
@@ -12,12 +13,9 @@ export function cx(...classes: ClassValue[]): string {
   return classes.filter(Boolean).join(" ")
 }
 
-const focusRingClass = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-300"
-const formFocusRingClass = "focus:outline-2 focus:outline-offset-2 focus:outline-yellow-300"
 const buttonBaseClass = cx(
   "inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-full border font-normal leading-[1.2] transition-colors",
-  "disabled:cursor-not-allowed",
-  focusRingClass
+  "disabled:cursor-not-allowed"
 )
 
 const buttonSizeClass = {
@@ -42,8 +40,7 @@ const selectWrapClass = cx(
 )
 const selectClass = cx(
   "h-8 min-h-8 w-full cursor-pointer appearance-none rounded-full border border-neutral-200",
-  "bg-neutral-800 px-2 pr-7 text-xs text-neutral-100",
-  formFocusRingClass
+  "bg-neutral-800 px-2 pr-7 text-xs text-neutral-100"
 )
 
 export const tokenTextClass = "block min-w-0 max-w-full overflow-hidden truncate"
@@ -75,19 +72,29 @@ interface FileButtonProps {
 }
 
 export function FileButton({ accept, children, className, onChange, size = "sm" }: FileButtonProps) {
+  const inputRef = useRef<HTMLInputElement | null>(null)
+
   return (
-    <label
-      className={cx(
-        "relative inline-flex cursor-pointer items-center justify-center overflow-hidden rounded-full",
-        "border border-neutral-200 bg-transparent font-normal leading-[1.2] text-neutral-200 transition-colors hover:bg-neutral-700 active:bg-neutral-700",
-        "focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-yellow-300",
-        buttonSizeClass[size],
-        className
-      )}
-    >
-      {children}
-      <input className="absolute inset-0 cursor-pointer opacity-0" type="file" accept={accept} onChange={onChange} />
-    </label>
+    <span className="inline-flex">
+      <button
+        type="button"
+        className={cx(
+          "inline-flex cursor-pointer items-center justify-center overflow-hidden rounded-full",
+          "border border-neutral-200 bg-transparent font-normal leading-[1.2] text-neutral-200 transition-colors hover:bg-neutral-700 active:bg-neutral-700",
+          buttonSizeClass[size],
+          className
+        )}
+        onClick={() => {
+          const input = inputRef.current
+          if (!input) return
+          input.value = ""
+          input.click()
+        }}
+      >
+        {children}
+      </button>
+      <input ref={inputRef} className="sr-only" type="file" accept={accept} onChange={onChange} tabIndex={-1} />
+    </span>
   )
 }
 

@@ -1,0 +1,74 @@
+{
+  "color": {
+    "light": {
+      "semantic": {
+        "surface": {
+          "$type": "color",
+          "$value": "#ffffff"
+        }
+      }
+    },
+    "dark": {
+      "semantic": {
+        "surface": {
+          "$type": "color",
+          "$value": "#111111"
+        }
+      }
+    }
+  },
+  "colors": {
+    "light": {
+      "semantic": {
+        "surface": {
+          "$type": "color",
+          "$value": "#f5f5f5"
+        }
+      }
+    },
+    "dark": {
+      "semantic": {
+        "surface": {
+          "$type": "color",
+          "$value": "#151515"
+        }
+      }
+    }
+  },
+  "colour": {
+    "light": {
+      "semantic": {
+        "surface": {
+          "$type": "color",
+          "$value": "#ededed"
+        }
+      }
+    },
+    "dark": {
+      "semantic": {
+        "surface": {
+          "$type": "color",
+          "$value": "#1d1d1d"
+        }
+      }
+    }
+  },
+  "colours": {
+    "light": {
+      "semantic": {
+        "surface": {
+          "$type": "color",
+          "$value": "#e5e5e5"
+        }
+      }
+    },
+    "dark": {
+      "semantic": {
+        "surface": {
+          "$type": "color",
+          "$value": "#252525"
+        }
+      }
+    }
+  }
+}
