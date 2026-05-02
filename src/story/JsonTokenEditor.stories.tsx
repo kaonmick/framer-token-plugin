@@ -1,5 +1,5 @@
 import { action } from "@ladle/react"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import type { StoryDefault } from "@ladle/react"
 import type { ReactNode, RefObject } from "react"
 import type { EditorDiagnostic } from "../components/JsonTokenEditor.tsx"
@@ -9,6 +9,21 @@ import {
   catalogEditorJson,
 } from "./catalog.fixtures.ts"
 import "../tokens.css"
+
+const placeholderJson = `// JSONファイルをアップロードするか、ここにトークンを貼り付けてください
+// W3C Design Tokens形式（$type / $value）に対応しています
+{
+  "color": {
+    "primitive": {
+      "blue": {
+        "500": {
+          "$type": "color",
+          "$value": "#0066ff"
+        }
+      }
+    }
+  }
+}`
 
 export default {
   title: "Components / JsonTokenEditor",
@@ -50,10 +65,6 @@ function EditorStory({
   const [value, setValue] = useState(initialValue)
   const surfaceRef = useRef<HTMLElement>(null)
   const lineNumbersRef = useRef<HTMLDivElement | null>(null)
-  const lineNumbers = useMemo(
-    () => Array.from({ length: value.split("\n").length }, (_, index) => index + 1),
-    [value]
-  )
 
   useEffect(() => {
     if (mode !== "focused") return
@@ -106,8 +117,8 @@ function EditorStory({
       <JsonTokenEditor
         diagnostics={diagnostics}
         labels={editorLabels}
-        lineNumbers={lineNumbers}
         lineNumbersRef={lineNumbersRef}
+        placeholder={placeholderJson}
         value={value}
         onScroll={scrollTop => {
           if (lineNumbersRef.current) {

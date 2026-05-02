@@ -14,6 +14,20 @@ export const messages = {
     copyJson: "Copy JSON",
     copiedJson: "JSON copied",
     copyJsonFailed: "Copy failed",
+    editorPlaceholder: `// Upload a JSON file or paste your tokens here
+// Supports W3C Design Tokens format ($type / $value)
+{
+  "color": {
+    "primitive": {
+      "blue": {
+        "500": {
+          "$type": "color",
+          "$value": "#0066ff"
+        }
+      }
+    }
+  }
+}`,
     resizeEditor: "Resize JSON editor height",
     analyze: "Reload",
     analyzing: "Reloading...",
@@ -69,6 +83,20 @@ export const messages = {
     copyJson: "JSONをコピー",
     copiedJson: "JSONをコピーしました",
     copyJsonFailed: "コピーに失敗しました",
+    editorPlaceholder: `// JSONファイルをアップロードするか、ここにトークンを貼り付けてください
+// W3C Design Tokens形式（$type / $value）に対応しています
+{
+  "color": {
+    "primitive": {
+      "blue": {
+        "500": {
+          "$type": "color",
+          "$value": "#0066ff"
+        }
+      }
+    }
+  }
+}`,
     resizeEditor: "JSONエディタの高さを変更",
     analyze: "再読み込み",
     analyzing: "再読み込み中...",

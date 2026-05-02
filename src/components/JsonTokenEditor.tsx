@@ -68,8 +68,8 @@ interface JsonTokenEditorProps {
     copyFailed: string
     resize: string
   }
-  lineNumbers: number[]
   lineNumbersRef: RefObject<HTMLDivElement>
+  placeholder?: string
   value: string
   onScroll: (scrollTop: number) => void
   onTextChange: (value: string) => void
@@ -78,8 +78,8 @@ interface JsonTokenEditorProps {
 export function JsonTokenEditor({
   diagnostics = [],
   labels,
-  lineNumbers,
   lineNumbersRef,
+  placeholder = "",
   value,
   onScroll,
   onTextChange,
@@ -96,9 +96,15 @@ export function JsonTokenEditor({
   const copyTooltipTimerRef = useRef<number | null>(null)
   const resizeCleanupRef = useRef<(() => void) | null>(null)
   const diagnosticsByLine = useMemo(() => groupDiagnosticsByLine(diagnostics), [diagnostics])
+  const isPlaceholderVisible = value.length === 0 && placeholder.length > 0
+  const displayValue = isPlaceholderVisible ? placeholder : value
+  const lineNumbers = useMemo(
+    () => Array.from({ length: displayValue.split("\n").length }, (_, index) => index + 1),
+    [displayValue]
+  )
   const editorPaddingBottom = EDITOR_DEFAULT_PADDING_BOTTOM
   const editorContentHeight = Math.max(editorHeight, lineNumbers.length * EDITOR_LINE_HEIGHT + EDITOR_PADDING_Y + editorPaddingBottom)
-  const editorContentWidth = useMemo(() => getEditorContentWidth(value, diagnosticsByLine), [diagnosticsByLine, value])
+  const editorContentWidth = useMemo(() => getEditorContentWidth(displayValue, diagnosticsByLine), [diagnosticsByLine, displayValue])
 
   useEffect(() => {
     return () => {
@@ -309,7 +315,11 @@ export function JsonTokenEditor({
             className="pointer-events-none absolute inset-0 m-0 overflow-visible whitespace-pre border-0 bg-transparent p-2 font-['Fira_Code','Noto_Sans_JP'] text-[11px] leading-4 text-neutral-100"
             style={{ paddingBottom: editorPaddingBottom }}
           >
-            {renderJsonSyntaxLines(value, diagnosticsByLine, hoveredLine)}
+            {isPlaceholderVisible ? (
+              <span className="text-neutral-400">{displayValue}</span>
+            ) : (
+              renderJsonSyntaxLines(displayValue, diagnosticsByLine, hoveredLine)
+            )}
           </pre>
           <textarea
             className="absolute inset-0 z-[1] h-full w-full resize-none overflow-hidden border-0 bg-transparent p-2 font-['Fira_Code','Noto_Sans_JP'] text-[11px] leading-4 text-transparent caret-yellow-300 selection:bg-yellow-300/25 focus:outline-none"

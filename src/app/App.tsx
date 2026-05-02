@@ -29,7 +29,6 @@ import type {
   ParseWarning,
 } from "../lib/types/tokens.ts"
 import { type Language, messages } from "./i18n.ts"
-import { sampleTokenJson } from "./sample.ts"
 
 const MIN_ACTION_FEEDBACK_MS = 1000
 const CAPTURE_MODES = [
@@ -52,6 +51,11 @@ interface InitialCaptureState {
 }
 
 const initialCaptureMode = getCaptureMode()
+const EMPTY_PARSE_RESULT: ParseColorTokensResult = {
+  tokens: [],
+  conflictGroups: [],
+  warnings: [],
+}
 
 if (!initialCaptureMode) {
   void framer.showUI({
@@ -64,7 +68,7 @@ if (!initialCaptureMode) {
 export function App() {
   const captureMode = useMemo(() => initialCaptureMode, [])
   const initialJsonText = useMemo(() => getInitialJsonText(captureMode), [captureMode])
-  const initialParseResult = useMemo(() => parseColorTokenJson(initialJsonText), [initialJsonText])
+  const initialParseResult = useMemo(() => parseEditorJson(initialJsonText), [initialJsonText])
   const initialCaptureState = useMemo(
     () => getInitialCaptureState(captureMode, initialParseResult),
     [captureMode, initialParseResult]
@@ -102,10 +106,6 @@ export function App() {
   const convertedOklchCount = allTokensForStats.reduce(
     (count, token) => count + (token.format === "oklch" ? 1 : 0) + (token.darkFormat === "oklch" ? 1 : 0),
     0
-  )
-  const lineNumbers = useMemo(
-    () => Array.from({ length: jsonText.split("\n").length }, (_, index) => index + 1),
-    [jsonText]
   )
   const editorDiagnostics = useMemo(
     () => buildEditorDiagnostics(parseResult, language),
@@ -195,7 +195,7 @@ export function App() {
 
   function analyzeJson(nextText = jsonText) {
     startTransition(() => {
-      setParseResult(parseColorTokenJson(nextText))
+      setParseResult(parseEditorJson(nextText))
       setSummary(null)
     })
   }
@@ -226,6 +226,16 @@ export function App() {
   function handleEditorScroll(scrollTop: number) {
     if (!lineNumbersRef.current) return
     lineNumbersRef.current.scrollTop = scrollTop
+  }
+
+  function resetImportSession() {
+    setJsonText("")
+    setParseResult(EMPTY_PARSE_RESULT)
+    setConflicts([])
+    setConflictError(null)
+    setIsCheckingConflicts(false)
+    setConflictSelections(new Map())
+    setSummary(null)
   }
 
   async function runImport() {
@@ -296,8 +306,8 @@ export function App() {
             copyFailed: t.copyJsonFailed,
             resize: t.resizeEditor,
           }}
-          lineNumbers={lineNumbers}
           lineNumbersRef={lineNumbersRef}
+          placeholder={t.editorPlaceholder}
           value={jsonText}
           onScroll={handleEditorScroll}
           onTextChange={handleJsonTextChange}
@@ -369,6 +379,11 @@ export function App() {
                 <DialogActions className="grid-cols-1">
                   <ActionButton
                     onClick={() => {
+                      if (summary.failed === 0) {
+                        resetImportSession()
+                        return
+                      }
+
                       setSummary(null)
                     }}
                   >
@@ -424,8 +439,13 @@ function getInitialJsonText(captureMode: CaptureMode | null): string {
       return conflictManyColorsJson
     case "default":
     case null:
-      return sampleTokenJson
+      return ""
   }
+}
+
+function parseEditorJson(jsonText: string): ParseColorTokensResult {
+  if (jsonText.length === 0) return EMPTY_PARSE_RESULT
+  return parseColorTokenJson(jsonText)
 }
 
 function getInitialCaptureState(
