@@ -51,6 +51,10 @@
   - [TV-07](/issues/technical-validation/TV-07.md)
   - [TV-08](/issues/technical-validation/TV-08.md)
 
+- Issue Progress
+
+  - [Issue 28 Phase 0 Dark Baseline](/issues/28-phase0-dark-baseline.md)
+
 - 図・モック
 
   - [Mermaid Graph](/diagrams/graphTD.mmd)
