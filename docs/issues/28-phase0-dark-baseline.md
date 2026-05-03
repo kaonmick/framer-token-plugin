@@ -50,6 +50,12 @@ Phase 1 と Phase 2 では、以下の dark 見た目を変えない。
 - dialog は backdrop `bg-neutral-950/60`、panel `bg-neutral-800` + `border-neutral-600` を維持する。
 - `JsonTokenEditor` の syntax color と caret 配色はこの親 issue の対象外とし、theme 対応の途中で同時変更しない。
 
+## 関連成果物
+
+- [Theme Token Workbench](../workbench/token-workbench.html)
+- [Theme Token Workbench Handoff](../workbench/token-workbench-handoff.md)
+- [Theme Token JSON Snapshot](../workbench/token-workbench-current-data.json)
+
 ## 主な参照元
 
 - `src/app/App.tsx`

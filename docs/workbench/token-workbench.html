@@ -1,0 +1,2134 @@
+<!doctype html>
+<html lang="ja" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Theme Token Workbench</title>
+    <style>
+      :root,
+      :root[data-theme="dark"] {
+        color-scheme: dark;
+
+        --page-paper: #0f1115;
+        --page-panel: #171a20;
+        --page-panel-raised: #1f242d;
+        --page-line: rgba(255, 255, 255, 0.1);
+        --page-line-strong: rgba(255, 255, 255, 0.2);
+        --page-ink: #f5f7fb;
+        --page-muted: #aab3c5;
+        --page-accent: #fde047;
+        --page-success: #6ee7b7;
+        --page-warning: #facc15;
+        --page-danger: #fca5a5;
+        --page-shadow: 0 20px 40px rgba(0, 0, 0, 0.28);
+        --input-paper: rgba(255, 255, 255, 0.03);
+        --input-disabled: rgba(255, 255, 255, 0.12);
+      }
+
+      :root[data-theme="light"] {
+        color-scheme: light;
+
+        --page-paper: #f3f1eb;
+        --page-panel: #fffdf8;
+        --page-panel-raised: #ffffff;
+        --page-line: rgba(23, 23, 23, 0.1);
+        --page-line-strong: rgba(23, 23, 23, 0.18);
+        --page-ink: #1f2937;
+        --page-muted: #607086;
+        --page-accent: #9a6a00;
+        --page-success: #047857;
+        --page-warning: #9a6a00;
+        --page-danger: #b91c1c;
+        --page-shadow: 0 20px 40px rgba(31, 41, 55, 0.12);
+        --input-paper: rgba(23, 23, 23, 0.03);
+        --input-disabled: rgba(23, 23, 23, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at top left, rgba(250, 204, 21, 0.12), transparent 28%),
+          linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 18%),
+          var(--page-paper);
+        color: var(--page-ink);
+        font-family: "Avenir Next", "Hiragino Sans", "Yu Gothic", sans-serif;
+      }
+
+      button,
+      input,
+      code,
+      textarea {
+        font: inherit;
+      }
+
+      code {
+        font-family: "SFMono-Regular", Consolas, monospace;
+      }
+
+      .page {
+        width: min(1600px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 32px 0 64px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 360px;
+        gap: 18px;
+        align-items: start;
+      }
+
+      .hero-copy,
+      .toolbar,
+      .summary-card,
+      .preview-card,
+      .json-card,
+      .table-wrap {
+        border: 1px solid var(--page-line);
+        background: var(--page-panel);
+        box-shadow: var(--page-shadow);
+      }
+
+      .hero-copy {
+        padding: 24px;
+      }
+
+      .eyebrow {
+        margin: 0 0 12px;
+        color: var(--page-accent);
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(34px, 5vw, 58px);
+        line-height: 0.95;
+        font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+        font-weight: 700;
+      }
+
+      .lead {
+        margin: 18px 0 0;
+        max-width: 820px;
+        color: var(--page-muted);
+        font-size: 15px;
+        line-height: 1.8;
+      }
+
+      .toolbar {
+        padding: 18px;
+      }
+
+      .toolbar h2,
+      .section-header h2 {
+        margin: 0;
+        font-size: 16px;
+      }
+
+      .toolbar-copy {
+        margin: 10px 0 0;
+        color: var(--page-muted);
+        font-size: 12px;
+        line-height: 1.7;
+      }
+
+      .toolbar-group {
+        margin-top: 14px;
+      }
+
+      .toolbar-label {
+        margin: 0 0 8px;
+        color: var(--page-muted);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .theme-buttons,
+      .action-buttons {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .button {
+        border: 1px solid var(--page-line-strong);
+        background: transparent;
+        color: var(--page-ink);
+        padding: 10px 12px;
+        cursor: pointer;
+        transition:
+          background-color 140ms ease,
+          border-color 140ms ease,
+          color 140ms ease,
+          opacity 140ms ease;
+      }
+
+      .button:hover:not(:disabled) {
+        background: rgba(250, 204, 21, 0.1);
+      }
+
+      .button.primary {
+        border-color: var(--page-accent);
+        background: rgba(250, 204, 21, 0.16);
+      }
+
+      .button:disabled {
+        cursor: default;
+        opacity: 0.5;
+      }
+
+      .theme-button[aria-pressed="true"] {
+        border-color: var(--page-accent);
+        background: rgba(250, 204, 21, 0.14);
+      }
+
+      .button:focus-visible,
+      .theme-button:focus-visible,
+      .name-input:focus-visible,
+      .value-input:focus-visible,
+      .color-input:focus-visible {
+        outline: 3px solid rgba(250, 204, 21, 0.24);
+        outline-offset: 2px;
+      }
+
+      .status-row {
+        margin-top: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .status {
+        color: var(--page-muted);
+        font-size: 13px;
+      }
+
+      .status[data-tone="success"] {
+        color: var(--page-success);
+      }
+
+      .status[data-tone="warning"] {
+        color: var(--page-warning);
+      }
+
+      .status[data-tone="danger"] {
+        color: var(--page-danger);
+      }
+
+      .theme-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid var(--page-line-strong);
+        padding: 6px 10px;
+        font-size: 12px;
+        color: var(--page-muted);
+      }
+
+      .theme-badge strong {
+        color: var(--page-ink);
+        font-weight: 700;
+      }
+
+      .section {
+        margin-top: 28px;
+      }
+
+      .section-header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 12px;
+      }
+
+      .section-header p {
+        margin: 0;
+        color: var(--page-muted);
+        font-size: 13px;
+      }
+
+      .summary-grid,
+      .preview-grid {
+        display: grid;
+        gap: 12px;
+      }
+
+      .summary-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .summary-card {
+        padding: 16px;
+      }
+
+      .summary-card strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 14px;
+      }
+
+      .summary-card p {
+        margin: 0;
+        color: var(--page-muted);
+        font-size: 13px;
+        line-height: 1.65;
+      }
+
+      .table-wrap {
+        overflow: auto;
+      }
+
+      table {
+        width: 100%;
+        min-width: 1420px;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        border-bottom: 1px solid var(--page-line);
+        padding: 12px 14px;
+        text-align: left;
+        vertical-align: top;
+        font-size: 13px;
+      }
+
+      th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        color: var(--page-muted);
+        font-weight: 700;
+        background: color-mix(in srgb, var(--page-panel) 92%, transparent);
+        backdrop-filter: blur(12px);
+      }
+
+      tbody tr:nth-child(odd) td {
+        background: color-mix(in srgb, var(--page-panel) 96%, transparent);
+      }
+
+      .palette-label {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 8px;
+        border: 1px solid var(--page-line-strong);
+        color: var(--page-ink);
+        background: color-mix(in srgb, var(--page-panel-raised) 90%, transparent);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+      }
+
+      .value-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 168px;
+        padding: 8px 10px;
+        border: 1px solid var(--page-line);
+        background: color-mix(in srgb, var(--page-panel-raised) 88%, transparent);
+      }
+
+      .swatch {
+        width: 18px;
+        height: 18px;
+        border: 1px solid var(--page-line-strong);
+        background: var(--swatch-color);
+      }
+
+      .editor-cell {
+        display: grid;
+        gap: 8px;
+      }
+
+      .name-input,
+      .value-input {
+        width: 100%;
+        border: 1px solid var(--page-line-strong);
+        background: var(--input-paper);
+        color: var(--page-ink);
+        padding: 9px 10px;
+      }
+
+      .value-row {
+        display: grid;
+        grid-template-columns: 48px minmax(0, 1fr);
+        gap: 8px;
+        align-items: center;
+      }
+
+      .color-input {
+        width: 48px;
+        height: 40px;
+        padding: 3px;
+        border: 1px solid var(--page-line-strong);
+        background: var(--input-paper);
+        cursor: pointer;
+      }
+
+      .editor-hint {
+        color: var(--page-muted);
+        font-size: 11px;
+        line-height: 1.5;
+      }
+
+      .preview-cell {
+        display: grid;
+        gap: 10px;
+      }
+
+      .preview-pair {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .preview-token {
+        border: 1px solid var(--page-line);
+        padding: 8px;
+        background: color-mix(in srgb, var(--page-panel-raised) 90%, transparent);
+      }
+
+      .preview-token strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .preview-token span {
+        display: block;
+        margin-top: 6px;
+        color: var(--page-muted);
+        font-size: 11px;
+      }
+
+      .preview-block {
+        height: 30px;
+        border: 1px solid var(--page-line-strong);
+        background: var(--preview-color);
+      }
+
+      .preview-state {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--page-muted);
+        font-size: 11px;
+      }
+
+      .preview-state::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: currentColor;
+      }
+
+      .preview-state[data-match="true"] {
+        color: var(--page-success);
+      }
+
+      .preview-state[data-match="false"] {
+        color: var(--page-warning);
+      }
+
+      .notes {
+        color: var(--page-muted);
+        line-height: 1.65;
+      }
+
+      .preview-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .preview-card {
+        padding: 16px;
+      }
+
+      .preview-card h3 {
+        margin: 0 0 4px;
+        font-size: 16px;
+      }
+
+      .preview-card p {
+        margin: 0 0 14px;
+        color: var(--page-muted);
+        font-size: 13px;
+        line-height: 1.65;
+      }
+
+      .sample-shell {
+        padding: 18px;
+        border: 1px solid transparent;
+      }
+
+      .sample-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .sample-header strong {
+        display: block;
+        font-size: 18px;
+        font-weight: 500;
+      }
+
+      .sample-note,
+      .sample-meta,
+      .sample-code {
+        color: inherit;
+        opacity: 0.8;
+        font-size: 12px;
+      }
+
+      .sample-panel {
+        margin-top: 14px;
+        padding: 12px;
+        border: 1px solid transparent;
+      }
+
+      .sample-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 10px;
+      }
+
+      .sample-pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 28px;
+        padding: 0 12px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .sample-editor {
+        margin-top: 12px;
+        display: grid;
+        grid-template-columns: 44px minmax(0, 1fr);
+        overflow: hidden;
+        border: 1px solid transparent;
+      }
+
+      .sample-gutter,
+      .sample-code {
+        padding: 10px;
+        font-family: "Fira Code", "SFMono-Regular", Consolas, monospace;
+        font-size: 11px;
+        line-height: 1.55;
+      }
+
+      .sample-warning {
+        margin-top: 12px;
+        padding: 10px 12px;
+        border: 1px solid transparent;
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
+      .sample-warning strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .sample-list {
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+      }
+
+      .sample-section-title {
+        margin: 0 0 6px;
+        font-family: "Jost", "Avenir Next", "Hiragino Sans", sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 1;
+      }
+
+      .sample-preview-section {
+        display: flex;
+        overflow: hidden;
+        background: var(--sample-section-bg);
+      }
+
+      .sample-preview-accent {
+        width: 4px;
+        flex-shrink: 0;
+        align-self: stretch;
+        background: var(--sample-section-accent);
+      }
+
+      .sample-preview-body {
+        min-width: 0;
+        flex: 1;
+        padding: 16px;
+      }
+
+      .sample-conflict-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .sample-conflict-block {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .sample-conflict-copy {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .sample-conflict-copy strong {
+        font-family: "Jost", "Avenir Next", "Hiragino Sans", sans-serif;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.5;
+      }
+
+      .sample-conflict-copy p {
+        margin: 0;
+        color: inherit;
+        opacity: 0.86;
+        font-size: 11px;
+        line-height: 1.5;
+      }
+
+      .sample-choice-item {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        border: 1px solid var(--sample-choice-border);
+        padding: 8px;
+      }
+
+      .sample-choice-prompt {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+
+      .sample-choice-prompt strong {
+        font-family: "Jost", "Avenir Next", "Hiragino Sans", sans-serif;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.4;
+      }
+
+      .sample-choice-prompt span {
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      .sample-card-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .sample-token-card {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .sample-token-label {
+        display: inline-flex;
+        align-self: flex-start;
+        border-radius: 11px;
+        padding: 4px 8px;
+        font-size: 11px;
+        line-height: 1;
+        background: var(--sample-label-bg);
+        color: var(--sample-label-text);
+      }
+
+      .sample-token-card-body {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        padding: 8px;
+        border-radius: 4px;
+      }
+
+      .sample-token-card-body.checked {
+        background: var(--sample-checked-bg);
+      }
+
+      .sample-radio {
+        display: flex;
+        height: 36px;
+        flex-shrink: 0;
+        align-items: center;
+      }
+
+      .sample-radio-dot {
+        width: 16px;
+        height: 16px;
+        border-radius: 999px;
+        border: 1px solid var(--sample-radio-border);
+        background: transparent;
+        box-shadow: inset 0 0 0 4px transparent;
+      }
+
+      .sample-radio-dot.checked {
+        border-color: var(--sample-radio-accent);
+        box-shadow: inset 0 0 0 4px var(--sample-radio-accent);
+      }
+
+      .sample-token-rows {
+        display: flex;
+        min-width: 0;
+        flex: 1;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .sample-token-row {
+        display: flex;
+        min-width: 0;
+        align-items: center;
+        gap: 12px;
+        min-height: 34px;
+      }
+
+      .sample-token-row.single {
+        min-height: 30px;
+      }
+
+      .sample-token-badge {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+        border-radius: 999px;
+        border: 1px solid var(--sample-badge-border);
+        background: var(--sample-badge-color);
+      }
+
+      .sample-token-text {
+        display: flex;
+        min-width: 0;
+        flex: 1;
+        flex-direction: column;
+        justify-content: center;
+        gap: 4px;
+      }
+
+      .sample-token-value-line {
+        display: flex;
+        min-width: 0;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .sample-mode-icon {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+      }
+
+      .sample-token-value {
+        display: block;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 12px;
+        line-height: 1;
+      }
+
+      .sample-token-name {
+        display: block;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 14px;
+        line-height: 1;
+      }
+
+      .sample-list-divider {
+        border-top: 1px solid var(--sample-choice-border);
+        padding-top: 16px;
+      }
+
+      .sample-editor-block {
+        margin-top: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .sample-code .code-key {
+        color: inherit;
+      }
+
+      .sample-code .code-string {
+        color: inherit;
+      }
+
+      .sample-code .code-number {
+        color: inherit;
+      }
+
+      .sample-code .code-boolean {
+        color: inherit;
+      }
+
+      .sample-code .code-null {
+        color: inherit;
+      }
+
+      .sample-code .code-punctuation {
+        color: inherit;
+      }
+
+      .sample-diagnostic {
+        margin-top: 8px;
+        text-decoration-line: underline;
+        text-decoration-thickness: 2px;
+        text-underline-offset: 4px;
+      }
+
+      .hardcoded-shell {
+        background: #262626;
+        color: #f5f5f5;
+      }
+
+      .hardcoded-shell .sample-panel {
+        background: #404040;
+        border-color: #525252;
+      }
+
+      .hardcoded-shell .sample-pill {
+        background: #fde047;
+        color: #262626;
+      }
+
+      .hardcoded-shell .sample-editor {
+        background: #404040;
+        border-color: #e5e5e5;
+      }
+
+      .hardcoded-shell .sample-gutter {
+        background: rgba(82, 82, 82, 0.4);
+        border-right: 1px solid #525252;
+        color: #d4d4d4;
+      }
+
+      .hardcoded-shell .sample-warning {
+        background: #422006;
+        border-color: #a16207;
+        color: #fef08a;
+      }
+
+      .hardcoded-shell {
+        --sample-section-bg: #404040;
+        --sample-section-accent: #733e0a;
+        --sample-conflict-accent: #733e0a;
+        --sample-new-token-accent: #0d542b;
+        --sample-choice-border: #737373;
+        --sample-label-bg: #d4d4d4;
+        --sample-label-text: #404040;
+        --sample-checked-bg: #fff08533;
+        --sample-radio-border: rgba(255, 255, 255, 0.7);
+        --sample-radio-accent: #fde047;
+        --sample-badge-border: rgba(255, 255, 255, 0.2);
+      }
+
+      .hardcoded-shell .sample-code .code-key {
+        color: #7dd3fc;
+      }
+
+      .hardcoded-shell .sample-code .code-string {
+        color: #8be9a1;
+      }
+
+      .hardcoded-shell .sample-code .code-number {
+        color: #80c7ff;
+      }
+
+      .hardcoded-shell .sample-code .code-boolean {
+        color: #ffb86c;
+      }
+
+      .hardcoded-shell .sample-code .code-null {
+        color: #ff8ba7;
+      }
+
+      .hardcoded-shell .sample-code .code-punctuation {
+        color: #d4d4d4;
+      }
+
+      .hardcoded-shell .sample-diagnostic {
+        text-decoration-color: #fde047;
+      }
+
+      .hardcoded-shell .sample-new-tokens {
+        --sample-section-accent: var(--sample-new-token-accent);
+      }
+
+      .semantic-shell {
+        background: var(--semantic-surface-canvas, #262626);
+        color: var(--semantic-text-primary, #f5f5f5);
+      }
+
+      .semantic-shell .sample-panel {
+        background: var(--semantic-surface-panel, #404040);
+        border-color: var(--semantic-border-muted, #525252);
+      }
+
+      .semantic-shell .sample-pill {
+        background: var(--semantic-accent-primary, #fde047);
+        color: var(--semantic-accent-foreground, #262626);
+      }
+
+      .semantic-shell .sample-editor {
+        background: var(--semantic-surface-inset, #404040);
+        border-color: var(--semantic-border-default, #e5e5e5);
+      }
+
+      .semantic-shell .sample-gutter {
+        background: color-mix(in srgb, var(--semantic-surface-panel, #404040) 55%, transparent);
+        border-right: 1px solid var(--semantic-border-muted, #525252);
+        color: var(--semantic-text-secondary, #d4d4d4);
+      }
+
+      .semantic-shell .sample-warning {
+        background: var(--semantic-status-warning-surface, #422006);
+        border-color: var(--semantic-status-warning, #fde047);
+        color: var(--semantic-status-warning, #fde047);
+      }
+
+      .semantic-shell {
+        --sample-section-bg: var(--semantic-surface-panel, #404040);
+        --sample-section-accent: var(--semantic-conflict-accent, #733e0a);
+        --sample-conflict-accent: var(--semantic-conflict-accent, #733e0a);
+        --sample-new-token-accent: var(--semantic-new-token-accent, #0d542b);
+        --sample-choice-border: color-mix(in srgb, var(--semantic-border-muted, #525252) 65%, white 18%);
+        --sample-label-bg: color-mix(in srgb, var(--semantic-text-secondary, #d4d4d4) 100%, transparent);
+        --sample-label-text: var(--semantic-surface-panel, #404040);
+        --sample-checked-bg: var(--semantic-status-warning-ghost, #fff08533);
+        --sample-radio-border: color-mix(in srgb, var(--semantic-text-primary, #f5f5f5) 70%, transparent);
+        --sample-radio-accent: var(--semantic-control-radio-selected, #fde047);
+        --sample-badge-border: rgba(255, 255, 255, 0.2);
+      }
+
+      :root[data-theme="light"] .semantic-shell {
+        --sample-badge-border: rgba(23, 23, 23, 0.14);
+      }
+
+      .semantic-shell .sample-new-tokens {
+        --sample-section-accent: var(--sample-new-token-accent);
+      }
+
+      .semantic-shell .sample-code .code-key {
+        color: var(--semantic-code-key, #7dd3fc);
+      }
+
+      .semantic-shell .sample-code .code-string {
+        color: var(--semantic-code-string, #8be9a1);
+      }
+
+      .semantic-shell .sample-code .code-number {
+        color: var(--semantic-code-number, #80c7ff);
+      }
+
+      .semantic-shell .sample-code .code-boolean {
+        color: var(--semantic-code-boolean, #ffb86c);
+      }
+
+      .semantic-shell .sample-code .code-null {
+        color: var(--semantic-code-null, #ff8ba7);
+      }
+
+      .semantic-shell .sample-code .code-punctuation {
+        color: var(--semantic-code-punctuation, #d4d4d4);
+      }
+
+      .semantic-shell .sample-diagnostic {
+        text-decoration-color: var(--semantic-code-diagnostic-underline, #fde047);
+      }
+
+      .json-card {
+        padding: 16px;
+      }
+
+      .json-toolbar {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: baseline;
+      }
+
+      .json-toolbar p {
+        margin: 8px 0 0;
+        color: var(--page-muted);
+        font-size: 13px;
+      }
+
+      .json-output {
+        width: 100%;
+        min-height: 280px;
+        margin-top: 12px;
+        border: 1px solid var(--page-line);
+        background: color-mix(in srgb, var(--page-panel-raised) 88%, transparent);
+        color: var(--page-ink);
+        padding: 14px;
+        resize: vertical;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 12px;
+        line-height: 1.65;
+      }
+
+      .footer-note {
+        margin-top: 24px;
+        color: var(--page-muted);
+        font-size: 12px;
+        line-height: 1.7;
+      }
+
+      @media (max-width: 1240px) {
+        .hero,
+        .summary-grid,
+        .preview-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">phase 0 / dark baseline review</p>
+          <h1>Theme Token Workbench</h1>
+          <p class="lead">
+            hardcoded color と semantic color の対応を、1行ずつ比較しながら詰めるための作業台です。
+            hardcoded 側は固定表示、semantic 側だけ編集対象にして、dark baseline を崩していないかを light / dark で見比べられるようにしています。
+          </p>
+        </div>
+
+        <aside class="toolbar" aria-label="Workbench controls">
+          <h2>Workbench Controls</h2>
+          <p class="toolbar-copy">
+            semantic value は現在の theme 側だけ編集します。light に切り替えて編集すると light 値、dark に戻すと dark 値を個別に確認できます。
+          </p>
+
+          <div class="toolbar-group">
+            <p class="toolbar-label">Theme Preview</p>
+            <div class="theme-buttons">
+              <button class="button theme-button" data-theme-button="dark" type="button" aria-pressed="true">Dark</button>
+              <button class="button theme-button" data-theme-button="light" type="button" aria-pressed="false">Light</button>
+            </div>
+          </div>
+
+          <div class="toolbar-group">
+            <p class="toolbar-label">Data Actions</p>
+            <div class="action-buttons">
+              <button class="button primary" type="button" data-action="save" disabled>Save</button>
+              <button class="button" type="button" data-action="copy-json">Copy JSON</button>
+              <button class="button" type="button" data-action="reset">Reset</button>
+            </div>
+          </div>
+
+          <div class="status-row">
+            <span class="status" data-status data-tone="neutral">初期データを表示中</span>
+            <span class="theme-badge">editing <strong data-theme-label>dark</strong></span>
+          </div>
+        </aside>
+      </section>
+
+      <section class="section">
+        <div class="summary-grid">
+          <article class="summary-card">
+            <strong>比較のしかた</strong>
+            <p>各 row で palette / hardcoded / semantic を横並びで見て、preview で match か差分かをその場で確認できます。</p>
+          </article>
+          <article class="summary-card">
+            <strong>保存の単位</strong>
+            <p>`Save` は semantic name と theme 別 semantic value を `localStorage` に保存します。未保存変更がある時だけ押せます。</p>
+          </article>
+          <article class="summary-card">
+            <strong>Reset の意味</strong>
+            <p>`Reset` は保存済みデータも含めて破棄し、この HTML 内の canonical data に戻します。dark baseline の見直しをやり直す時の起点です。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-header">
+          <h2>Hardcoded / Semantic Comparison</h2>
+          <p>semantic value は現在の theme の値を編集します。alpha 付きや rgba の調整は text input 側でそのまま扱えます。</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>palette</th>
+                <th>hardcoded name</th>
+                <th>hardcoded value</th>
+                <th>semantic name</th>
+                <th>semantic value</th>
+                <th>preview</th>
+                <th>notes</th>
+              </tr>
+            </thead>
+            <tbody id="mapping-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-header">
+          <h2>Live Comparison</h2>
+          <p>左は固定の hardcoded baseline、右は今の semantic data から組み立てたサンプルです。table の編集結果が即時に反映されます。</p>
+        </div>
+        <div class="preview-grid">
+          <article class="preview-card">
+            <h3>Hardcoded Baseline</h3>
+            <p>theme を切り替えても変わらない現在の固定見た目。dark baseline の比較対象として置いています。</p>
+            <div class="sample-shell hardcoded-shell">
+              <div class="sample-header">
+                <div>
+                  <strong>Import Tokens</strong>
+                  <div class="sample-note">hardcoded surface / text / accent の縮小サンプル</div>
+                </div>
+                <span class="sample-pill">Import</span>
+              </div>
+              <div class="sample-panel">
+                <div class="sample-list">
+                  <div>
+                    <h4 class="sample-section-title">Conflict</h4>
+                    <div class="sample-preview-section">
+                      <div class="sample-preview-accent"></div>
+                      <div class="sample-preview-body">
+                        <div class="sample-conflict-stack">
+                          <div class="sample-conflict-block">
+                            <div class="sample-conflict-copy">
+                              <strong>Existing style conflict</strong>
+                              <p>既存のスタイルとの競合があります。登録するトークンを選択してください。</p>
+                            </div>
+                            <div class="sample-choice-item">
+                              <div class="sample-choice-prompt">
+                                <strong>"primitive/blue/500"</strong>
+                                <span>どのトークンを登録しますか？</span>
+                              </div>
+                              <div class="sample-card-stack">
+                                <div class="sample-token-card">
+                                  <span class="sample-token-label">既存のスタイル</span>
+                                  <div class="sample-token-card-body">
+                                    <div class="sample-radio"><span class="sample-radio-dot"></span></div>
+                                    <div class="sample-token-rows">
+                                      <div class="sample-token-row single">
+                                        <span class="sample-token-badge" style="--sample-badge-color:#1d4ed8"></span>
+                                        <div class="sample-token-text">
+                                          <span class="sample-token-value">#1d4ed8</span>
+                                          <span class="sample-token-name">primitive/blue/500</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="sample-token-card">
+                                  <div class="sample-token-card-body checked">
+                                    <div class="sample-radio"><span class="sample-radio-dot checked"></span></div>
+                                    <div class="sample-token-rows">
+                                      <div class="sample-token-row single">
+                                        <span class="sample-token-badge" style="--sample-badge-color:#2f6bff"></span>
+                                        <div class="sample-token-text">
+                                          <span class="sample-token-value">#2f6bff</span>
+                                          <span class="sample-token-name">primitive/blue/500</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="sample-conflict-block">
+                            <div class="sample-conflict-copy">
+                              <strong>Duplicate style name</strong>
+                              <p>同じスタイル名が複数あります。インポートするトークンを選択してください。</p>
+                            </div>
+                            <div class="sample-choice-item">
+                              <div class="sample-choice-prompt">
+                                <strong>"semantic/accent/default"</strong>
+                                <span>どのトークンを登録しますか？</span>
+                              </div>
+                              <div class="sample-card-stack">
+                                <div class="sample-token-card">
+                                  <div class="sample-token-card-body checked">
+                                    <div class="sample-radio"><span class="sample-radio-dot checked"></span></div>
+                                    <div class="sample-token-rows">
+                                      <div class="sample-token-row single">
+                                        <span class="sample-token-badge" style="--sample-badge-color:#f9d84a"></span>
+                                        <div class="sample-token-text">
+                                          <span class="sample-token-value">#f9d84a</span>
+                                          <span class="sample-token-name">semantic/accent/default</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="sample-token-card">
+                                  <div class="sample-token-card-body">
+                                    <div class="sample-radio"><span class="sample-radio-dot"></span></div>
+                                    <div class="sample-token-rows">
+                                      <div class="sample-token-row single">
+                                        <span class="sample-token-badge" style="--sample-badge-color:#ffb020"></span>
+                                        <div class="sample-token-text">
+                                          <span class="sample-token-value">#ffb020</span>
+                                          <span class="sample-token-name">semantic/accent/default</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="sample-new-tokens">
+                    <h4 class="sample-section-title">New Token</h4>
+                    <div class="sample-preview-section">
+                      <div class="sample-preview-accent"></div>
+                      <div class="sample-preview-body">
+                        <div class="sample-token-card">
+                          <div class="sample-token-card-body">
+                            <div class="sample-token-rows">
+                              <div class="sample-token-row">
+                                <span class="sample-token-badge" style="--sample-badge-color:#ffffff"></span>
+                                <div class="sample-token-text">
+                                  <div class="sample-token-value-line">
+                                    <img class="sample-mode-icon" src="../../src/assets/icons/Icons=Light mode.svg" alt="" aria-hidden="true" />
+                                    <span class="sample-token-value">#ffffff</span>
+                                  </div>
+                                  <span class="sample-token-name">color.semantic.background.primary</span>
+                                </div>
+                              </div>
+                              <div class="sample-token-row">
+                                <span class="sample-token-badge" style="--sample-badge-color:#111313; --sample-badge-border:rgba(110,157,255,0.55)"></span>
+                                <div class="sample-token-text">
+                                  <div class="sample-token-value-line">
+                                    <img class="sample-mode-icon" src="../../src/assets/icons/Icons=Dark mode.svg" alt="" aria-hidden="true" />
+                                    <span class="sample-token-value">#111313</span>
+                                  </div>
+                                  <span class="sample-token-name">color.semantic.background.primary.dark</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="sample-editor-block">
+                  <div class="sample-row">
+                    <span class="sample-note">Editor syntax preview</span>
+                    <span class="sample-note">hardcoded baseline</span>
+                  </div>
+                  <div class="sample-editor">
+                    <div class="sample-gutter">1<br />2<br />3</div>
+                    <div class="sample-code">
+                      <span class="code-punctuation">{</span><br />
+                      &nbsp;&nbsp;<span class="code-key">"brand"</span><span class="code-punctuation">:</span> <span class="code-string">"#FACC15"</span><span class="code-punctuation">,</span><br />
+                      &nbsp;&nbsp;<span class="code-key">"count"</span><span class="code-punctuation">:</span> <span class="code-number">4</span><span class="code-punctuation">,</span><br />
+                      &nbsp;&nbsp;<span class="code-key">"enabled"</span><span class="code-punctuation">:</span> <span class="code-boolean">true</span><span class="code-punctuation">,</span><br />
+                      &nbsp;&nbsp;<span class="code-key">"alias"</span><span class="code-punctuation">:</span> <span class="code-null">null</span><br />
+                      <span class="code-punctuation">}</span>
+                    </div>
+                  </div>
+                  <div class="sample-diagnostic">Unsupported color の診断 underline を hardcoded baseline と比較できます。</div>
+                </div>
+                <div class="sample-warning">
+                  <strong>Warning</strong>
+                  TokenCardList は current 実装に寄せた構造ですが、こちらは hardcoded baseline なので light にしても見た目は切り替わりません。
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="preview-card">
+            <h3>Semantic Preview</h3>
+            <p>現在の semantic data を使ったサンプル。editing theme に応じて表示値も入力欄も切り替わります。</p>
+            <div class="sample-shell semantic-shell" id="semantic-preview">
+              <div class="sample-header">
+                <div>
+                  <strong>Import Tokens</strong>
+                  <div class="sample-note">semantic token の current data を反映</div>
+                </div>
+                <span class="sample-pill">Import</span>
+              </div>
+              <div class="sample-panel">
+                <div class="sample-list">
+                  <div>
+                    <h4 class="sample-section-title">Conflict</h4>
+                    <div class="sample-preview-section">
+                      <div class="sample-preview-accent"></div>
+                      <div class="sample-preview-body">
+                        <div class="sample-conflict-stack">
+                          <div class="sample-conflict-block">
+                            <div class="sample-conflict-copy">
+                              <strong>Existing style conflict</strong>
+                              <p>既存のスタイルとの競合があります。登録するトークンを選択してください。</p>
+                            </div>
+                            <div class="sample-choice-item">
+                              <div class="sample-choice-prompt">
+                                <strong>"primitive/blue/500"</strong>
+                                <span>どのトークンを登録しますか？</span>
+                              </div>
+                              <div class="sample-card-stack">
+                                <div class="sample-token-card">
+                                  <span class="sample-token-label">既存のスタイル</span>
+                                  <div class="sample-token-card-body">
+                                    <div class="sample-radio"><span class="sample-radio-dot"></span></div>
+                                    <div class="sample-token-rows">
+                                      <div class="sample-token-row single">
+                                        <span class="sample-token-badge" style="--sample-badge-color:#1d4ed8"></span>
+                                        <div class="sample-token-text">
+                                          <span class="sample-token-value">#1d4ed8</span>
+                                          <span class="sample-token-name">primitive/blue/500</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="sample-token-card">
+                                  <div class="sample-token-card-body checked">
+                                    <div class="sample-radio"><span class="sample-radio-dot checked"></span></div>
+                                    <div class="sample-token-rows">
+                                      <div class="sample-token-row single">
+                                        <span class="sample-token-badge" style="--sample-badge-color:#2f6bff"></span>
+                                        <div class="sample-token-text">
+                                          <span class="sample-token-value">#2f6bff</span>
+                                          <span class="sample-token-name">primitive/blue/500</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="sample-conflict-block">
+                            <div class="sample-conflict-copy">
+                              <strong>Duplicate style name</strong>
+                              <p>同じスタイル名が複数あります。インポートするトークンを選択してください。</p>
+                            </div>
+                            <div class="sample-choice-item">
+                              <div class="sample-choice-prompt">
+                                <strong>"semantic/accent/default"</strong>
+                                <span>どのトークンを登録しますか？</span>
+                              </div>
+                              <div class="sample-card-stack">
+                                <div class="sample-token-card">
+                                  <div class="sample-token-card-body checked">
+                                    <div class="sample-radio"><span class="sample-radio-dot checked"></span></div>
+                                    <div class="sample-token-rows">
+                                      <div class="sample-token-row single">
+                                        <span class="sample-token-badge" style="--sample-badge-color:#f9d84a"></span>
+                                        <div class="sample-token-text">
+                                          <span class="sample-token-value">#f9d84a</span>
+                                          <span class="sample-token-name">semantic/accent/default</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="sample-token-card">
+                                  <div class="sample-token-card-body">
+                                    <div class="sample-radio"><span class="sample-radio-dot"></span></div>
+                                    <div class="sample-token-rows">
+                                      <div class="sample-token-row single">
+                                        <span class="sample-token-badge" style="--sample-badge-color:#ffb020"></span>
+                                        <div class="sample-token-text">
+                                          <span class="sample-token-value">#ffb020</span>
+                                          <span class="sample-token-name">semantic/accent/default</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="sample-new-tokens">
+                    <h4 class="sample-section-title">New Token</h4>
+                    <div class="sample-preview-section">
+                      <div class="sample-preview-accent"></div>
+                      <div class="sample-preview-body">
+                        <div class="sample-token-card">
+                          <div class="sample-token-card-body">
+                            <div class="sample-token-rows">
+                              <div class="sample-token-row">
+                                <span class="sample-token-badge" style="--sample-badge-color:#ffffff"></span>
+                                <div class="sample-token-text">
+                                  <div class="sample-token-value-line">
+                                    <img class="sample-mode-icon" src="../../src/assets/icons/Icons=Light mode.svg" alt="" aria-hidden="true" />
+                                    <span class="sample-token-value">#ffffff</span>
+                                  </div>
+                                  <span class="sample-token-name">color.semantic.background.primary</span>
+                                </div>
+                              </div>
+                              <div class="sample-token-row">
+                                <span class="sample-token-badge" style="--sample-badge-color:#111313; --sample-badge-border:rgba(110,157,255,0.55)"></span>
+                                <div class="sample-token-text">
+                                  <div class="sample-token-value-line">
+                                    <img class="sample-mode-icon" src="../../src/assets/icons/Icons=Dark mode.svg" alt="" aria-hidden="true" />
+                                    <span class="sample-token-value">#111313</span>
+                                  </div>
+                                  <span class="sample-token-name">color.semantic.background.primary.dark</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="sample-list-divider">
+                          <div class="sample-token-card">
+                            <div class="sample-token-card-body">
+                              <div class="sample-token-rows">
+                                <div class="sample-token-row single">
+                                  <span class="sample-token-badge" style="--sample-badge-color:var(--semantic-accent-primary, #fde047)"></span>
+                                  <div class="sample-token-text">
+                                    <span class="sample-token-value"><span data-preview-row="accent-primary">#fde047</span></span>
+                                    <span class="sample-token-name">semantic/accent/default</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="sample-editor-block">
+                  <div class="sample-row">
+                    <span class="sample-note">Editor syntax preview</span>
+                    <span class="sample-note">semantic token driven</span>
+                  </div>
+                  <div class="sample-editor">
+                    <div class="sample-gutter">1<br />2<br />3</div>
+                    <div class="sample-code">
+                      <span class="code-punctuation">{</span><br />
+                      &nbsp;&nbsp;<span class="code-key">"brand"</span><span class="code-punctuation">:</span> <span class="code-string">"<span data-preview-row="accent-primary">#fde047</span>"</span><span class="code-punctuation">,</span><br />
+                      &nbsp;&nbsp;<span class="code-key">"count"</span><span class="code-punctuation">:</span> <span class="code-number">4</span><span class="code-punctuation">,</span><br />
+                      &nbsp;&nbsp;<span class="code-key">"enabled"</span><span class="code-punctuation">:</span> <span class="code-boolean">true</span><span class="code-punctuation">,</span><br />
+                      &nbsp;&nbsp;<span class="code-key">"alias"</span><span class="code-punctuation">:</span> <span class="code-null">null</span><br />
+                      <span class="code-punctuation">}</span>
+                    </div>
+                  </div>
+                  <div class="sample-diagnostic">Unsupported color の診断 underline も semantic token で確認できます。</div>
+                </div>
+                <div class="sample-warning">
+                  <strong>Warning</strong>
+                  semantic value を編集すると、TokenCardList の checked highlight、conflict / new token list、editor の syntax color が同時に更新されます。
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="json-card">
+          <div class="json-toolbar">
+            <div>
+              <h2>Current Data JSON</h2>
+              <p>現在の row data 全体です。`Copy JSON` はこの内容をそのままクリップボードへ出します。</p>
+            </div>
+          </div>
+          <textarea class="json-output" id="json-output" readonly spellcheck="false"></textarea>
+        </div>
+      </section>
+
+      <p class="footer-note">
+        この作業台は `src/app/` を触らず、hardcoded と semantic の対応整理に集中するための比較面です。
+        保存データはブラウザ localStorage のみを使い、HTML の canonical data は JS 内に保持しています。
+      </p>
+    </main>
+
+    <script>
+      const STORAGE_KEY = "theme-token-workbench:v2";
+      const LEGACY_STORAGE_KEYS = ["theme-token-workbench:v1"];
+
+      const initialTokenRows = [
+        {
+          id: "surface-canvas",
+          palette: "surface",
+          hardcodedName: "bg-neutral-800",
+          hardcodedValue: "#262626",
+          semanticName: "surface.canvas",
+          semanticValues: { dark: "#262626", light: "#E5E5E5" },
+          notes: "App shell / footer background",
+        },
+        {
+          id: "surface-panel",
+          palette: "surface",
+          hardcodedName: "bg-neutral-700",
+          hardcodedValue: "#404040",
+          semanticName: "surface.panel",
+          semanticValues: { dark: "#404040", light: "#F5F5F5" },
+          notes: "StatsGrid / TokenCardList / editor panel",
+        },
+        {
+          id: "surface-raised",
+          palette: "surface",
+          hardcodedName: "bg-neutral-900",
+          hardcodedValue: "#171717",
+          semanticName: "surface.raised",
+          semanticValues: { dark: "#262626", light: "#FAFAFA" },
+          notes: "Tooltip / elevated surface",
+        },
+        {
+          id: "surface-inset",
+          palette: "surface",
+          hardcodedName: "bg-neutral-700",
+          hardcodedValue: "#404040",
+          semanticName: "surface.inset",
+          semanticValues: { dark: "#404040", light: "#F5F5F5" },
+          notes: "Editor inset / code area",
+        },
+        {
+          id: "text-primary",
+          palette: "text",
+          hardcodedName: "text-neutral-100",
+          hardcodedValue: "#f5f5f5",
+          semanticName: "text.primary",
+          semanticValues: { dark: "#f5f5f5", light: "#404040" },
+          notes: "Main heading / primary body text",
+        },
+        {
+          id: "text-secondary",
+          palette: "text",
+          hardcodedName: "text-neutral-300",
+          hardcodedValue: "#d4d4d4",
+          semanticName: "text.secondary",
+          semanticValues: { dark: "#d4d4d4", light: "#525252" },
+          notes: "Helper text / gutter / caption",
+        },
+        {
+          id: "text-muted",
+          palette: "text",
+          hardcodedName: "text-neutral-400",
+          hardcodedValue: "#a3a3a3",
+          semanticName: "text.muted",
+          semanticValues: { dark: "#a1a1a1", light: "#737373" },
+          notes: "Placeholder / inactive helper text",
+        },
+        {
+          id: "border-default",
+          palette: "border",
+          hardcodedName: "border-neutral-200",
+          hardcodedValue: "#e5e5e5",
+          semanticName: "border.default",
+          semanticValues: { dark: "#e5e5e5", light: "#525252" },
+          notes: "Secondary button / editor frame",
+        },
+        {
+          id: "border-muted",
+          palette: "border",
+          hardcodedName: "border-neutral-600",
+          hardcodedValue: "#525252",
+          semanticName: "border.muted",
+          semanticValues: { dark: "#525252", light: "#A1A1A1" },
+          notes: "Modal border / inset separator",
+        },
+        {
+          id: "accent-primary",
+          palette: "accent",
+          hardcodedName: "bg-yellow-300",
+          hardcodedValue: "#fde047",
+          semanticName: "accent.primary",
+          semanticValues: { dark: "#FFDF20", light: "#FFDF20" },
+          notes: "Primary CTA / active thumb",
+        },
+        {
+          id: "accent-foreground",
+          palette: "accent",
+          hardcodedName: "text-neutral-800 on yellow",
+          hardcodedValue: "#262626",
+          semanticName: "accent.foreground",
+          semanticValues: { dark: "#262626", light: "#262626" },
+          notes: "Primary CTA label / active toggle text",
+        },
+        {
+          id: "status-warning",
+          palette: "status",
+          hardcodedName: "text-yellow-300",
+          hardcodedValue: "#fde047",
+          semanticName: "status.warning",
+          semanticValues: { dark: "#d4d4d4", light: "#525252" },
+          notes: "Warning text / diagnostic label",
+        },
+        {
+          id: "status-warning-surface",
+          palette: "status",
+          hardcodedName: "bg-yellow-950/50",
+          hardcodedValue: "#422006",
+          semanticName: "status.warningSurface",
+          semanticValues: { dark: "#733E0A", light: "#FEF9C2" },
+          notes: "Diagnostic warning banner / editor warning surface",
+        },
+        {
+          id: "status-warning-ghost",
+          palette: "status",
+          hardcodedName: "bg-[#fff08533]",
+          hardcodedValue: "#fff08533",
+          semanticName: "status.warningGhost",
+          semanticValues: { dark: "#fff08533", light: "#facc1533" },
+          notes: "TokenCard checked highlight background",
+        },
+        {
+          id: "control-radio-selected",
+          palette: "control",
+          hardcodedName: "text-yellow-300",
+          hardcodedValue: "#fde047",
+          semanticName: "control.radioSelected",
+          semanticValues: { dark: "#FFDF20", light: "#F0B100" },
+          notes: "Conflict choice radio checked dot",
+        },
+        {
+          id: "preview-conflict-accent",
+          palette: "preview",
+          hardcodedName: "bg-[#733e0a]",
+          hardcodedValue: "#733e0a",
+          semanticName: "preview.conflictAccent",
+          semanticValues: { dark: "#733e0a", light: "#FDC700" },
+          notes: "TokenCardList conflict group left accent bar",
+        },
+        {
+          id: "preview-new-token-accent",
+          palette: "preview",
+          hardcodedName: "bg-[#0d542b]",
+          hardcodedValue: "#0d542b",
+          semanticName: "preview.newTokenAccent",
+          semanticValues: { dark: "#0d542b", light: "#5EA500" },
+          notes: "TokenCardList new token group left accent bar",
+        },
+        {
+          id: "code-key",
+          palette: "code",
+          hardcodedName: "text-sky-300",
+          hardcodedValue: "#7dd3fc",
+          semanticName: "code.key",
+          semanticValues: { dark: "#74D4FF", light: "#0069A8" },
+          notes: "JsonTokenEditor key token",
+        },
+        {
+          id: "code-string",
+          palette: "code",
+          hardcodedName: "text-[#8be9a1]",
+          hardcodedValue: "#8be9a1",
+          semanticName: "code.string",
+          semanticValues: { dark: "#7BF1A8", light: "#008236" },
+          notes: "JsonTokenEditor string token",
+        },
+        {
+          id: "code-number",
+          palette: "code",
+          hardcodedName: "text-[#80c7ff]",
+          hardcodedValue: "#80c7ff",
+          semanticName: "code.number",
+          semanticValues: { dark: "#74D4FF", light: "#0069A8" },
+          notes: "JsonTokenEditor number token",
+        },
+        {
+          id: "code-boolean",
+          palette: "code",
+          hardcodedName: "text-[#ffb86c]",
+          hardcodedValue: "#ffb86c",
+          semanticName: "code.boolean",
+          semanticValues: { dark: "#FFB86A", light: "#733E0A" },
+          notes: "JsonTokenEditor boolean token",
+        },
+        {
+          id: "code-null",
+          palette: "code",
+          hardcodedName: "text-[#ff8ba7]",
+          hardcodedValue: "#ff8ba7",
+          semanticName: "code.null",
+          semanticValues: { dark: "#FFA2A2", light: "#A3004C" },
+          notes: "JsonTokenEditor null token",
+        },
+        {
+          id: "code-punctuation",
+          palette: "code",
+          hardcodedName: "text-neutral-300",
+          hardcodedValue: "#d4d4d4",
+          semanticName: "code.punctuation",
+          semanticValues: { dark: "#d4d4d4", light: "#525252" },
+          notes: "JsonTokenEditor punctuation token",
+        },
+        {
+          id: "code-diagnostic-underline",
+          palette: "code",
+          hardcodedName: "decoration-yellow-300",
+          hardcodedValue: "#fde047",
+          semanticName: "code.diagnosticUnderline",
+          semanticValues: { dark: "#FFDF20", light: "#FFDF20" },
+          notes: "JsonTokenEditor diagnostic underline color",
+        },
+      ];
+
+      const state = {
+        theme: "dark",
+        tokenRows: cloneRows(initialTokenRows),
+        savedSignature: signature(initialTokenRows),
+      };
+
+      const mappingBody = document.querySelector("#mapping-body");
+      const statusNode = document.querySelector("[data-status]");
+      const saveButton = document.querySelector('[data-action="save"]');
+      const jsonOutput = document.querySelector("#json-output");
+      const themeLabel = document.querySelector("[data-theme-label]");
+      const semanticPreview = document.querySelector("#semantic-preview");
+      const previewCodeNodes = Array.from(document.querySelectorAll("[data-preview-row]"));
+
+      function cloneRows(rows) {
+        return JSON.parse(JSON.stringify(rows));
+      }
+
+      function signature(rows) {
+        return JSON.stringify(rows);
+      }
+
+      function currentThemeLabel() {
+        return state.theme;
+      }
+
+      function currentSemanticValue(row) {
+        return row.semanticValues[state.theme];
+      }
+
+      function rowById(id) {
+        return state.tokenRows.find((row) => row.id === id);
+      }
+
+      function setStatus(message, tone = "neutral") {
+        statusNode.textContent = message;
+        statusNode.dataset.tone = tone;
+      }
+
+      function isDirty() {
+        return signature(state.tokenRows) !== state.savedSignature;
+      }
+
+      function updateSaveState() {
+        saveButton.disabled = !isDirty();
+      }
+
+      function themeDisplayName(theme) {
+        return theme === "dark" ? "dark" : "light";
+      }
+
+      function normalizeForColorInput(value) {
+        const hexMatch = value.trim().match(/^#([0-9a-f]{3,8})$/i);
+        if (hexMatch) {
+          const raw = hexMatch[1];
+          if (raw.length === 3 || raw.length === 4) {
+            return `#${raw.slice(0, 3).split("").map((part) => `${part}${part}`).join("")}`;
+          }
+          if (raw.length >= 6) {
+            return `#${raw.slice(0, 6)}`;
+          }
+        }
+
+        const probe = document.createElement("span");
+        probe.style.color = "";
+        probe.style.color = value;
+        if (!probe.style.color) {
+          return "#000000";
+        }
+
+        document.body.appendChild(probe);
+        const resolved = getComputedStyle(probe).color;
+        probe.remove();
+
+        const rgbMatch = resolved.match(/\d+/g);
+        if (!rgbMatch || rgbMatch.length < 3) {
+          return "#000000";
+        }
+
+        return `#${rgbMatch
+          .slice(0, 3)
+          .map((part) => Number(part).toString(16).padStart(2, "0"))
+          .join("")}`;
+      }
+
+      function colorsMatch(a, b) {
+        return a.trim().toLowerCase() === b.trim().toLowerCase();
+      }
+
+      function exportPayload() {
+        return {
+          rows: state.tokenRows,
+        };
+      }
+
+      function mergeRowsWithCanonical(savedRows) {
+        const savedById = new Map(
+          savedRows
+            .filter((row) => row && typeof row.id === "string")
+            .map((row) => [row.id, row])
+        );
+
+        return initialTokenRows.map((defaultRow) => {
+          const savedRow = savedById.get(defaultRow.id);
+          if (!savedRow) {
+            return cloneRows([defaultRow])[0];
+          }
+
+          return {
+            ...cloneRows([defaultRow])[0],
+            semanticName:
+              typeof savedRow.semanticName === "string" ? savedRow.semanticName : defaultRow.semanticName,
+            semanticValues: {
+              dark:
+                typeof savedRow.semanticValues?.dark === "string"
+                  ? savedRow.semanticValues.dark
+                  : defaultRow.semanticValues.dark,
+              light:
+                typeof savedRow.semanticValues?.light === "string"
+                  ? savedRow.semanticValues.light
+                  : defaultRow.semanticValues.light,
+            },
+          };
+        });
+      }
+
+      function renderTable() {
+        mappingBody.innerHTML = "";
+
+        state.tokenRows.forEach((row) => {
+          const tr = document.createElement("tr");
+          tr.dataset.rowId = row.id;
+          tr.innerHTML = `
+            <td><span class="palette-label">${row.palette}</span></td>
+            <td><code>${escapeHtml(row.hardcodedName)}</code></td>
+            <td>
+              <span class="value-chip">
+                <span class="swatch" style="--swatch-color:${escapeAttr(row.hardcodedValue)}"></span>
+                <code>${escapeHtml(row.hardcodedValue)}</code>
+              </span>
+            </td>
+            <td>
+              <div class="editor-cell">
+                <input class="name-input" data-field="semanticName" type="text" value="${escapeAttr(row.semanticName)}" />
+              </div>
+            </td>
+            <td>
+              <div class="editor-cell">
+                <div class="value-row">
+                  <input class="color-input" data-field="semanticColor" type="color" value="${escapeAttr(
+                    normalizeForColorInput(currentSemanticValue(row))
+                  )}" />
+                  <input class="value-input" data-field="semanticValue" type="text" value="${escapeAttr(
+                    currentSemanticValue(row)
+                  )}" />
+                </div>
+                <div class="editor-hint">editing ${themeDisplayName(state.theme)} value</div>
+              </div>
+            </td>
+            <td class="preview-cell"></td>
+            <td class="notes">${escapeHtml(row.notes)}</td>
+          `;
+
+          mappingBody.appendChild(tr);
+          bindRowEvents(tr, row.id);
+          updateRowPreview(tr, row);
+        });
+      }
+
+      function bindRowEvents(tr, rowId) {
+        const nameInput = tr.querySelector('[data-field="semanticName"]');
+        const valueInput = tr.querySelector('[data-field="semanticValue"]');
+        const colorInput = tr.querySelector('[data-field="semanticColor"]');
+
+        nameInput.addEventListener("input", (event) => {
+          const row = rowById(rowId);
+          row.semanticName = event.target.value;
+          afterEdit();
+        });
+
+        valueInput.addEventListener("input", (event) => {
+          const row = rowById(rowId);
+          row.semanticValues[state.theme] = event.target.value;
+          colorInput.value = normalizeForColorInput(event.target.value);
+          updateRowPreview(tr, row);
+          refreshDerivedViews();
+          afterEdit();
+        });
+
+        colorInput.addEventListener("input", (event) => {
+          const row = rowById(rowId);
+          row.semanticValues[state.theme] = event.target.value;
+          valueInput.value = event.target.value;
+          updateRowPreview(tr, row);
+          refreshDerivedViews();
+          afterEdit();
+        });
+      }
+
+      function updateRowPreview(tr, row) {
+        const previewCell = tr.querySelector(".preview-cell");
+        const semanticValue = currentSemanticValue(row);
+        const match = colorsMatch(row.hardcodedValue, semanticValue);
+
+        previewCell.innerHTML = `
+          <div class="preview-pair">
+            <div class="preview-token">
+              <strong>hardcoded</strong>
+              <div class="preview-block" style="--preview-color:${escapeAttr(row.hardcodedValue)}"></div>
+              <span>${escapeHtml(row.hardcodedValue)}</span>
+            </div>
+            <div class="preview-token">
+              <strong>semantic</strong>
+              <div class="preview-block" style="--preview-color:${escapeAttr(semanticValue)}"></div>
+              <span>${escapeHtml(semanticValue)}</span>
+            </div>
+          </div>
+          <span class="preview-state" data-match="${String(match)}">${match ? "match" : "diff"}</span>
+        `;
+      }
+
+      function refreshThemeButtons() {
+        document.documentElement.dataset.theme = state.theme;
+        themeLabel.textContent = currentThemeLabel();
+        document.querySelectorAll("[data-theme-button]").forEach((button) => {
+          const active = button.dataset.themeButton === state.theme;
+          button.setAttribute("aria-pressed", String(active));
+        });
+      }
+
+      function refreshTableThemeValues() {
+        Array.from(mappingBody.querySelectorAll("tr")).forEach((tr) => {
+          const row = rowById(tr.dataset.rowId);
+          const valueInput = tr.querySelector('[data-field="semanticValue"]');
+          const colorInput = tr.querySelector('[data-field="semanticColor"]');
+          const hint = tr.querySelector(".editor-hint");
+
+          valueInput.value = currentSemanticValue(row);
+          colorInput.value = normalizeForColorInput(currentSemanticValue(row));
+          hint.textContent = `editing ${themeDisplayName(state.theme)} value`;
+          updateRowPreview(tr, row);
+        });
+      }
+
+      function previewValue(rowId, fallback) {
+        const row = rowById(rowId);
+        return row ? currentSemanticValue(row) : fallback;
+      }
+
+      function refreshSemanticPreview() {
+        semanticPreview.style.setProperty("--semantic-surface-canvas", previewValue("surface-canvas", "#262626"));
+        semanticPreview.style.setProperty("--semantic-surface-panel", previewValue("surface-panel", "#404040"));
+        semanticPreview.style.setProperty("--semantic-surface-inset", previewValue("surface-inset", "#404040"));
+        semanticPreview.style.setProperty("--semantic-text-primary", previewValue("text-primary", "#f5f5f5"));
+        semanticPreview.style.setProperty("--semantic-text-secondary", previewValue("text-secondary", "#d4d4d4"));
+        semanticPreview.style.setProperty("--semantic-border-default", previewValue("border-default", "#e5e5e5"));
+        semanticPreview.style.setProperty("--semantic-border-muted", previewValue("border-muted", "#525252"));
+        semanticPreview.style.setProperty("--semantic-accent-primary", previewValue("accent-primary", "#fde047"));
+        semanticPreview.style.setProperty("--semantic-accent-foreground", previewValue("accent-foreground", "#262626"));
+        semanticPreview.style.setProperty("--semantic-status-warning", previewValue("status-warning", "#fde047"));
+        semanticPreview.style.setProperty(
+          "--semantic-status-warning-surface",
+          previewValue("status-warning-surface", "#422006")
+        );
+        semanticPreview.style.setProperty(
+          "--semantic-status-warning-ghost",
+          previewValue("status-warning-ghost", "#fff08533")
+        );
+        semanticPreview.style.setProperty(
+          "--semantic-control-radio-selected",
+          previewValue("control-radio-selected", "#fde047")
+        );
+        semanticPreview.style.setProperty(
+          "--semantic-conflict-accent",
+          previewValue("preview-conflict-accent", "#733e0a")
+        );
+        semanticPreview.style.setProperty(
+          "--semantic-new-token-accent",
+          previewValue("preview-new-token-accent", "#0d542b")
+        );
+        semanticPreview.style.setProperty("--semantic-code-key", previewValue("code-key", "#7dd3fc"));
+        semanticPreview.style.setProperty("--semantic-code-string", previewValue("code-string", "#8be9a1"));
+        semanticPreview.style.setProperty("--semantic-code-number", previewValue("code-number", "#80c7ff"));
+        semanticPreview.style.setProperty("--semantic-code-boolean", previewValue("code-boolean", "#ffb86c"));
+        semanticPreview.style.setProperty("--semantic-code-null", previewValue("code-null", "#ff8ba7"));
+        semanticPreview.style.setProperty("--semantic-code-punctuation", previewValue("code-punctuation", "#d4d4d4"));
+        semanticPreview.style.setProperty(
+          "--semantic-code-diagnostic-underline",
+          previewValue("code-diagnostic-underline", "#fde047")
+        );
+
+        previewCodeNodes.forEach((node) => {
+          node.textContent = previewValue(node.dataset.previewRow, node.textContent);
+        });
+      }
+
+      function refreshJsonOutput() {
+        jsonOutput.value = JSON.stringify(exportPayload(), null, 2);
+      }
+
+      function refreshDerivedViews() {
+        refreshSemanticPreview();
+        refreshJsonOutput();
+      }
+
+      function afterEdit() {
+        updateSaveState();
+        setStatus("未保存の変更あり", "warning");
+        refreshJsonOutput();
+      }
+
+      function save() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(exportPayload()));
+          state.savedSignature = signature(state.tokenRows);
+          updateSaveState();
+          setStatus("保存済み", "success");
+        } catch {
+          setStatus("保存に失敗しました", "danger");
+        }
+      }
+
+      async function copyJson() {
+        try {
+          await navigator.clipboard.writeText(JSON.stringify(exportPayload(), null, 2));
+          setStatus("JSON をコピーしました", "success");
+        } catch {
+          setStatus("JSON のコピーに失敗しました", "danger");
+        }
+      }
+
+      function reset() {
+        state.tokenRows = cloneRows(initialTokenRows);
+        state.savedSignature = signature(initialTokenRows);
+
+        try {
+          [STORAGE_KEY, ...LEGACY_STORAGE_KEYS].forEach((key) => localStorage.removeItem(key));
+        } catch {
+          // noop
+        }
+
+        renderTable();
+        refreshThemeButtons();
+        refreshDerivedViews();
+        updateSaveState();
+        setStatus("初期データに戻しました", "success");
+      }
+
+      function loadSavedRows() {
+        try {
+          const candidateKeys = [STORAGE_KEY, ...LEGACY_STORAGE_KEYS];
+
+          for (const key of candidateKeys) {
+            const raw = localStorage.getItem(key);
+            if (!raw) {
+              continue;
+            }
+
+            const payload = JSON.parse(raw);
+            if (!payload || !Array.isArray(payload.rows)) {
+              continue;
+            }
+
+            const mergedRows = mergeRowsWithCanonical(payload.rows);
+            state.tokenRows = mergedRows;
+            state.savedSignature = signature(mergedRows);
+
+            if (key !== STORAGE_KEY || signature(payload.rows) !== signature(mergedRows)) {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify({ rows: mergedRows }));
+            }
+
+            LEGACY_STORAGE_KEYS.forEach((legacyKey) => {
+              if (legacyKey !== STORAGE_KEY) {
+                localStorage.removeItem(legacyKey);
+              }
+            });
+
+            return true;
+          }
+        } catch {
+          return false;
+        }
+
+        return false;
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;");
+      }
+
+      function escapeAttr(value) {
+        return escapeHtml(value).replaceAll("'", "&#39;");
+      }
+
+      document.querySelector('[data-action="save"]').addEventListener("click", save);
+      document.querySelector('[data-action="copy-json"]').addEventListener("click", copyJson);
+      document.querySelector('[data-action="reset"]').addEventListener("click", reset);
+
+      document.querySelectorAll("[data-theme-button]").forEach((button) => {
+        button.addEventListener("click", () => {
+          state.theme = button.dataset.themeButton;
+          refreshThemeButtons();
+          refreshTableThemeValues();
+          refreshDerivedViews();
+          setStatus(`${themeDisplayName(state.theme)} preview に切り替えました`, "neutral");
+        });
+      });
+
+      const restored = loadSavedRows();
+      renderTable();
+      refreshThemeButtons();
+      refreshDerivedViews();
+      updateSaveState();
+      if (restored) {
+        setStatus("保存内容を復元しました", "success");
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,292 @@
+{
+  "rows": [
+    {
+      "id": "surface-canvas",
+      "palette": "surface",
+      "hardcodedName": "bg-neutral-800",
+      "hardcodedValue": "#262626",
+      "semanticName": "surface.canvas",
+      "semanticValues": {
+        "dark": "#262626",
+        "light": "#E5E5E5"
+      },
+      "notes": "App shell / footer background"
+    },
+    {
+      "id": "surface-panel",
+      "palette": "surface",
+      "hardcodedName": "bg-neutral-700",
+      "hardcodedValue": "#404040",
+      "semanticName": "surface.panel",
+      "semanticValues": {
+        "dark": "#404040",
+        "light": "#F5F5F5"
+      },
+      "notes": "StatsGrid / TokenCardList / editor panel"
+    },
+    {
+      "id": "surface-raised",
+      "palette": "surface",
+      "hardcodedName": "bg-neutral-900",
+      "hardcodedValue": "#171717",
+      "semanticName": "surface.raised",
+      "semanticValues": {
+        "dark": "#262626",
+        "light": "#FAFAFA"
+      },
+      "notes": "Tooltip / elevated surface"
+    },
+    {
+      "id": "surface-inset",
+      "palette": "surface",
+      "hardcodedName": "bg-neutral-700",
+      "hardcodedValue": "#404040",
+      "semanticName": "surface.inset",
+      "semanticValues": {
+        "dark": "#404040",
+        "light": "#F5F5F5"
+      },
+      "notes": "Editor inset / code area"
+    },
+    {
+      "id": "text-primary",
+      "palette": "text",
+      "hardcodedName": "text-neutral-100",
+      "hardcodedValue": "#f5f5f5",
+      "semanticName": "text.primary",
+      "semanticValues": {
+        "dark": "#f5f5f5",
+        "light": "#404040"
+      },
+      "notes": "Main heading / primary body text"
+    },
+    {
+      "id": "text-secondary",
+      "palette": "text",
+      "hardcodedName": "text-neutral-300",
+      "hardcodedValue": "#d4d4d4",
+      "semanticName": "text.secondary",
+      "semanticValues": {
+        "dark": "#d4d4d4",
+        "light": "#525252"
+      },
+      "notes": "Helper text / gutter / caption"
+    },
+    {
+      "id": "text-muted",
+      "palette": "text",
+      "hardcodedName": "text-neutral-400",
+      "hardcodedValue": "#a3a3a3",
+      "semanticName": "text.muted",
+      "semanticValues": {
+        "dark": "#a1a1a1",
+        "light": "#737373"
+      },
+      "notes": "Placeholder / inactive helper text"
+    },
+    {
+      "id": "border-default",
+      "palette": "border",
+      "hardcodedName": "border-neutral-200",
+      "hardcodedValue": "#e5e5e5",
+      "semanticName": "border.default",
+      "semanticValues": {
+        "dark": "#e5e5e5",
+        "light": "#525252"
+      },
+      "notes": "Secondary button / editor frame"
+    },
+    {
+      "id": "border-muted",
+      "palette": "border",
+      "hardcodedName": "border-neutral-600",
+      "hardcodedValue": "#525252",
+      "semanticName": "border.muted",
+      "semanticValues": {
+        "dark": "#525252",
+        "light": "#A1A1A1"
+      },
+      "notes": "Modal border / inset separator"
+    },
+    {
+      "id": "accent-primary",
+      "palette": "accent",
+      "hardcodedName": "bg-yellow-300",
+      "hardcodedValue": "#fde047",
+      "semanticName": "accent.primary",
+      "semanticValues": {
+        "dark": "#FFDF20",
+        "light": "#FFDF20"
+      },
+      "notes": "Primary CTA / active thumb"
+    },
+    {
+      "id": "accent-foreground",
+      "palette": "accent",
+      "hardcodedName": "text-neutral-800 on yellow",
+      "hardcodedValue": "#262626",
+      "semanticName": "accent.foreground",
+      "semanticValues": {
+        "dark": "#262626",
+        "light": "#262626"
+      },
+      "notes": "Primary CTA label / active toggle text"
+    },
+    {
+      "id": "status-warning",
+      "palette": "status",
+      "hardcodedName": "text-yellow-300",
+      "hardcodedValue": "#fde047",
+      "semanticName": "status.warning",
+      "semanticValues": {
+        "dark": "#d4d4d4",
+        "light": "#525252"
+      },
+      "notes": "Warning text / diagnostic label"
+    },
+    {
+      "id": "status-warning-surface",
+      "palette": "status",
+      "hardcodedName": "bg-yellow-950/50",
+      "hardcodedValue": "#422006",
+      "semanticName": "status.warningSurface",
+      "semanticValues": {
+        "dark": "#733E0A",
+        "light": "#FEF9C2"
+      },
+      "notes": "Diagnostic warning banner / editor warning surface"
+    },
+    {
+      "id": "status-warning-ghost",
+      "palette": "status",
+      "hardcodedName": "bg-[#fff08533]",
+      "hardcodedValue": "#fff08533",
+      "semanticName": "status.warningGhost",
+      "semanticValues": {
+        "dark": "#fff08533",
+        "light": "#facc1533"
+      },
+      "notes": "TokenCard checked highlight background"
+    },
+    {
+      "id": "control-radio-selected",
+      "palette": "control",
+      "hardcodedName": "text-yellow-300",
+      "hardcodedValue": "#fde047",
+      "semanticName": "control.radioSelected",
+      "semanticValues": {
+        "dark": "#FFDF20",
+        "light": "#F0B100"
+      },
+      "notes": "Conflict choice radio checked dot"
+    },
+    {
+      "id": "preview-conflict-accent",
+      "palette": "preview",
+      "hardcodedName": "bg-[#733e0a]",
+      "hardcodedValue": "#733e0a",
+      "semanticName": "preview.conflictAccent",
+      "semanticValues": {
+        "dark": "#733e0a",
+        "light": "#FDC700"
+      },
+      "notes": "TokenCardList conflict group left accent bar"
+    },
+    {
+      "id": "preview-new-token-accent",
+      "palette": "preview",
+      "hardcodedName": "bg-[#0d542b]",
+      "hardcodedValue": "#0d542b",
+      "semanticName": "preview.newTokenAccent",
+      "semanticValues": {
+        "dark": "#0d542b",
+        "light": "#5EA500"
+      },
+      "notes": "TokenCardList new token group left accent bar"
+    },
+    {
+      "id": "code-key",
+      "palette": "code",
+      "hardcodedName": "text-sky-300",
+      "hardcodedValue": "#7dd3fc",
+      "semanticName": "code.key",
+      "semanticValues": {
+        "dark": "#74D4FF",
+        "light": "#0069A8"
+      },
+      "notes": "JsonTokenEditor key token"
+    },
+    {
+      "id": "code-string",
+      "palette": "code",
+      "hardcodedName": "text-[#8be9a1]",
+      "hardcodedValue": "#8be9a1",
+      "semanticName": "code.string",
+      "semanticValues": {
+        "dark": "#7BF1A8",
+        "light": "#008236"
+      },
+      "notes": "JsonTokenEditor string token"
+    },
+    {
+      "id": "code-number",
+      "palette": "code",
+      "hardcodedName": "text-[#80c7ff]",
+      "hardcodedValue": "#80c7ff",
+      "semanticName": "code.number",
+      "semanticValues": {
+        "dark": "#74D4FF",
+        "light": "#0069A8"
+      },
+      "notes": "JsonTokenEditor number token"
+    },
+    {
+      "id": "code-boolean",
+      "palette": "code",
+      "hardcodedName": "text-[#ffb86c]",
+      "hardcodedValue": "#ffb86c",
+      "semanticName": "code.boolean",
+      "semanticValues": {
+        "dark": "#FFB86A",
+        "light": "#733E0A"
+      },
+      "notes": "JsonTokenEditor boolean token"
+    },
+    {
+      "id": "code-null",
+      "palette": "code",
+      "hardcodedName": "text-[#ff8ba7]",
+      "hardcodedValue": "#ff8ba7",
+      "semanticName": "code.null",
+      "semanticValues": {
+        "dark": "#FFA2A2",
+        "light": "#A3004C"
+      },
+      "notes": "JsonTokenEditor null token"
+    },
+    {
+      "id": "code-punctuation",
+      "palette": "code",
+      "hardcodedName": "text-neutral-300",
+      "hardcodedValue": "#d4d4d4",
+      "semanticName": "code.punctuation",
+      "semanticValues": {
+        "dark": "#d4d4d4",
+        "light": "#525252"
+      },
+      "notes": "JsonTokenEditor punctuation token"
+    },
+    {
+      "id": "code-diagnostic-underline",
+      "palette": "code",
+      "hardcodedName": "decoration-yellow-300",
+      "hardcodedValue": "#fde047",
+      "semanticName": "code.diagnosticUnderline",
+      "semanticValues": {
+        "dark": "#FFDF20",
+        "light": "#FFDF20"
+      },
+      "notes": "JsonTokenEditor diagnostic underline color"
+    }
+  ]
+}
