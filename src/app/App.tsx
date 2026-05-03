@@ -29,6 +29,7 @@ import type {
   ParseWarning,
 } from "../lib/types/tokens.ts"
 import { type Language, messages } from "./i18n.ts"
+import { syncDocumentThemeFromFramer } from "./theme.ts"
 
 const MIN_ACTION_FEEDBACK_MS = 1000
 const CAPTURE_MODES = [
@@ -115,6 +116,8 @@ export function App() {
   useEffect(() => {
     document.documentElement.lang = language
   }, [language])
+
+  useEffect(() => syncDocumentThemeFromFramer(document), [])
 
   // Initialize conflict selections when parse result changes
   useEffect(() => {
