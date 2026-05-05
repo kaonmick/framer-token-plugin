@@ -36,7 +36,6 @@
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
   --color-text-muted: var(--text-muted);
-  --color-text-inverse: var(--text-inverse);
   --color-text-accent: var(--text-accent);
 
   --color-border-default: var(--border-default);
@@ -55,7 +54,9 @@
   --color-status-warning-ghost: var(--status-warning-ghost);
   --color-status-error: var(--status-error);
   --color-status-error-surface: var(--status-error-surface);
-  --color-status-success: var(--status-success);
+  --color-control-radio-selected: var(--control-radio-selected);
+  --color-preview-conflict-accent: var(--preview-conflict-accent);
+  --color-preview-new-token-accent: var(--preview-new-token-accent);
 
   --color-code-key: var(--code-key);
   --color-code-string: var(--code-string);
@@ -81,7 +82,6 @@
     --text-primary: var(--color-neutral-100);
     --text-secondary: var(--color-neutral-300);
     --text-muted: var(--color-neutral-400);
-    --text-inverse: var(--color-neutral-800);
     --text-accent: var(--color-yellow-300);
 
     --border-default: var(--color-neutral-200);
@@ -100,7 +100,9 @@
     --status-warning-ghost: #fff08533;
     --status-error: var(--color-red-400);
     --status-error-surface: #450a0a;
-    --status-success: var(--color-emerald-300);
+    --control-radio-selected: var(--color-yellow-300);
+    --preview-conflict-accent: #733e0a;
+    --preview-new-token-accent: #0d542b;
 
     --code-key: var(--color-sky-300);
     --code-string: #8be9a1;
@@ -123,7 +125,6 @@
     --text-primary: var(--color-neutral-900);
     --text-secondary: var(--color-neutral-600);
     --text-muted: var(--color-neutral-500);
-    --text-inverse: var(--color-white);
     --text-accent: #9a6a00;
 
     --border-default: var(--color-neutral-300);
@@ -142,7 +143,9 @@
     --status-warning-ghost: #facc1533;
     --status-error: var(--color-red-700);
     --status-error-surface: #fee2e2;
-    --status-success: var(--color-emerald-700);
+    --control-radio-selected: #f0b100;
+    --preview-conflict-accent: #fdc700;
+    --preview-new-token-accent: #5ea500;
 
     --code-key: var(--color-sky-700);
     --code-string: #15803d;
@@ -155,28 +158,12 @@
 }
 
 @layer utilities {
-  .text-ui-caption {
-    @apply text-xs;
-  }
-
-  .text-ui-caption:lang(ja) {
-    @apply text-xs-ja;
-  }
-
   .text-ui-control {
     @apply text-sm;
   }
 
   .text-ui-control:lang(ja) {
     @apply text-sm-ja;
-  }
-
-  .text-ui-body {
-    @apply text-base;
-  }
-
-  .text-ui-body:lang(ja) {
-    @apply text-base-ja;
   }
 
   .text-ui-title {

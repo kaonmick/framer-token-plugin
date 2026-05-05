@@ -1,6 +1,9 @@
+import { useEffect, useState } from "react"
 import { cx } from "./ui.tsx"
-import darkModeIcon from "../assets/icons/Icons=Dark mode.svg"
-import lightModeIcon from "../assets/icons/Icons=Light mode.svg"
+import defaultDarkModeIcon from "../assets/icons/dark-mode.svg"
+import defaultLightModeIcon from "../assets/icons/light-mode.svg"
+import darkModeIconOnLight from "../assets/icons/dark-mode--black.svg"
+import lightModeIconOnLight from "../assets/icons/light-mode--black.svg"
 
 type TokenRowMode = "light" | "dark"
 
@@ -37,13 +40,14 @@ export function TokenCard({
   className,
 }: TokenCardProps) {
   const hasRadio = radioName !== undefined
+  const themeMode = useDocumentThemeMode()
 
   const inner = (
     <div
       className={cx(
         "flex gap-3 rounded-[4px] p-2",
         hasRadio ? "items-center" : "items-start",
-        checked ? "bg-[#fff08533]" : "",
+        checked ? "bg-status-warning-ghost" : "",
         className
       )}
     >
@@ -56,18 +60,23 @@ export function TokenCard({
             checked={checked}
             onChange={onChange}
             readOnly={onChange === undefined}
-            className="m-0 shrink-0 accent-[var(--color-yellow-300)]"
+            className="m-0 size-4 shrink-0 appearance-none rounded-full border box-border focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 [outline-color:var(--color-border-focus)]"
+            style={{
+              backgroundColor: "inherit",
+              borderColor: checked ? "var(--color-control-radio-selected)" : "var(--color-border-default)",
+              borderWidth: checked ? 3 : 1,
+            }}
           />
         </span>
       ) : null}
-      <TokenRows rows={rows} />
+      <TokenRows rows={rows} themeMode={themeMode} />
     </div>
   )
 
   return (
     <div className="flex flex-col gap-1.5">
       {label ? (
-        <span className="inline-flex self-start rounded-[11px] bg-neutral-300 px-2 py-1 text-[11px] leading-none text-neutral-700">
+        <span className="inline-flex self-start rounded-[11px] bg-surface-muted px-2 py-1 text-[11px] leading-none text-text-secondary">
           {label}
         </span>
       ) : null}
@@ -80,7 +89,13 @@ export function TokenCard({
   )
 }
 
-function TokenRows({ rows }: { rows: TokenCardRow[] }) {
+function TokenRows({
+  rows,
+  themeMode,
+}: {
+  rows: TokenCardRow[]
+  themeMode: ThemeMode
+}) {
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-3">
       {rows.map((row, index) => (
@@ -93,19 +108,19 @@ function TokenRows({ rows }: { rows: TokenCardRow[] }) {
             <div className={cx("flex min-w-0 items-center", row.mode ? "gap-2" : "")}>
               {row.mode ? (
                 <>
-                  <ModeIcon mode={row.mode} />
+                  <ModeIcon mode={row.mode} themeMode={themeMode} />
                   <span className="sr-only">{row.modeLabel ?? (row.mode === "light" ? "Light" : "Dark")}</span>
                 </>
               ) : null}
               <span
-                className="block min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[12px] leading-none text-neutral-50"
+                className="block min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[12px] leading-none text-text-primary"
                 lang="en"
               >
                 {row.value}
               </span>
             </div>
             <span
-              className="block min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[14px] leading-none text-neutral-200"
+              className="block min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[14px] leading-none text-text-secondary"
               lang="en"
             >
               {row.name}
@@ -123,20 +138,66 @@ function ColorBadge({ color, borderColor }: { color: string; borderColor?: strin
       className="block size-[18px] shrink-0 rounded-full border"
       style={{
         backgroundColor: color,
-        borderColor: borderColor ?? "rgba(255, 255, 255, 0.2)",
+        borderColor: borderColor ?? "var(--color-border-default)",
       }}
       aria-hidden="true"
     />
   )
 }
 
-function ModeIcon({ mode }: { mode: TokenRowMode }) {
+function ModeIcon({
+  mode,
+  themeMode,
+}: {
+  mode: TokenRowMode
+  themeMode: ThemeMode
+}) {
+  const iconSrc =
+    themeMode === "light"
+      ? mode === "light"
+        ? lightModeIconOnLight
+        : darkModeIconOnLight
+      : mode === "light"
+        ? defaultLightModeIcon
+        : defaultDarkModeIcon
+
   return (
     <img
       aria-hidden="true"
       alt=""
       className="block size-4 shrink-0"
-      src={mode === "light" ? lightModeIcon : darkModeIcon}
+      src={iconSrc}
     />
   )
+}
+
+type ThemeMode = "light" | "dark"
+
+function useDocumentThemeMode(): ThemeMode {
+  const [themeMode, setThemeMode] = useState<ThemeMode>(() => getCurrentThemeMode())
+
+  useEffect(() => {
+    if (typeof document === "undefined") return
+
+    const updateThemeMode = () => {
+      setThemeMode(getCurrentThemeMode())
+    }
+
+    updateThemeMode()
+
+    const observer = new MutationObserver(updateThemeMode)
+    observer.observe(document.documentElement, {
+      attributeFilter: ["data-theme"],
+      attributes: true,
+    })
+
+    return () => observer.disconnect()
+  }, [])
+
+  return themeMode
+}
+
+function getCurrentThemeMode(): ThemeMode {
+  if (typeof document === "undefined") return "dark"
+  return document.documentElement.dataset.theme === "light" ? "light" : "dark"
 }
