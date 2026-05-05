@@ -63,7 +63,7 @@ export function TokenCard({
             className="m-0 size-4 shrink-0 appearance-none rounded-full border box-border focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 [outline-color:var(--color-border-focus)]"
             style={{
               backgroundColor: "inherit",
-              borderColor: checked ? "var(--color-control-radio-selected)" : "var(--preview-radio-border)",
+              borderColor: checked ? "var(--color-control-radio-selected)" : "var(--color-border-default)",
               borderWidth: checked ? 3 : 1,
             }}
           />
@@ -76,7 +76,7 @@ export function TokenCard({
   return (
     <div className="flex flex-col gap-1.5">
       {label ? (
-        <span className="inline-flex self-start rounded-[11px] bg-[var(--preview-label-bg)] px-2 py-1 text-[11px] leading-none text-[var(--preview-label-text)]">
+        <span className="inline-flex self-start rounded-[11px] bg-surface-muted px-2 py-1 text-[11px] leading-none text-text-secondary">
           {label}
         </span>
       ) : null}
@@ -138,7 +138,7 @@ function ColorBadge({ color, borderColor }: { color: string; borderColor?: strin
       className="block size-[18px] shrink-0 rounded-full border"
       style={{
         backgroundColor: color,
-        borderColor: borderColor ?? "var(--preview-badge-border)",
+        borderColor: borderColor ?? "var(--color-border-default)",
       }}
       aria-hidden="true"
     />

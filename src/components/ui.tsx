@@ -25,22 +25,22 @@ const buttonSizeClass = {
 
 const actionVariantClass = {
   solid:
-    "w-full border-transparent bg-yellow-300 text-neutral-800 hover:bg-yellow-500 active:bg-yellow-500 disabled:bg-yellow-300/35 disabled:text-[rgba(26,26,26,0.5)] disabled:hover:bg-yellow-300/35",
+    "w-full border-transparent bg-accent-primary text-accent-foreground hover:bg-accent-primary-hover active:bg-accent-primary-hover disabled:bg-accent-primary-disabled disabled:text-[color:var(--color-accent-foreground-disabled)] disabled:hover:bg-accent-primary-disabled",
   outline:
-    "border-neutral-200 bg-transparent text-neutral-200 hover:bg-neutral-700 active:bg-neutral-700 disabled:border-neutral-600 disabled:text-neutral-500 disabled:hover:bg-transparent",
+    "border-border-default bg-transparent text-text-secondary hover:bg-surface-panel active:bg-surface-panel disabled:border-border-muted disabled:text-text-muted disabled:hover:bg-transparent",
   danger:
-    "border-transparent bg-red-600 text-white hover:bg-red-500 active:bg-red-700 disabled:bg-red-600/35 disabled:text-white/50 disabled:hover:bg-red-600/35",
+    "border-transparent bg-status-error text-white hover:opacity-90 active:opacity-100 disabled:opacity-40",
 } as const
 
 const selectWrapClass = cx(
   "relative inline-flex min-w-[116px]",
   "after:pointer-events-none after:absolute after:right-2.5 after:top-1/2 after:size-[7px]",
   "after:-translate-y-[65%] after:rotate-45 after:border-b-[1.5px] after:border-r-[1.5px]",
-  "after:border-neutral-100 after:content-['']"
+  "after:border-text-primary after:content-['']"
 )
 const selectClass = cx(
-  "h-8 min-h-8 w-full cursor-pointer appearance-none rounded-full border border-neutral-200",
-  "bg-neutral-800 px-2 pr-7 text-xs text-neutral-100"
+  "h-8 min-h-8 w-full cursor-pointer appearance-none rounded-full border border-border-default",
+  "bg-surface-canvas px-2 pr-7 text-xs text-text-primary"
 )
 
 export const tokenTextClass = "block min-w-0 max-w-full overflow-hidden truncate"
@@ -80,7 +80,7 @@ export function FileButton({ accept, children, className, onChange, size = "sm" 
         type="button"
         className={cx(
           "inline-flex cursor-pointer items-center justify-center overflow-hidden rounded-full",
-          "border border-neutral-200 bg-transparent font-normal leading-[1.2] text-neutral-200 transition-colors hover:bg-neutral-700 active:bg-neutral-700",
+          "border border-border-default bg-transparent font-normal leading-[1.2] text-text-secondary transition-colors hover:bg-surface-panel active:bg-surface-panel",
           buttonSizeClass[size],
           className
         )}
@@ -110,7 +110,7 @@ export function SelectControl({ children, className, ...selectProps }: SelectHTM
 
 export function SectionTitle({ children, className, ...headingProps }: HTMLAttributes<HTMLHeadingElement>) {
   return (
-    <h2 className={cx("m-0 text-base font-normal leading-tight text-neutral-100", className)} {...headingProps}>
+    <h2 className={cx("m-0 text-base font-normal leading-tight text-text-primary", className)} {...headingProps}>
       {children}
     </h2>
   )
@@ -118,7 +118,7 @@ export function SectionTitle({ children, className, ...headingProps }: HTMLAttri
 
 export function HelperText({ children, className, ...paragraphProps }: HTMLAttributes<HTMLParagraphElement>) {
   return (
-    <p className={cx("m-0 text-xs leading-relaxed text-neutral-300", className)} {...paragraphProps}>
+    <p className={cx("m-0 text-xs leading-relaxed text-text-secondary", className)} {...paragraphProps}>
       {children}
     </p>
   )
@@ -132,8 +132,8 @@ interface MessageBoxProps extends HTMLAttributes<HTMLElement> {
 export function MessageBox({ children, className, tone, ...sectionProps }: MessageBoxProps) {
   const toneClass =
     tone === "danger"
-      ? "whitespace-pre-line border border-red-700 bg-red-950/60 text-red-100"
-      : "border border-yellow-700 bg-yellow-950/50 text-yellow-100"
+      ? "whitespace-pre-line border border-status-error bg-status-error-surface text-status-error"
+      : "border border-status-warning bg-status-warning-surface text-status-warning"
 
   return (
     <section className={cx("rounded p-2.5 text-xs leading-relaxed", toneClass, className)} {...sectionProps}>
@@ -151,7 +151,7 @@ export function DialogBackdrop({
 }) {
   return (
     <div
-      className="fixed inset-0 z-10 flex items-center justify-center bg-neutral-950/60 p-4"
+      className="fixed inset-0 z-10 flex items-center justify-center bg-[color:color-mix(in_srgb,var(--color-surface-raised)_70%,transparent)] p-4"
       role="presentation"
       onClick={event => {
         if (event.currentTarget === event.target) onClose()
@@ -165,7 +165,7 @@ export function DialogBackdrop({
 export function DialogPanel({ children, className, ...sectionProps }: HTMLAttributes<HTMLElement>) {
   return (
     <section
-      className={cx("w-full max-w-[360px] rounded border border-neutral-600 bg-neutral-800 p-3.5 text-neutral-100 shadow-2xl", className)}
+      className={cx("w-full max-w-[360px] rounded border border-border-muted bg-surface-canvas p-3.5 text-text-primary shadow-2xl", className)}
       {...sectionProps}
     >
       {children}

@@ -25,9 +25,9 @@ Framer Token Importer の UI を、画面追加後も破綻しにくい semantic
 
 | Token | EN size / line-height | JA size / line-height | Semantic utility |
 |---|---:|---:|---|
-| `text.xs` / `text.xs.ja` | 12px / 19.2px | 11px / 19.2px | `text-ui-caption` |
+| `text.xs` / `text.xs.ja` | 12px / 19.2px | 11px / 19.2px | `text-xs` 系 utility を直接利用 |
 | `text.sm` / `text.sm.ja` | 14px / 21.7px | 13px / 21.7px | `text-ui-control` |
-| `text.base` / `text.base.ja` | 16px / 24px | 15px / 24px | `text-ui-body` |
+| `text.base` / `text.base.ja` | 16px / 24px | 15px / 24px | `text-base` 系 utility を直接利用 |
 | `text.lg` / `text.lg.ja` | 18px / 26.1px | 17px / 26.1px | TBD |
 | `text.xl` / `text.xl.ja` | 20px / 28px | 19px / 28px | `text-ui-title` |
 
@@ -50,7 +50,6 @@ Framer Token Importer の UI を、画面追加後も破綻しにくい semantic
 | `color.text.primary` | 主要テキスト |
 | `color.text.secondary` | 説明文 / 補助テキスト |
 | `color.text.muted` | placeholder / inactive text |
-| `color.text.inverse` | accent surface 上のテキスト |
 | `color.text.accent` | copied / emphasis など accent text |
 
 ### Border
@@ -81,7 +80,6 @@ Framer Token Importer の UI を、画面追加後も破綻しにくい semantic
 | `color.status.warningGhost` | editor ghost text |
 | `color.status.error` | JSON parse error / blocking error |
 | `color.status.errorSurface` | error state background |
-| `color.status.success` | import success |
 
 ### Code
 

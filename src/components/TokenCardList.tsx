@@ -51,7 +51,7 @@ export function TokenCardList({
 
   if (!hasConflicts && !hasNewTokens && !isCheckingConflicts && !conflictError) {
     return (
-      <p className="m-0 rounded-[4px] bg-neutral-700 px-4 py-3 text-center text-[13px] leading-[1.5] text-neutral-200">
+      <p className="m-0 rounded-[4px] bg-surface-panel px-4 py-3 text-center text-[13px] leading-[1.5] text-text-secondary">
         {labels.emptyState}
       </p>
     )
@@ -60,7 +60,7 @@ export function TokenCardList({
   return (
     <div className="flex flex-col gap-8">
       {shouldShowConflictSection && (
-        <PreviewSection title={labels.conflict} accentClassName="bg-[#733e0a]" ariaLabel={labels.conflict}>
+        <PreviewSection title={labels.conflict} accentClassName="bg-[var(--color-preview-conflict-accent)]" ariaLabel={labels.conflict}>
           {hasConflicts ? (
             <div className="flex flex-col gap-10">
               {hasExistingConflicts && (
@@ -146,12 +146,12 @@ export function TokenCardList({
       )}
 
       {hasNewTokens && (
-        <PreviewSection title={labels.newTokens} accentClassName="bg-[#0d542b]" ariaLabel={labels.newTokens}>
+        <PreviewSection title={labels.newTokens} accentClassName="bg-[var(--color-preview-new-token-accent)]" ariaLabel={labels.newTokens}>
           <div className="flex flex-col gap-4">
             {newTokens.map((token, index) => (
               <div
                 key={token.id}
-                className={`flex flex-col gap-4${index < newTokens.length - 1 ? " border-b border-[#737373] pb-4" : ""}`}
+                className={`flex flex-col gap-4${index < newTokens.length - 1 ? " border-b border-border-muted pb-4" : ""}`}
               >
                 <TokenCard className="w-full" rows={tokenToRows(token, labels)} />
               </div>
@@ -176,10 +176,10 @@ function PreviewSection({
 }) {
   return (
     <section className="flex flex-col gap-[6px]" aria-label={ariaLabel}>
-      <h2 className="m-0 font-['Jost','Noto_Sans_JP'] text-[16px] leading-none font-normal text-neutral-100">
+      <h2 className="m-0 font-['Jost','Noto_Sans_JP'] text-[16px] leading-none font-normal text-text-primary">
         {title}
       </h2>
-      <div className="flex overflow-hidden rounded-[4px] bg-neutral-700">
+      <div className="flex overflow-hidden rounded-[4px] bg-surface-panel">
         <div className={`w-1 shrink-0 self-stretch ${accentClassName}`} aria-hidden="true" />
         <div className="min-w-0 flex-1 p-4">{children}</div>
       </div>
@@ -200,10 +200,10 @@ function ConflictBlock({
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
         <div className="flex flex-col gap-1">
-          <p className="m-0 font-['Jost','Noto_Sans_JP'] text-[14px] leading-[1.5] font-normal text-neutral-200">
+          <p className="m-0 font-['Jost','Noto_Sans_JP'] text-[14px] leading-[1.5] font-normal text-text-secondary">
             {title}
           </p>
-          <p className="m-0 text-[11px] leading-[1.5] text-neutral-300">{description}</p>
+          <p className="m-0 text-[11px] leading-[1.5] text-text-secondary">{description}</p>
         </div>
       </div>
       <div className="flex flex-col gap-6">{children}</div>
@@ -221,7 +221,7 @@ function ConflictItem({
   children: ReactNode
 }) {
   return (
-    <div className="flex flex-col gap-4 rounded-[4px] border border-[#737373] p-2">
+    <div className="flex flex-col gap-4 rounded-[4px] border border-border-muted p-2">
       <SelectionPrompt styleName={styleName} question={question} />
       {children}
     </div>
@@ -230,7 +230,7 @@ function ConflictItem({
 
 function SelectionPrompt({ styleName, question }: { styleName: string; question: string }) {
   return (
-    <div className="flex flex-col items-center text-center text-neutral-200">
+    <div className="flex flex-col items-center text-center text-text-secondary">
       <p className="m-0 font-['Jost','Noto_Sans_JP'] text-[14px] leading-[1.4]" lang="en">
         {`"${styleName}"`}
       </p>
@@ -254,9 +254,9 @@ function StatusMessage({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <p className="m-0 text-[13px] leading-[1.5] text-neutral-100">{title}</p>
+      <p className="m-0 text-[13px] leading-[1.5] text-text-primary">{title}</p>
       {detail ? (
-        <p className={`m-0 text-[11px] leading-[1.5] ${tone === "error" ? "text-red-200" : "text-neutral-300"}`}>
+        <p className={`m-0 text-[11px] leading-[1.5] ${tone === "error" ? "text-status-error" : "text-text-secondary"}`}>
           {detail}
         </p>
       ) : null}
