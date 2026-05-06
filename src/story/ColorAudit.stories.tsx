@@ -14,6 +14,11 @@ import {
   catalogExistingConflicts,
   catalogStatsItems,
 } from "./catalog.fixtures.ts"
+import {
+  COLOR_AUDIT_THEME_DEFAULT_KEYS,
+  COLOR_AUDIT_THEME_DEFAULTS,
+  onColorAuditThemeDefaultsUpdated,
+} from "./colorAuditThemeDefaults.ts"
 import "../tokens.css"
 
 export default { title: "System / Color Audit" } satisfies StoryDefault
@@ -80,78 +85,6 @@ const TAILWIND_FAMILIES = [
 ]
 const TAILWIND_SHADES = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
 
-// --- Default values mirrored from tokens.css ---
-const DARK_DEFAULTS: Record<string, string> = {
-  "--surface-canvas": "var(--color-neutral-800)",
-  "--surface-panel": "var(--color-neutral-700)",
-  "--surface-raised": "var(--color-neutral-900)",
-  "--surface-muted": "var(--color-neutral-600)",
-  "--surface-inset": "var(--color-neutral-700)",
-  "--text-primary": "var(--color-neutral-100)",
-  "--text-secondary": "var(--color-neutral-300)",
-  "--text-muted": "var(--color-neutral-400)",
-  "--text-accent": "var(--color-yellow-300)",
-  "--border-default": "var(--color-neutral-200)",
-  "--border-muted": "var(--color-neutral-600)",
-  "--border-strong": "var(--color-neutral-700)",
-  "--border-focus": "var(--color-yellow-300)",
-  "--accent-primary": "var(--color-yellow-300)",
-  "--accent-primary-hover": "var(--color-yellow-500)",
-  "--accent-primary-disabled": "color-mix(in srgb, var(--color-yellow-300) 35%, transparent)",
-  "--accent-foreground": "var(--color-neutral-800)",
-  "--accent-foreground-disabled": "rgba(26, 26, 26, 0.5)",
-  "--status-warning": "var(--color-yellow-300)",
-  "--status-warning-surface": "#422006",
-  "--status-warning-ghost": "#fff08533",
-  "--status-error": "var(--color-red-400)",
-  "--status-error-surface": "#450a0a",
-  "--control-radio-selected": "var(--color-yellow-300)",
-  "--preview-conflict-accent": "#733e0a",
-  "--preview-new-token-accent": "#0d542b",
-  "--code-key": "var(--color-sky-300)",
-  "--code-string": "#8be9a1",
-  "--code-number": "#80c7ff",
-  "--code-boolean": "#ffb86c",
-  "--code-null": "#ff8ba7",
-  "--code-punctuation": "var(--color-neutral-300)",
-  "--code-diagnostic-underline": "var(--status-warning)",
-}
-const LIGHT_DEFAULTS: Record<string, string> = {
-  "--surface-canvas": "var(--color-neutral-50)",
-  "--surface-panel": "var(--color-white)",
-  "--surface-raised": "var(--color-white)",
-  "--surface-muted": "var(--color-neutral-100)",
-  "--surface-inset": "#f6f7f9",
-  "--text-primary": "var(--color-neutral-900)",
-  "--text-secondary": "var(--color-neutral-600)",
-  "--text-muted": "var(--color-neutral-500)",
-  "--text-accent": "#9a6a00",
-  "--border-default": "var(--color-neutral-300)",
-  "--border-muted": "var(--color-neutral-200)",
-  "--border-strong": "var(--color-neutral-400)",
-  "--border-focus": "var(--color-yellow-500)",
-  "--accent-primary": "var(--color-yellow-300)",
-  "--accent-primary-hover": "var(--color-yellow-500)",
-  "--accent-primary-disabled": "color-mix(in srgb, var(--color-yellow-300) 50%, var(--color-white))",
-  "--accent-foreground": "var(--color-neutral-800)",
-  "--accent-foreground-disabled": "rgba(38, 38, 38, 0.5)",
-  "--status-warning": "#9a6a00",
-  "--status-warning-surface": "#fff6db",
-  "--status-warning-ghost": "#facc1533",
-  "--status-error": "var(--color-red-700)",
-  "--status-error-surface": "#fee2e2",
-  "--control-radio-selected": "#f0b100",
-  "--preview-conflict-accent": "#fdc700",
-  "--preview-new-token-accent": "#5ea500",
-  "--code-key": "var(--color-sky-700)",
-  "--code-string": "#15803d",
-  "--code-number": "#1d4ed8",
-  "--code-boolean": "#b45309",
-  "--code-null": "#be185d",
-  "--code-punctuation": "var(--color-neutral-600)",
-  "--code-diagnostic-underline": "var(--status-warning)",
-}
-
 // --- Token definitions ---
 type TokenDef = { cssVar: string; usage: string; against?: string[] }
 type Group = { name: string; tokens: TokenDef[] }
@@ -174,6 +107,8 @@ const GROUPS: Group[] = [
       { cssVar: "--text-secondary", usage: "サブラベル・HelperText・アウトラインボタン文字", against: ["--surface-canvas", "--surface-panel", "--surface-muted"] },
       { cssVar: "--text-muted", usage: "プレースホルダー・行番号・disabled テキスト", against: ["--surface-canvas", "--surface-panel"] },
       { cssVar: "--text-accent", usage: "トークン位置ツールチップ文字", against: ["--surface-canvas", "--surface-raised"] },
+      { cssVar: "--text-diagnostic-ghost", usage: "JsonEditor コメント ghost text", against: ["--surface-inset"] },
+      { cssVar: "--text-diagnostic-ghost-hover", usage: "JsonEditor コメント ghost text hover", against: ["--surface-inset"] },
     ],
   },
   {
@@ -322,9 +257,16 @@ export function ColorAudit() {
   const [split, setSplit] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const [resolved, setResolved] = useState<Resolved>({})
-  const [darkValues, setDarkValues] = useState<Record<string, string>>({ ...DARK_DEFAULTS })
-  const [lightValues, setLightValues] = useState<Record<string, string>>({ ...LIGHT_DEFAULTS })
+  const [darkValues, setDarkValues] = useState<Record<string, string>>({ ...COLOR_AUDIT_THEME_DEFAULTS.dark })
+  const [lightValues, setLightValues] = useState<Record<string, string>>({ ...COLOR_AUDIT_THEME_DEFAULTS.light })
   const [copied, setCopied] = useState(false)
+
+  useEffect(() => {
+    return onColorAuditThemeDefaultsUpdated(detail => {
+      setDarkValues({ ...detail.defaults.dark })
+      setLightValues({ ...detail.defaults.light })
+    })
+  }, [])
 
   // Apply current theme values as inline :root styles, then re-resolve computed colors.
   // Inline styles have higher specificity than data-theme selectors in tokens.css.
@@ -334,7 +276,7 @@ export function ColorAudit() {
 
     const root = document.documentElement
     // Clear previously applied overrides
-    for (const key of Object.keys(DARK_DEFAULTS)) root.style.removeProperty(key)
+    for (const key of COLOR_AUDIT_THEME_DEFAULT_KEYS) root.style.removeProperty(key)
     // Apply current theme's edited values
     const current = theme === "dark" ? darkValues : lightValues
     for (const [k, v] of Object.entries(current)) root.style.setProperty(k, v)
@@ -351,7 +293,7 @@ export function ColorAudit() {
     return () => {
       if (prev !== undefined) document.documentElement.dataset.theme = prev
       else document.documentElement.removeAttribute("data-theme")
-      for (const key of Object.keys(DARK_DEFAULTS)) root.style.removeProperty(key)
+      for (const key of COLOR_AUDIT_THEME_DEFAULT_KEYS) root.style.removeProperty(key)
     }
   }, [theme, darkValues, lightValues])
 
