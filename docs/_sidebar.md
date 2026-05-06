@@ -21,6 +21,7 @@
   - [11 Component Catalog](/specs/11-component-catalog.md)
   - [12 AI Operation Usage Design](/specs/12-ai-operation-usage-design.md)
   - [13 Git Workflow](/specs/13-git-workflow.md)
+  - [14 Light / Dark テーマ対応](/specs/14-light-dark-theme.md)
 
 - 開発ログ
 
