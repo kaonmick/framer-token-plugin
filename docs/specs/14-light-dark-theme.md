@@ -3,13 +3,16 @@
 ## 目的
 
 Framer プラグイン UI を Framer 本体の light / dark テーマに追従させる。
-Framer が source of truth であり、プラグイン独自のテーマ切り替えは持たない。
+Framer を source of truth とし、プラグイン独自のテーマ切り替え UI は持たない。
+
+## 位置づけ
+
+このドキュメントは、issue #28 の theme 対応を進めるための rollout メモ兼 status まとめ。
+初期の計画メモとして始まり、2026-05-06 時点では `main` に取り込まれた実装・artifact も反映した更新版として扱う。
 
 ## 背景
 
-現在の UI は dark 固定で実装されており、すべてのコンポーネントが `neutral-800` / `neutral-700` などを Tailwind class としてハードコードしている。Framer が light モードになっても UI が dark のままになるため、テーマ追従対応が必要になる。
-
-以前に一度対応を試みたが、以下の問題が重なり大きく破綻した。
+以前の theme 対応では、以下が同時に起きて破綻しやすかった。
 
 - Framer テーマの受け取り方を固める前に、アプリ側の `data-theme` と fallback を触り始めた
 - テーマ追従だけでよいのに、semantic token 置換やカラーリファクタまで一気に広げた
@@ -18,195 +21,91 @@ Framer が source of truth であり、プラグイン独自のテーマ切り�
 - コンポーネント単位でなくアプリ全体を先に動かし、副作用が連鎖した
 - editor の scroll sync 実装にも手を入れてしまい、テーマと無関係な不具合を持ち込んだ
 
-この反省を踏まえ、今回は **4 フェーズに分けて独立した PR として進める**。
+この反省を踏まえ、theme 対応はフェーズを分けて進め、dark baseline 固定、theme sync、semantic token 化、UI 置換、検証の順で扱う。
 
 ## 対象外
 
 - プラグイン独自のテーマ切り替え UI
-- editor の scroll sync ロジックの変更
-- conflict / new token の accent bar の色変更（固定意味色のため変更不要）
-- semantic token 置換やカラーリファクタ（テーマ対応に直接不要な変更）
-- editor のコード配色の変更（別 issue で扱う）
+- editor の scroll sync ロジック変更
+- conflict / new token の accent bar の意味変更
+- テーマ対応と無関係な layout / interaction の改修
+- editor の syntax color の再設計
 
----
+## ステータス概要
 
-## フェーズ計画
-
-### Phase 0 — ベースライン記録（変更なし）
-
-**目的**: 変更前の正しい見た目を固め、「変えてはいけない箇所」を明文化する。
-
-**作業内容**:
-
-- `npm run dev` で capture mode を全パターン実行し、スクリーンショットを記録する
-  - `?capture=default`
-  - `?capture=preview-normal`
-  - `?capture=light-dark`
-  - `?capture=oklch`
-  - `?capture=warning`
-  - `?capture=invalid-json`
-  - `?capture=conflict`
-  - `?capture=summary-success`
-  - `?capture=summary-failed`
-- Ladle でも全 story のスクリーンショットを記録する
-- 「変更しない色」の一覧を本 issue にコメントとして記録する
-
-**完了条件**:
-
-- baseline 画像が保存されている
-- コードに一切変更なし
-
----
-
-### Phase 1 — Framer テーマの受け取りのみ
-
-**目的**: Framer の現在テーマを `data-theme` 属性として DOM に反映する。**見た目は変えない。**
-
-**作業内容**:
-
-- Framer Plugin API でテーマを取得する方法を確認する（`framer.useTheme()` または相当する API）
-- `App.tsx` で取得したテーマを `document.documentElement.dataset.theme` にセットする
-- Framer から theme が来ない場合（Ladle / キャプチャモードなど）は `"dark"` を fallback にする
-- Ladle の `.ladle/components.tsx` に `data-theme` を切り替えられるデコレーターを追加する（Ladle 上での light / dark 確認用）
-
-**変更ファイル**: `src/app/App.tsx`、`.ladle/components.tsx`
-
-**完了条件**:
-
-- Framer 上で light / dark を切り替えると `<html data-theme="light">` / `<html data-theme="dark">` が切り替わる
-- **見た目は Phase 0 の baseline と変わらない**
-- Ladle でも手動でテーマを切り替えられる
-
----
-
-### Phase 2 — `tokens.css` にセマンティックカラー変数を追加
-
-**目的**: テーマで切り替わる CSS カスタムプロパティ層を定義する。**コンポーネントには触れない。**
-
-**作業内容**:
-
-`src/tokens.css` に以下を追加する。定義する変数は `09-design-system.md` のトークン体系に準拠する。
-
-```css
-:root,
-[data-theme="dark"] {
-  --color-surface-canvas: var(--color-neutral-900);
-  --color-surface-panel: var(--color-neutral-800);
-  --color-surface-raised: var(--color-neutral-950);
-  --color-surface-muted: var(--color-neutral-700);
-  --color-surface-inset: var(--color-neutral-900);
-
-  --color-text-primary: var(--color-neutral-100);
-  --color-text-secondary: var(--color-neutral-300);
-  --color-text-muted: var(--color-neutral-500);
-
-  --color-border-default: var(--color-neutral-700);
-  --color-border-strong: var(--color-neutral-600);
-  --color-border-focus: var(--color-neutral-200);
-}
-
-[data-theme="light"] {
-  --color-surface-canvas: var(--color-neutral-50);
-  --color-surface-panel: var(--color-white);
-  --color-surface-raised: var(--color-white);
-  --color-surface-muted: var(--color-neutral-100);
-  --color-surface-inset: var(--color-neutral-100);
-
-  --color-text-primary: var(--color-neutral-900);
-  --color-text-secondary: var(--color-neutral-600);
-  --color-text-muted: var(--color-neutral-400);
-
-  --color-border-default: var(--color-neutral-200);
-  --color-border-strong: var(--color-neutral-300);
-  --color-border-focus: var(--color-neutral-500);
-}
-```
-
-Tailwind v4 の `@theme` に `color-surface-canvas` などを登録し、`bg-surface-canvas` / `text-text-primary` などの utility class として使えるようにする。
-
-**変更ファイル**: `src/tokens.css`
-
-**完了条件**:
-
-- CSS 変数が定義され、`data-theme` 切り替えで値が変わる（DevTools で確認）
-- コンポーネントには変更なし
-- **見た目は Phase 0 の baseline と変わらない**
-
----
-
-### Phase 3 — コンポーネントを 1 つずつ移行
-
-**目的**: 各コンポーネントのハードコードされた color class を semantic token に置き換える。
-
-**移行順序**:
-
-副作用の小さい順に進める。**各コンポーネントを独立した commit として進め、Ladle で確認してから次に移る。**
-
-| 順番 | 対象 | 注意点 |
-|---:|---|---|
-| 1 | `src/components/ui.tsx` | 最も多くのコンポーネントが依存。ここの型を確立してから他を進める |
-| 2 | `src/components/AppHeader.tsx` | シンプルな構造 |
-| 3 | `src/components/LanguageToggle.tsx` | 枠線が意図せず増えないよう注意 |
-| 4 | `src/components/StatsGrid.tsx` | — |
-| 5 | `src/components/TokenCard.tsx` / `TokenCardList.tsx` | conflict / new の accent bar（赤・黄）は**固定色のまま** |
-| 6 | `src/components/ImportSummary.tsx` | — |
-| 7 | `src/app/App.tsx`（shell・footer のみ） | scroll sync ロジックは一切触れない |
-| 8 | `src/components/JsonTokenEditor.tsx` | **最後**。scroll sync・editor 背景・コード色は別 issue |
-
-**各コンポーネントの完了条件**:
-
-- Ladle で light / dark を切り替えて見た目が正しく変わる
-- Phase 0 の baseline（dark）と比較して、dark 時の見た目が変わっていない
-- copy tooltip・language toggle・editor frame に意図しない崩れがない
-
----
-
-### Phase 4 — Ladle とプラグイン実画面の整合確認
-
-**目的**: Ladle の表示がプラグイン実画面と一致することを最終確認する。
-
-**作業内容**:
-
-- `.ladle/components.tsx` の Provider にテーマ切り替えコントロールを追加する
-- `capture-screenshots.mjs` に light テーマのキャプチャパターンを追加する
-- `docs/screenshots/` に light テーマの baseline 画像を保存する
-- Phase 0 で記録した dark baseline と dark 最終結果を差分比較する
-
-**完了条件**:
-
-- light / dark 両テーマで全 capture mode の画像が揃っている
-- Ladle とプラグイン実画面の配色が一致している
-- Phase 0 baseline と dark 最終結果の差分がない（または意図した変更のみ）
-
----
-
-## 変更しないもの（保護一覧）
-
-| 対象 | 理由 |
-|---|---|
-| `JsonTokenEditor` の scroll sync ロジック | テーマ作業と無関係。触ると別の不具合を持ち込む |
-| conflict / new token の accent bar（赤・黄） | 意味を持つ固定色。テーマで変える必要がない |
-| editor のコード配色（JSON key / string など） | 別 issue で扱う |
-| Framer 外からの fallback デフォルト値 | `"dark"` 固定。ローカル判定ロジックを増やさない |
-| 各コンポーネントのスクロール・レイアウト実装 | テーマ作業のスコープ外 |
-
----
-
-## PR 戦略
-
-| PR | 内容 | 期待されるレビューポイント |
+| Phase | 状態 | 2026-05-06 時点の内容 |
 |---|---|---|
-| PR-1 | Phase 0: ベースライン記録のみ | 変更なしであることの確認 |
-| PR-2 | Phase 1: Framer テーマ受け取り | 見た目が変わっていないこと |
-| PR-3 | Phase 2: `tokens.css` へのセマンティック変数追加 | 見た目が変わっていないこと |
-| PR-4〜n | Phase 3: コンポーネントごとに 1 PR | 各コンポーネントの light / dark 表示確認 |
-| PR-final | Phase 4: 整合確認・スクリーンショット更新 | 全パターンの最終確認 |
+| Phase 0 | 完了 | dark baseline を [Issue 28 Phase 0 Dark Baseline](../issues/28-phase0-dark-baseline.md) と `docs/screenshots/issue-28-phase0-dark-baseline/` に固定 |
+| Phase 1 | 完了 | `src/app/theme.ts` で `data-framer-theme` を `html[data-theme]` に同期し、theme 未取得時は `dark` fallback |
+| Phase 2 | 完了 | `src/tokens.css` に light / dark の semantic color layer を追加し、Tailwind utility へ接続 |
+| Phase 3 | 進行中 | core UI は semantic color class へ移行済み。差分監査と parity 確認を継続 |
+| Phase 4 | 未完 | light theme の capture 更新、Ladle と plugin 実画面の整合確認、docs 最終同期が残り |
 
-各 PR は独立してマージ可能にし、前の PR が壊れた状態で次に進まない。
+## 実装済みの要点
 
----
+### Phase 0 — ベースライン記録
 
-## 関連ドキュメント
+- dark baseline は [Issue 28 Phase 0 Dark Baseline](../issues/28-phase0-dark-baseline.md) に集約
+- baseline PNG は `docs/screenshots/issue-28-phase0-dark-baseline/` を参照
+- 変えてはいけない dark 見た目は同 issue doc の「守るべき見た目」を source of truth とする
 
-- [09 Design System](./09-design-system.md) — セマンティックトークンの定義・CSS custom properties の実装例
-- [11 Component Catalog](./11-component-catalog.md) — 対象コンポーネント一覧
+### Phase 1 — Framer テーマ受け取り
+
+- `src/app/theme.ts` で `data-framer-theme` を読み、`document.documentElement.dataset.theme` に反映
+- 未知の値や theme 未設定時は `dark` に倒す
+- `tests/themeSync.test.ts` で fallback と MutationObserver 経由の同期を確認
+
+### Phase 2 — semantic color layer
+
+- `src/tokens.css` の `@layer base` に dark / light の CSS custom properties を実装
+- surface / text / border / accent / status / code の semantic token をここで切り替える
+- Tailwind utility は `bg-surface-canvas`、`text-text-primary`、`border-border-muted` などの名前で使う
+
+### Phase 3 — core UI の置換
+
+2026-05-06 時点で、少なくとも以下は semantic color class ベースに移っている。
+
+- `src/app/App.tsx`
+- `src/components/ui.tsx`
+- `src/components/AppHeader.tsx`
+- `src/components/LanguageToggle.tsx`
+- `src/components/StatsGrid.tsx`
+- `src/components/TokenCard.tsx`
+- `src/components/TokenCardList.tsx`
+- `src/components/ImportSummary.tsx`
+- `src/components/JsonTokenEditor.tsx`
+
+あわせて `src/story/ColorAudit.stories.tsx` が入り、semantic color の確認面も追加された。
+
+## 残タスク
+
+### Phase 4 — parity と検証
+
+- light theme の capture mode 画像を `docs/screenshots/` に追加する
+- Ladle の theme 切り替えと plugin 実画面の表示差を確認する
+- dark baseline と current dark UI を比較し、意図しない drift がないか確認する
+- `doc-hub` / sidebar / issue メモを最終状態へ同期する
+
+### 監査メモ
+
+- conflict / new token の accent bar は fixed meaning color として扱い、theme で再設計しない
+- `JsonTokenEditor` の scroll sync は theme 対応のスコープ外とする
+- editor の code syntax color は semantic layer に接続済みでも、配色ルール自体の再設計は別 issue で扱う
+
+## 次に確認すること
+
+| 観点 | 見る場所 |
+|---|---|
+| dark baseline の基準 | [Issue 28 Phase 0 Dark Baseline](../issues/28-phase0-dark-baseline.md) |
+| semantic token の定義 | [09 Design System](./09-design-system.md) |
+| component 単位の確認面 | [11 Component Catalog](./11-component-catalog.md) |
+| theme token の調整面 | [Theme Token Workbench](../workbench/token-workbench.html) |
+| 実装ハンドオフ | [Theme Token Workbench Handoff](../workbench/token-workbench-handoff.md) |
+
+## 関連ファイル
+
+- `src/app/theme.ts`
+- `src/tokens.css`
+- `tests/themeSync.test.ts`
+- `src/story/ColorAudit.stories.tsx`
+- `docs/issues/28-phase0-dark-baseline.md`
