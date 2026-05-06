@@ -28,8 +28,8 @@ const DIAGNOSTIC_TOOLTIP_WIDTH = 260
 const DIAGNOSTIC_TOOLTIP_MARGIN = 8
 const ACCENT_YELLOW_COLOR = "var(--color-code-diagnostic-underline)"
 const ACCENT_YELLOW_SOFT_COLOR = "color-mix(in srgb, var(--color-code-diagnostic-underline) 8%, transparent)"
-const ACCENT_YELLOW_GHOST_COLOR = "var(--color-status-warning-ghost)"
-const ACCENT_YELLOW_GHOST_HOVER_COLOR = "color-mix(in srgb, var(--color-code-diagnostic-underline) 32%, transparent)"
+const DIAGNOSTIC_GHOST_TEXT_COLOR = "var(--color-text-diagnostic-ghost)"
+const DIAGNOSTIC_GHOST_TEXT_HOVER_COLOR = "var(--color-text-diagnostic-ghost-hover)"
 
 type CopyState = "idle" | "copied" | "failed"
 type CopyToastPosition = { x: number; y: number }
@@ -584,7 +584,7 @@ function renderJsonSyntaxLines(
           <span
             className="ml-3 select-none transition-colors"
             style={{
-              color: hoveredLine === line ? ACCENT_YELLOW_GHOST_HOVER_COLOR : ACCENT_YELLOW_GHOST_COLOR,
+              color: hoveredLine === line ? DIAGNOSTIC_GHOST_TEXT_HOVER_COLOR : DIAGNOSTIC_GHOST_TEXT_COLOR,
               pointerEvents: "none",
             }}
           >
