@@ -34,7 +34,7 @@
 
 関連:
 
-- [UI State Workbench](../../ui-state-workbench.html)
+- [UI State Workbench](../ui-state-workbench.html)
 - Theme Token Workbench / Handoff はディレクトリ整理で削除済み
 
 ### 3. 技術検証を issue / spike として分離したこと
