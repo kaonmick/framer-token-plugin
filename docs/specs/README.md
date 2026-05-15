@@ -14,7 +14,6 @@
 - `08-technical-validation-plan.md` — Pro 版の中核機能を実装前に検証するための計画
 - `09-design-system.md` — theme token / semantic color / light-dark 対応の叩き台
 - `10-codex-issue-workflow.md` — GitHub Issues で Codex 作業と Kaon 確認を分離する運用ルール
-- `11-component-catalog.md` — コンポーネントと状態を管理するカタログ
 - `12-ai-operation-usage-design.md` — AI利用ログ、Usage / Costs API、統計件数、モデル運用ルール化の設計
 - `13-git-workflow.md` — `main` 同期、branch、merge 後整理の最小 git 運用
 - `14-light-dark-theme.md` — light / dark テーマ対応の rollout 方針、status、残タスク

@@ -28,7 +28,7 @@ Framer plugin として公開する前に、repo 内で確認できる証跡と�
 | fixture / 実運用 JSON で import が最後まで通るか | 確認済み | `src/fixtures/technical-validation-colors.json`, `src/fixtures/light-dark-colors.json` | 完了 |
 | invalid JSON / conflict / partial import / summary copy | 確認済み | `src/fixtures/error-invalid-json.json`, `src/fixtures/conflict-many-colors.json`, `docs/screenshots/06-invalid-json.png`, `docs/screenshots/07-conflict-preview.png`, `docs/screenshots/09-import-summary-success.png`, `docs/screenshots/10-import-summary-failed.png` | 完了 |
 | UI stack 5状態 | 確認済み | 下記 UI stack 表 | 完了 |
-| README / docs / screenshots / known limitations | 最終確認待ち | `README.md`, `docs/doc-hub.html`, `docs/index.html`, `docs/screenshots/` | README / docs の案内が実 UI と食い違っていないかを確認する |
+| README / docs / screenshots / known limitations | 最終確認待ち | `README.md`, `docs/index.html`, `docs/_sidebar.md`, `docs/screenshots/` | README / docs の案内が実 UI と食い違っていないかを確認する |
 | plugin id / name / icon | 確認済み | `framer.json`, `public/icon.svg` | 完了 |
 | category / tag / description | repo 外で要確定 | Marketplace 入稿項目 | Framer Marketplace 登録画面で最終入力する |
 | support contact / docs link | 要確定 | `README.md` の support 導線 | Marketplace の support URL と docs URL を決める |
@@ -54,7 +54,7 @@ Framer plugin として公開する前に、repo 内で確認できる証跡と�
 
 - README / docs 側では、「color token import 専用」「alias は存在する color token のみ解決」「conflict は自動解決しない」「最終確認は Framer 実機が必要」の 4 点が UI 実態とズレていないかを見る
 - Marketplace 側では、description や tag に variables manager / audit / sync のような未実装機能を混ぜず、Phase 1 の color import 中心の表現に留める
-- docs URL は `docs/doc-hub.html` を公開導線の基準にし、support URL は GitHub Issues を使うなら `https://github.com/kaonmick/framer-token-plugin/issues` を候補にする
+- docs URL は `docs/index.html` を公開導線の基準にし、support URL は GitHub Issues を使うなら `https://github.com/kaonmick/framer-token-plugin/issues` を候補にする
 
 ## Marketplace 前に固定しておく表現
 
@@ -62,7 +62,7 @@ Framer plugin として公開する前に、repo 内で確認できる証跡と�
 - alias は参照先が存在する color token のみ解決する
 - Framer 側の既存 style との conflict は自動解決せず、ユーザー選択を前提にする
 - 大規模 JSON は 2,000 color tokens 程度を実用目安とし、それ以上は追加最適化の対象とする
-- Framer 実機での最終見え方確認は必須であり、component catalog は補助確認に留める
+- Framer 実機での最終見え方確認は必須であり、スクリーンショットは補助確認に留める
 
 ## Kaon 手動チェック
 
@@ -76,7 +76,7 @@ Framer plugin として公開する前に、repo 内で確認できる証跡と�
 ## 関連成果物
 
 - [README](../../README.md)
-- [Doc Hub](../doc-hub.html)
+- [Docsify Home](../README.md)
 - [Plugin Registration Flow](../specs/07-plugin-registration-flow.md)
 - [Technical Validation Plan](../specs/08-technical-validation-plan.md)
 - [Technical Validation Issue Workflow](../specs/10-codex-issue-workflow.md)
@@ -92,14 +92,15 @@ Framer plugin として公開する前に、repo 内で確認できる証跡と�
 ### 作業内容
 
 - issue #34 向けに公開前チェックの進捗メモを `docs/issues/34-release-check.md` として追加
-- `doc-hub` と Docsify sidebar から辿れるように入口を追加
+- Docsify sidebar から辿れるように入口を追加
 - README に既知の制約と support 導線を追記し、公開文言が実装を超えないよう整理
 
 ### 根拠 / 成果物
 
 - `docs/issues/34-release-check.md`
 - `README.md`
-- `docs/doc-hub.html`
+- `docs/index.html`
+- `docs/_sidebar.md`
 - `docs/screenshots/01-default.png`
 - `docs/screenshots/07-conflict-preview.png`
 - `docs/screenshots/10-import-summary-failed.png`

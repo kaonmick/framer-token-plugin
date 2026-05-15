@@ -3,7 +3,6 @@
 - 入口
 
   - [Docsify Home](/README.md)
-  - [Doc Hub](/doc-hub.html)
 
 - 仕様パック
 
@@ -18,7 +17,6 @@
   - [08 Technical Validation Plan](/specs/08-technical-validation-plan.md)
   - [09 Design System](/specs/09-design-system.md)
   - [10 Codex Issue Workflow](/specs/10-codex-issue-workflow.md)
-  - [11 Component Catalog](/specs/11-component-catalog.md)
   - [12 AI Operation Usage Design](/specs/12-ai-operation-usage-design.md)
   - [13 Git Workflow](/specs/13-git-workflow.md)
   - [14 Light / Dark テーマ対応](/specs/14-light-dark-theme.md)
@@ -58,14 +56,11 @@
   - [Issue 28 Phase 0 Dark Baseline](/issues/28-phase0-dark-baseline.md)
   - [Issue 34 Release Check](/issues/34-release-check.md)
 
-- Workbench
-
-  - [Theme Token Workbench](/workbench/token-workbench.html)
-  - [Theme Token Workbench Handoff](/workbench/token-workbench-handoff.md)
-
 - 図・モック
 
-  - [Mermaid Graph](/diagrams/graphTD.mmd)
   - [Status Header Concept](/mockups/status-header-concept.html)
   - [Screen Flow Concept](/mockups/screen-flow-concept.html)
   - [Import Summary Complete Concept](/mockups/import-summary-complete-concept.html)
+
+- UI確認
+  - [UI State Workbench](/ui-state-workbench.html)

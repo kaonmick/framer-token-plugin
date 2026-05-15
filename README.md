@@ -4,9 +4,7 @@ JSON color tokensをFramerのColor Styleへインポートするプラグイン�
 
 現在の実装はフェーズ1の基本インポート版です。primitive color tokenに加えて、semantic alias tokenを解決してインポートできます。
 
-主要ドキュメントを探すときは、まず `docs/doc-hub.html` をブラウザで開いてください。仕様書、UI作業台、技術検証、spike、運用文書への入口をまとめています。
-
-Markdown文書を横断的に読む場合は、Docsifyビューアとして `docs/index.html` も使えます。ローカルでは `npm run docs:dev` を起動して `http://127.0.0.1:4173/` を開いてください。
+主要ドキュメントを探すときは、Docsifyビューアとして `docs/index.html` を使います。ローカルでは `npm run docs:dev` を起動して `http://127.0.0.1:4173/` を開いてください。
 
 ## 現在できること
 
@@ -29,12 +27,12 @@ Markdown文書を横断的に読む場合は、Docsifyビューアとして `doc
 - 既存Color Styleとの conflict は自動解決せず、skip / replace をユーザーが選ぶ前提です。
 - `dark` のみで対応する `light` がない token は通常 style として扱い、warning を表示します。
 - `oklch()` は Framer 互換性のため `rgba(...)` に変換して登録します。
-- component catalog や screenshot は補助確認です。最終的な import 結果と permission 挙動は Framer 実機で確認が必要です。
+- screenshot は補助確認です。最終的な import 結果と permission 挙動は Framer 実機で確認が必要です。
 - 大規模JSONは 2,000 color tokens 程度までを実用目安とします。それ以上は描画や操作が重くなる可能性があります。
 
 ## サポートとドキュメント
 
-- ローカル docs の入口は `docs/doc-hub.html` です。仕様書、作業台、issue progress、screenshots へのリンクをまとめています。
+- ローカル docs の入口は `docs/index.html` です。仕様書、issue progress、screenshots へのリンクは Docsify sidebar から辿れます。
 - Docsify で Markdown 文書を読む場合は `npm run docs:dev` を使い、`http://127.0.0.1:4173/` を開いてください。
 - 公開前チェックの進捗メモは `docs/issues/34-release-check.md` にあります。
 - support 窓口として GitHub Issues を使う場合は `https://github.com/kaonmick/framer-token-plugin/issues` を案内先にできます。
@@ -66,20 +64,11 @@ DocsifyでMarkdown文書だけを確認する場合は、Framer plugin 用のVit
 npm run docs:dev
 ```
 
-Reactコンポーネントの見た目、props / state の組み合わせ、focus-visible、Ladle の a11y addon を確認する場合は、コンポーネントカタログを使います。Framer API に依存する挙動はここでは mock / fixture までに留め、最終確認は Framer 実機で行います。
-
-Ladle 用の story と fixture は `src/story/` に分離し、`src/components/` はプロジェクトの実装コンポーネントを置く場所として保ちます。
-
-```bash
-npm run catalog:dev
-```
-
 | 用途 | コマンド | URL |
 |---|---|---|
 | Framer plugin 開発 | `npm run dev` | dev server起動時に表示される `https://framer.com/plugins/open` |
 | Framer plugin HTTP確認 | `npm run dev:http` | `http://localhost:5173/` |
 | Docsify文書確認 | `npm run docs:dev` | `http://127.0.0.1:4173/` |
-| React component catalog | `npm run catalog:dev` | `http://127.0.0.1:61000/` |
 
 ## Git運用
 
@@ -131,7 +120,6 @@ npm run git:sync-main:cleanup:dry-run
 ```bash
 npm run check
 npm test
-npm run catalog:build
 npm run build
 ```
 
@@ -147,19 +135,13 @@ src/
     mapping/        Token path to Framer style name mapping
     parser/         JSON token parser
     types/          Shared TypeScript types
-  story/            Ladle stories and fixtures
   fixtures/         Sample token JSON
 tests/              Parser tests
 scripts/
   serve-docs.mjs    Docsify static server
-.ladle/
-  config.mjs        Component catalog config
-  vite.config.ts    Component catalog Vite config
 docs/
   specs/            Original specification pack
-  diagrams/         Diagrams
   index.html        Docsify documentation viewer
-  doc-hub.html      Documentation entry page
 ```
 
 ## 仕様メモ

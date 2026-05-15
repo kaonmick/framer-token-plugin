@@ -35,8 +35,7 @@
 関連:
 
 - [UI State Workbench](../../ui-state-workbench.html)
-- [Theme Token Workbench](../workbench/token-workbench.html)
-- [Theme Token Handoff](../workbench/token-workbench-handoff.md)
+- Theme Token Workbench / Handoff はディレクトリ整理で削除済み
 
 ### 3. 技術検証を issue / spike として分離したこと
 
@@ -67,7 +66,7 @@
 起きたこと:
 
 - theme を Framer に追従させるだけでよい段階で、semantic color 化、app 全体の visual 調整、editor 周辺の変更まで一気に触りやすかった。
-- Ladle の見た目調整と plugin 本体の見た目調整も混ざりやすく、どちらを正とするか曖昧になった。
+- component 確認面の見た目調整と plugin 本体の見た目調整も混ざりやすく、どちらを正とするか曖昧になった。
 
 解決:
 
@@ -121,8 +120,7 @@
 
 関連:
 
-- [Theme Token Handoff](../workbench/token-workbench-handoff.md)
-- [Theme Token JSON Snapshot](../workbench/token-workbench-current-data.json)
+- Theme Token Handoff / JSON Snapshot はディレクトリ整理で削除済み
 
 ### 4. API 制約の不確実さを放置すると、商品設計まで揺れる
 
@@ -173,7 +171,7 @@
 
 解決:
 
-- `docs/doc-hub.html` を入口に固定し、文書追加時に hub と sidebar を同時更新するルールを置いた。
+- `docs/index.html` の Docsify を入口に固定し、文書追加時に sidebar を同時更新するルールへ寄せた。
 
 次 repo のルール:
 
@@ -182,7 +180,7 @@
 
 関連:
 
-- [Doc Hub](../doc-hub.html)
+- [Docsify Home](../README.md)
 - [仕様パック README](./README.md)
 
 ### 7. repo / branch / runtime の前提ズレは、思った以上に時間を食う
@@ -228,7 +226,7 @@
 
 1. `README.md`
    実装スコープ、既知の制約、起動コマンドだけを最初から短く明記する。
-2. `docs/doc-hub.html`
+2. `docs/index.html`
    ドキュメントの入口を最初に固定する。
 3. HTML workbench
    UI state、copy、theme、token 表の議論をコード本体から切り離す。
@@ -330,13 +328,13 @@ Figma は `見た目と部品の契約を固める場所` までは深く作り�
 含めるもの:
 
 - `README.md`
-- `docs/doc-hub.html`
+- `docs/index.html`
 - docs の基本分類
 - branch / issue / manual check の最小ルール
 
 完了条件:
 
-- 新しく入った人が `README` と `doc-hub` を見れば迷わない
+- 新しく入った人が `README` と Docsify sidebar を見れば迷わない
 - docs の追加先と update rule が決まっている
 
 ### Issue 2. UI flow workbench と fixture を作る
@@ -549,4 +547,4 @@ Figma は `見た目と部品の契約を固める場所` までは深く作り�
 - [14 Light / Dark テーマ対応](./14-light-dark-theme.md)
 - [Issue 28 Phase 0 Dark Baseline](../issues/28-phase0-dark-baseline.md)
 - [Issue 34 Release Check](../issues/34-release-check.md)
-- [Theme Token Workbench Handoff](../workbench/token-workbench-handoff.md)
+- Theme Token Workbench Handoff はディレクトリ整理で削除済み
