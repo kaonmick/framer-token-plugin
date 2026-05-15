@@ -1,3 +1,4 @@
+import { Copy, Grip } from "lucide-react"
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import type {
   KeyboardEvent,
@@ -913,25 +914,9 @@ async function copyTextToClipboard(text: string) {
 }
 
 function ContentCopyIcon() {
-  return (
-    <svg aria-hidden="true" className="h-4 w-4" fill="none" viewBox="0 0 11.3333 13.3333">
-      <path
-        d="M1.33333 13.3333C0.966667 13.3333 0.652667 13.2029 0.391333 12.942C0.130444 12.6807 0 12.3667 0 12V2.66667H1.33333V12H8.66667V13.3333H1.33333ZM4 10.6667C3.63333 10.6667 3.31956 10.5362 3.05867 10.2753C2.79733 10.014 2.66667 9.7 2.66667 9.33333V1.33333C2.66667 0.966667 2.79733 0.652667 3.05867 0.391333C3.31956 0.130444 3.63333 0 4 0H10C10.3667 0 10.6807 0.130444 10.942 0.391333C11.2029 0.652667 11.3333 0.966667 11.3333 1.33333V9.33333C11.3333 9.7 11.2029 10.014 10.942 10.2753C10.6807 10.5362 10.3667 10.6667 10 10.6667H4ZM4 9.33333H10V1.33333H4V9.33333Z"
-        fill="currentColor"
-      />
-    </svg>
-  )
+  return <Copy aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
 }
 
 function ResizeWindowIcon() {
-  return (
-    <svg aria-hidden="true" className="h-3.5 w-3.5" fill="none" viewBox="0 0 11.2 11.2">
-      <g transform="translate(11.2 0) scale(-1 1)">
-        <path
-          d="M10.35 11.2L0 0.85L0.85 0L11.2 10.35L10.35 11.2ZM4.35 11.2L0 6.85L0.85 6L5.2 10.35L4.35 11.2Z"
-          fill="currentColor"
-        />
-      </g>
-    </svg>
-  )
+  return <Grip aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={2} />
 }
