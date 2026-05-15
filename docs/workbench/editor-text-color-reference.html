@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Editor Text Color Reference</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --paper: #0c0e0d;
+        --ink: #f5f5f5;
+        --muted: #b7bbb8;
+        --line: rgba(255, 255, 255, 0.12);
+        --shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at top left, rgba(255, 240, 133, 0.08), transparent 32%),
+          linear-gradient(180deg, #111413 0%, var(--paper) 100%);
+        color: var(--ink);
+        font-family: "Avenir Next", "Hiragino Sans", "Yu Gothic", sans-serif;
+      }
+
+      main {
+        width: min(1200px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 40px 0 64px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(34px, 5vw, 60px);
+        line-height: 0.98;
+      }
+
+      .lead {
+        max-width: 760px;
+        margin: 18px 0 0;
+        color: var(--muted);
+        line-height: 1.8;
+      }
+
+      .section {
+        margin-top: 28px;
+      }
+
+      .section h2 {
+        margin: 0 0 12px;
+        font-size: 18px;
+      }
+
+      .theme-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .theme-card {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+      }
+
+      .theme-card.dark {
+        --surface-canvas: oklch(26.9% 0 0);
+        --surface-panel: oklch(37.1% 0 0);
+        --surface-muted: oklch(43.9% 0 0);
+        --surface-inset: oklch(37.1% 0 0);
+        --text-primary: oklch(97% 0 0);
+        --text-secondary: oklch(87% 0 0);
+        --text-muted: oklch(70.8% 0 0);
+        --text-accent: oklch(90.5% 0.182 98.111);
+        --text-diagnostic-ghost: rgba(255, 240, 133, 0.2);
+        --text-diagnostic-ghost-hover: color-mix(in srgb, oklch(90.5% 0.182 98.111) 32%, transparent);
+        --code-key: oklch(82.8% 0.111 230.318);
+        --code-string: #8be9a1;
+        --code-number: #80c7ff;
+        --code-boolean: #ffb86c;
+        --code-null: #ff8ba7;
+        --code-punctuation: oklch(87% 0 0);
+        --code-diagnostic-underline: oklch(90.5% 0.182 98.111);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent), var(--surface-canvas);
+      }
+
+      .theme-card.light {
+        --surface-canvas: oklch(98.5% 0 0);
+        --surface-panel: oklch(97% 0 0);
+        --surface-muted: oklch(92.2% 0 0);
+        --surface-inset: oklch(97% 0 0);
+        --text-primary: oklch(20.5% 0 0);
+        --text-secondary: oklch(43.9% 0 0);
+        --text-muted: oklch(43.9% 0 0);
+        --text-accent: #9a6a00;
+        --text-diagnostic-ghost: color-mix(in srgb, oklch(79.5% 0.184 86.047) 56%, var(--surface-inset));
+        --text-diagnostic-ghost-hover: color-mix(in srgb, oklch(79.5% 0.184 86.047) 64%, var(--surface-inset));
+        --code-key: oklch(50% 0.134 242.749);
+        --code-string: #15803d;
+        --code-number: #1d4ed8;
+        --code-boolean: #b45309;
+        --code-null: #be185d;
+        --code-punctuation: oklch(43.9% 0 0);
+        --code-diagnostic-underline: oklch(79.5% 0.184 86.047);
+        color: #111413;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.92)), var(--surface-canvas);
+      }
+
+      .theme-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 16px 18px 0;
+      }
+
+      .theme-head strong {
+        font-size: 18px;
+      }
+
+      .theme-head span {
+        color: inherit;
+        opacity: 0.72;
+        font-size: 12px;
+      }
+
+      .editor {
+        margin: 14px 18px 18px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 14px;
+        overflow: hidden;
+        background: var(--surface-inset);
+      }
+
+      .theme-card.light .editor {
+        border-color: rgba(17, 20, 19, 0.12);
+      }
+
+      .editor-grid {
+        display: grid;
+        grid-template-columns: 48px minmax(0, 1fr);
+        min-height: 262px;
+      }
+
+      .gutter {
+        padding: 8px;
+        background: color-mix(in srgb, var(--surface-muted) 40%, transparent);
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        text-align: right;
+        color: var(--text-secondary);
+      }
+
+      .theme-card.light .gutter {
+        border-right-color: rgba(17, 20, 19, 0.12);
+      }
+
+      .line,
+      .line-number {
+        display: block;
+        height: 16px;
+        font: 11px/16px "Fira Code", "Noto Sans JP", monospace;
+        white-space: pre;
+      }
+
+      .line {
+        padding: 0 12px 0 8px;
+        color: var(--text-primary);
+      }
+
+      .code {
+        position: relative;
+        padding: 8px 0 32px;
+      }
+
+      .placeholder {
+        color: var(--text-muted);
+      }
+
+      .line-number.diagnostic,
+      .line.diagnostic {
+        background: color-mix(in srgb, var(--code-diagnostic-underline) 8%, transparent);
+      }
+
+      .line-number.diagnostic {
+        color: var(--code-diagnostic-underline);
+      }
+
+      .plain {
+        color: var(--text-primary);
+      }
+
+      .key {
+        color: var(--code-key);
+      }
+
+      .string {
+        color: var(--code-string);
+      }
+
+      .number {
+        color: var(--code-number);
+      }
+
+      .boolean {
+        color: var(--code-boolean);
+      }
+
+      .null {
+        color: var(--code-null);
+      }
+
+      .punctuation {
+        color: var(--code-punctuation);
+      }
+
+      .ghost {
+        margin-left: 12px;
+        color: var(--text-diagnostic-ghost);
+      }
+
+      .ghost.hover {
+        color: var(--text-diagnostic-ghost-hover);
+      }
+
+      .underline {
+        text-decoration-line: underline;
+        text-decoration-style: wavy;
+        text-decoration-color: var(--code-diagnostic-underline);
+        text-underline-offset: 3px;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 12px 14px;
+        border-top: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      tr:first-child th,
+      tr:first-child td {
+        border-top: 0;
+      }
+
+      th {
+        color: var(--muted);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      code {
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 12px;
+      }
+
+      .swatch {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .chip {
+        width: 14px;
+        height: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 999px;
+        background: var(--chip-color);
+      }
+
+      .theme-card.light + .table-wrap .chip,
+      .table-wrap .chip.light-border {
+        border-color: rgba(17, 20, 19, 0.18);
+      }
+
+      .notes {
+        margin-top: 14px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.7;
+      }
+
+      @media (max-width: 920px) {
+        .theme-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Editor Text Color Reference</h1>
+        <p class="lead">
+          `JsonTokenEditor` の editor 内で見えている文字色パターンを、dark / light の実値つきで並べた作業台です。
+          placeholder、line number、JSON syntax、diagnostic ghost text、warning underline までを同じ面で見比べられます。
+        </p>
+      </header>
+
+      <section class="section">
+        <h2>Preview</h2>
+        <div class="theme-grid">
+          <article class="theme-card dark">
+            <div class="theme-head">
+              <strong>Dark</strong>
+              <span>`:root[data-theme="dark"]`</span>
+            </div>
+            <div class="editor">
+              <div class="editor-grid">
+                <div class="gutter">
+                  <span class="line-number">1</span>
+                  <span class="line-number">2</span>
+                  <span class="line-number">3</span>
+                  <span class="line-number">4</span>
+                  <span class="line-number">5</span>
+                  <span class="line-number">6</span>
+                  <span class="line-number diagnostic">7</span>
+                  <span class="line-number">8</span>
+                  <span class="line-number">9</span>
+                  <span class="line-number">10</span>
+                  <span class="line-number">11</span>
+                </div>
+                <div class="code">
+                  <span class="line placeholder">// JSONファイルをアップロードするか、ここにトークンを貼り付けてください</span>
+                  <span class="line"><span class="punctuation">{</span></span>
+                  <span class="line">  <span class="key">"color"</span><span class="punctuation">:</span> <span class="punctuation">{</span></span>
+                  <span class="line">    <span class="key">"value"</span><span class="punctuation">:</span> <span class="string">"#0066ff"</span><span class="punctuation">,</span></span>
+                  <span class="line">    <span class="key">"num"</span><span class="punctuation">:</span> <span class="number">500</span><span class="punctuation">,</span></span>
+                  <span class="line">    <span class="key">"enabled"</span><span class="punctuation">:</span> <span class="boolean">true</span><span class="punctuation">,</span></span>
+                  <span class="line diagnostic">    <span class="key">"$value"</span><span class="punctuation">:</span> <span class="string underline">"oklch(70% 0.5 20)"</span><span class="punctuation">,</span><span class="ghost">// unsupported_color</span></span>
+                  <span class="line">    <span class="key">"alias"</span><span class="punctuation">:</span> <span class="null">null</span><span class="punctuation">,</span></span>
+                  <span class="line">    <span class="plain">broken-token</span></span>
+                  <span class="line">    <span class="key">"hover"</span><span class="punctuation">:</span> <span class="string">"#80c7ff"</span><span class="ghost hover">// hover color</span></span>
+                  <span class="line"><span class="punctuation">}</span></span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="theme-card light">
+            <div class="theme-head">
+              <strong>Light</strong>
+              <span>`:root[data-theme="light"]`</span>
+            </div>
+            <div class="editor">
+              <div class="editor-grid">
+                <div class="gutter">
+                  <span class="line-number">1</span>
+                  <span class="line-number">2</span>
+                  <span class="line-number">3</span>
+                  <span class="line-number">4</span>
+                  <span class="line-number">5</span>
+                  <span class="line-number">6</span>
+                  <span class="line-number diagnostic">7</span>
+                  <span class="line-number">8</span>
+                  <span class="line-number">9</span>
+                  <span class="line-number">10</span>
+                  <span class="line-number">11</span>
+                </div>
+                <div class="code">
+                  <span class="line placeholder">// JSONファイルをアップロードするか、ここにトークンを貼り付けてください</span>
+                  <span class="line"><span class="punctuation">{</span></span>
+                  <span class="line">  <span class="key">"color"</span><span class="punctuation">:</span> <span class="punctuation">{</span></span>
+                  <span class="line">    <span class="key">"value"</span><span class="punctuation">:</span> <span class="string">"#0066ff"</span><span class="punctuation">,</span></span>
+                  <span class="line">    <span class="key">"num"</span><span class="punctuation">:</span> <span class="number">500</span><span class="punctuation">,</span></span>
+                  <span class="line">    <span class="key">"enabled"</span><span class="punctuation">:</span> <span class="boolean">true</span><span class="punctuation">,</span></span>
+                  <span class="line diagnostic">    <span class="key">"$value"</span><span class="punctuation">:</span> <span class="string underline">"oklch(70% 0.5 20)"</span><span class="punctuation">,</span><span class="ghost">// unsupported_color</span></span>
+                  <span class="line">    <span class="key">"alias"</span><span class="punctuation">:</span> <span class="null">null</span><span class="punctuation">,</span></span>
+                  <span class="line">    <span class="plain">broken-token</span></span>
+                  <span class="line">    <span class="key">"hover"</span><span class="punctuation">:</span> <span class="string">"#80c7ff"</span><span class="ghost hover">// hover color</span></span>
+                  <span class="line"><span class="punctuation">}</span></span>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Color List</h2>
+        <div class="table-wrap">
+          <table>
+            <tr>
+              <th>role</th>
+              <th>sample</th>
+              <th>dark</th>
+              <th>light</th>
+              <th>source</th>
+            </tr>
+            <tr>
+              <td>placeholder</td>
+              <td><code>// JSONファイルをアップロード...</code></td>
+              <td><span class="swatch"><span class="chip" style="--chip-color: oklch(70.8% 0 0)"></span><code>oklch(70.8% 0 0)</code></span></td>
+              <td><span class="swatch"><span class="chip light-border" style="--chip-color: oklch(43.9% 0 0)"></span><code>oklch(43.9% 0 0)</code></span></td>
+              <td><code>text-text-muted</code></td>
+            </tr>
+            <tr>
+              <td>plain text fallback</td>
+              <td><code>broken-token</code></td>
+              <td><span class="swatch"><span class="chip" style="--chip-color: oklch(97% 0 0)"></span><code>oklch(97% 0 0)</code></span></td>
+              <td><span class="swatch"><span class="chip light-border" style="--chip-color: oklch(20.5% 0 0)"></span><code>oklch(20.5% 0 0)</code></span></td>
+              <td><code>text-text-primary</code></td>
+            </tr>
+            <tr>
+              <td>line number</td>
+              <td><code>7</code></td>
+              <td><span class="swatch"><span class="chip" style="--chip-color: oklch(87% 0 0)"></span><code>oklch(87% 0 0)</code></span></td>
+              <td><span class="swatch"><span class="chip light-border" style="--chip-color: oklch(43.9% 0 0)"></span><code>oklch(43.9% 0 0)</code></span></td>
+              <td><code>text-text-secondary</code></td>
+            </tr>
+            <tr>
+              <td>object / token key</td>
+              <td><code>"value"</code>, <code>"$value"</code></td>
+              <td><span class="swatch"><span class="chip" style="--chip-color: oklch(82.8% 0.111 230.318)"></span><code>oklch(82.8% 0.111 230.318)</code></span></td>
+              <td><span class="swatch"><span class="chip light-border" style="--chip-color: oklch(50% 0.134 242.749)"></span><code>oklch(50% 0.134 242.749)</code></span></td>
+              <td><code>text-code-key</code></td>
+            </tr>
+            <tr>
+              <td>string value</td>
+              <td><code>"#0066ff"</code></td>
+              <td><span class="swatch"><span class="chip" style="--chip-color: #8be9a1"></span><code>#8be9a1</code></span></td>
+              <td><span class="swatch"><span class="chip light-border" style="--chip-color: #15803d"></span><code>#15803d</code></span></td>
+              <td><code>text-code-string</code></td>
+            </tr>
+            <tr>
+              <td>number</td>
+              <td><code>500</code></td>
+              <td><span class="swatch"><span class="chip" style="--chip-color: #80c7ff"></span><code>#80c7ff</code></span></td>
+              <td><span class="swatch"><span class="chip light-border" style="--chip-color: #1d4ed8"></span><code>#1d4ed8</code></span></td>
+              <td><code>text-code-number</code></td>
+            </tr>
+            <tr>
+              <td>boolean</td>
+              <td><code>true</code> / <code>false</code></td>
+              <td><span class="swatch"><span class="chip" style="--chip-color: #ffb86c"></span><code>#ffb86c</code></span></td>
+              <td><span class="swatch"><span class="chip light-border" style="--chip-color: #b45309"></span><code>#b45309</code></span></td>
+              <td><code>text-code-boolean</code></td>
+            </tr>
+            <tr>
+              <td>null</td>
+              <td><code>null</code></td>
+              <td><span class="swatch"><span class="chip" style="--chip-color: #ff8ba7"></span><code>#ff8ba7</code></span></td>
+              <td><span class="swatch"><span class="chip light-border" style="--chip-color: #be185d"></span><code>#be185d</code></span></td>
+              <td><code>text-code-null</code></td>
+            </tr>
+            <tr>
+              <td>punctuation</td>
+              <td><code>{ } [ ] : ,</code></td>
+              <td><span class="swatch"><span class="chip" style="--chip-color: oklch(87% 0 0)"></span><code>oklch(87% 0 0)</code></span></td>
+              <td><span class="swatch"><span class="chip light-border" style="--chip-color: oklch(43.9% 0 0)"></span><code>oklch(43.9% 0 0)</code></span></td>
+              <td><code>text-code-punctuation</code></td>
+            </tr>
+            <tr>
+              <td>diagnostic ghost text</td>
+              <td><code>// unsupported_color</code></td>
+              <td><span class="swatch"><span class="chip" style="--chip-color: rgba(255, 240, 133, 0.2)"></span><code>rgba(255, 240, 133, 0.2)</code></span></td>
+              <td><span class="swatch"><span class="chip light-border" style="--chip-color: color-mix(in srgb, oklch(79.5% 0.184 86.047) 56%, oklch(97% 0 0))"></span><code>color-mix(warning 56%, surface)</code></span></td>
+              <td><code>--color-text-diagnostic-ghost</code></td>
+            </tr>
+            <tr>
+              <td>diagnostic ghost hover</td>
+              <td><code>// hover color</code></td>
+              <td><span class="swatch"><span class="chip" style="--chip-color: color-mix(in srgb, oklch(90.5% 0.182 98.111) 32%, transparent)"></span><code>color-mix(warning 32%, transparent)</code></span></td>
+              <td><span class="swatch"><span class="chip light-border" style="--chip-color: color-mix(in srgb, oklch(79.5% 0.184 86.047) 64%, oklch(97% 0 0))"></span><code>color-mix(warning 64%, surface)</code></span></td>
+              <td><code>--color-text-diagnostic-ghost-hover</code></td>
+            </tr>
+            <tr>
+              <td>diagnostic underline</td>
+              <td><code>"oklch(70% 0.5 20)"</code></td>
+              <td><span class="swatch"><span class="chip" style="--chip-color: oklch(90.5% 0.182 98.111)"></span><code>oklch(90.5% 0.182 98.111)</code></span></td>
+              <td><span class="swatch"><span class="chip light-border" style="--chip-color: oklch(79.5% 0.184 86.047)"></span><code>oklch(79.5% 0.184 86.047)</code></span></td>
+              <td><code>--color-code-diagnostic-underline</code></td>
+            </tr>
+          </table>
+        </div>
+        <p class="notes">
+          文字の実表示は `textarea` ではなく背面の `pre` 側で見えており、入力用 `textarea` は
+          <code>WebkitTextFillColor: transparent</code> です。つまり見た目の文字色は `renderJsonSyntaxLines()` と
+          `text-code-*` / `text-text-*` 系 token が決めています。
+        </p>
+        <p class="notes">
+          参照元: <code>src/components/JsonTokenEditor.tsx</code>, <code>src/tokens.css</code>,
+          <code>node_modules/tailwindcss/theme.css</code>
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

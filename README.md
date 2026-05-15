@@ -22,6 +22,23 @@ Markdown文書を横断的に読む場合は、Docsifyビューアとして `doc
 - import summaryの表示
 - English / 日本語のUI切り替え
 
+## 既知の制約
+
+- 現在の対象は color token import のみです。spacing、typography、radius などの non-color token は扱いません。
+- alias は参照先が存在する color token のみ解決します。参照先が欠けている token は生成しません。
+- 既存Color Styleとの conflict は自動解決せず、skip / replace をユーザーが選ぶ前提です。
+- `dark` のみで対応する `light` がない token は通常 style として扱い、warning を表示します。
+- `oklch()` は Framer 互換性のため `rgba(...)` に変換して登録します。
+- component catalog や screenshot は補助確認です。最終的な import 結果と permission 挙動は Framer 実機で確認が必要です。
+- 大規模JSONは 2,000 color tokens 程度までを実用目安とします。それ以上は描画や操作が重くなる可能性があります。
+
+## サポートとドキュメント
+
+- ローカル docs の入口は `docs/doc-hub.html` です。仕様書、作業台、issue progress、screenshots へのリンクをまとめています。
+- Docsify で Markdown 文書を読む場合は `npm run docs:dev` を使い、`http://127.0.0.1:4173/` を開いてください。
+- 公開前チェックの進捗メモは `docs/issues/34-release-check.md` にあります。
+- support 窓口として GitHub Issues を使う場合は `https://github.com/kaonmick/framer-token-plugin/issues` を案内先にできます。
+
 ## 開発
 
 ```bash

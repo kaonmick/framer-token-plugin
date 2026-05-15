@@ -22,6 +22,7 @@
   - [12 AI Operation Usage Design](/specs/12-ai-operation-usage-design.md)
   - [13 Git Workflow](/specs/13-git-workflow.md)
   - [14 Light / Dark テーマ対応](/specs/14-light-dark-theme.md)
+  - [15 Project Retrospective](/specs/15-project-retrospective.md)
 
 - 開発ログ
 
@@ -55,6 +56,7 @@
 - Issue Progress
 
   - [Issue 28 Phase 0 Dark Baseline](/issues/28-phase0-dark-baseline.md)
+  - [Issue 34 Release Check](/issues/34-release-check.md)
 
 - Workbench
 
