@@ -64,11 +64,18 @@ DocsifyでMarkdown文書だけを確認する場合は、Framer plugin 用のVit
 npm run docs:dev
 ```
 
+Storybookでコンポーネントとトークン反映結果を確認する場合は次を使います。Storybookは値を編集する場所ではなく、見た目と状態を確認する場所です。
+
+```bash
+npm run storybook
+```
+
 | 用途 | コマンド | URL |
 |---|---|---|
 | Framer plugin 開発 | `npm run dev` | dev server起動時に表示される `https://framer.com/plugins/open` |
 | Framer plugin HTTP確認 | `npm run dev:http` | `http://localhost:5173/` |
 | Docsify文書確認 | `npm run docs:dev` | `http://127.0.0.1:4173/` |
+| Storybook確認 | `npm run storybook` | `http://localhost:6006/` |
 
 ## Git運用
 
@@ -138,9 +145,11 @@ fixtures/           Verification token JSON
 tests/              Parser tests
 scripts/
   serve-docs.mjs    Docsify static server
+.storybook/         Storybook config
 docs/
   specs/            Original specification pack
   index.html        Docsify documentation viewer
+src/stories/        Storybook stories and fixtures
 ```
 
 ## 仕様メモ

@@ -55,6 +55,7 @@
 
   - [Issue 28 Phase 0 Dark Baseline](/issues/28-phase0-dark-baseline.md)
   - [Issue 34 Release Check](/issues/34-release-check.md)
+  - [Issue 35 Storybook 導入計画](/issues/35-storybook-introduction.md)
 
 - 図・モック
 

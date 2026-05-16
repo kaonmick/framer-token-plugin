@@ -11,6 +11,8 @@
     "git:sync-main": "sh scripts/git-sync-main.sh",
     "git:sync-main:cleanup": "sh scripts/git-sync-main.sh --delete-merged-local",
     "git:sync-main:cleanup:dry-run": "sh scripts/git-sync-main.sh --delete-merged-local --dry-run",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
     "build": "tsc --noEmit && vite build",
     "check": "tsc --noEmit",
     "screenshots": "node scripts/capture-screenshots.mjs",
@@ -28,11 +30,14 @@
     "vite-plugin-mkcert": "^2.0.0"
   },
   "devDependencies": {
+    "@storybook/addon-a11y": "^10.4.0",
+    "@storybook/react-vite": "^10.4.0",
     "@tailwindcss/vite": "^4.2.3",
     "@types/react": "^18.3.24",
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react": "^5.1.2",
     "playwright": "^1.59.1",
+    "storybook": "^10.4.0",
     "tailwindcss": "^4.2.3",
     "typescript": "^5.9.2",
     "vite": "^8.0.1",

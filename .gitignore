@@ -1,6 +1,7 @@
 node_modules/
 dist/
 dist-ladle/
+storybook-static/
 .env
 .DS_Store
 .claude/
