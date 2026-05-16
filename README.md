@@ -129,13 +129,12 @@ npm run build
 src/
   app/              Plugin UI
   components/       Project master components
-  features/         Follow-up feature slices
   lib/
     framer/         Framer API integration
     mapping/        Token path to Framer style name mapping
     parser/         JSON token parser
     types/          Shared TypeScript types
-  fixtures/         Sample token JSON
+fixtures/           Verification token JSON
 tests/              Parser tests
 scripts/
   serve-docs.mjs    Docsify static server
@@ -155,8 +154,8 @@ docs/
 - `dark` のみで対応する `light` がない場合は、dark階層を残した通常styleとして扱い、警告を表示します。
 - `oklch()` はFramer互換性のため `rgba(...)` に変換して登録します。
 - Color Style作成にはFramer Plugin APIの `createColorStyle({ path, light, dark })` を使います。
-- light/dark確認用JSONは `src/fixtures/light-dark-colors.json` にあります。
-- OKLCH変換の確認用JSONは `src/fixtures/oklch-colors.json` にあります。
-- warning表示の確認用JSONは `src/fixtures/warning-cases.json` にあります。
-- JSON構文エラーの確認用JSONは `src/fixtures/error-invalid-json.json` にあります。
+- light/dark確認用JSONは `fixtures/light-dark-colors.json` にあります。
+- OKLCH変換の確認用JSONは `fixtures/oklch-colors.json` にあります。
+- warning表示の確認用JSONは `fixtures/warning-cases.json` にあります。
+- JSON構文エラーの確認用JSONは `fixtures/error-invalid-json.json` にあります。
 - 大規模JSONは2,000 color tokens程度までを実用目安にします。それ以上の規模は描画・入力操作が重くなる可能性があるため、正式対応する場合は仮想化などの追加最適化が必要です。

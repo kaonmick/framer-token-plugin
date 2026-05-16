@@ -13,12 +13,6 @@ import {
   DialogPanel,
   FileButton,
 } from "../components/ui.tsx"
-import conflictManyColorsJson from "../fixtures/conflict-many-colors.json?raw"
-import invalidJsonFixture from "../fixtures/error-invalid-json.json?raw"
-import lightDarkColorsJson from "../fixtures/light-dark-colors.json?raw"
-import oklchColorsJson from "../fixtures/oklch-colors.json?raw"
-import primitiveColorsJson from "../fixtures/primitive-colors.json?raw"
-import warningCasesJson from "../fixtures/warning-cases.json?raw"
 import { findColorStyleConflicts, importColorStyles } from "../lib/framer/colorStyles.ts"
 import { parseColorTokenJson } from "../lib/parser/colorTokenParser.ts"
 import type {
@@ -149,6 +143,10 @@ export function App() {
 
   useEffect(() => {
     if (captureMode) {
+      if (captureMode === "conflict") {
+        setConflicts(getCaptureConflicts(parseResult))
+        setConflictError(null)
+      }
       setIsCheckingConflicts(false)
       return
     }
@@ -184,7 +182,7 @@ export function App() {
     return () => {
       isCurrent = false
     }
-  }, [captureMode, parseResult.error, parseResult.tokens, hasTokens])
+  }, [captureMode, parseResult, hasTokens])
 
   const stats = useMemo(
     () => [
@@ -426,21 +424,15 @@ function getCaptureMode(): CaptureMode | null {
 
 function getInitialJsonText(captureMode: CaptureMode | null): string {
   switch (captureMode) {
-    case "preview-normal":
-      return primitiveColorsJson
-    case "light-dark":
-    case "summary-success":
-      return lightDarkColorsJson
-    case "oklch":
-      return oklchColorsJson
-    case "warning":
-      return warningCasesJson
-    case "invalid-json":
-      return invalidJsonFixture
-    case "conflict":
-    case "summary-failed":
-      return conflictManyColorsJson
     case "default":
+    case "preview-normal":
+    case "light-dark":
+    case "oklch":
+    case "warning":
+    case "invalid-json":
+    case "conflict":
+    case "summary-success":
+    case "summary-failed":
     case null:
       return ""
   }

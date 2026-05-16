@@ -25,8 +25,8 @@ Framer plugin として公開する前に、repo 内で確認できる証跡と�
 | 項目 | 現状 | 根拠 | 次アクション |
 |---|---|---|---|
 | Framer 上で plugin が正常起動するか | 確認済み | `framer.json`, `src/app/App.tsx` | 完了 |
-| fixture / 実運用 JSON で import が最後まで通るか | 確認済み | `src/fixtures/technical-validation-colors.json`, `src/fixtures/light-dark-colors.json` | 完了 |
-| invalid JSON / conflict / partial import / summary copy | 確認済み | `src/fixtures/error-invalid-json.json`, `src/fixtures/conflict-many-colors.json`, `docs/screenshots/06-invalid-json.png`, `docs/screenshots/07-conflict-preview.png`, `docs/screenshots/09-import-summary-success.png`, `docs/screenshots/10-import-summary-failed.png` | 完了 |
+| fixture / 実運用 JSON で import が最後まで通るか | 確認済み | `fixtures/technical-validation-colors.json`, `fixtures/light-dark-colors.json` | 完了 |
+| invalid JSON / conflict / partial import / summary copy | 確認済み | `fixtures/error-invalid-json.json`, `fixtures/conflict-many-colors.json`, `docs/screenshots/06-invalid-json.png`, `docs/screenshots/07-conflict-preview.png`, `docs/screenshots/09-import-summary-success.png`, `docs/screenshots/10-import-summary-failed.png` | 完了 |
 | UI stack 5状態 | 確認済み | 下記 UI stack 表 | 完了 |
 | README / docs / screenshots / known limitations | 最終確認待ち | `README.md`, `docs/index.html`, `docs/_sidebar.md`, `docs/screenshots/` | README / docs の案内が実 UI と食い違っていないかを確認する |
 | plugin id / name / icon | 確認済み | `framer.json`, `public/icon.svg` | 完了 |
@@ -67,8 +67,8 @@ Framer plugin として公開する前に、repo 内で確認できる証跡と�
 ## Kaon 手動チェック
 
 1. `npm run dev` を起動し、Framer の Development Plugin で plugin を開く
-2. `src/fixtures/technical-validation-colors.json` を貼り付けるか読み込み、happy path を確認する
-3. `src/fixtures/error-invalid-json.json` と `src/fixtures/conflict-many-colors.json` で error / conflict / failed summary を確認する
+2. `fixtures/technical-validation-colors.json` を貼り付けるか読み込み、happy path を確認する
+3. `fixtures/error-invalid-json.json` と `fixtures/conflict-many-colors.json` で error / conflict / failed summary を確認する
 4. light / dark token を含む JSON で theme 値の import 結果を確認する
 5. README / docs の案内と実 UI がズレていないかを確認する
 6. support URL、docs URL、category、tag、description を Marketplace 入稿画面で確定する

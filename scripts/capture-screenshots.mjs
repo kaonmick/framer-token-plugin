@@ -13,14 +13,14 @@ const CAPTURE_DELAY_MS = 300
 
 const screens = [
   ["01-default.png", "/?capture=default"],
-  ["02-preview-normal.png", "/?capture=preview-normal"],
-  ["03-light-dark.png", "/?capture=light-dark"],
-  ["04-oklch.png", "/?capture=oklch"],
-  ["05-warning.png", "/?capture=warning"],
-  ["06-invalid-json.png", "/?capture=invalid-json"],
-  ["07-conflict-preview.png", "/?capture=conflict"],
-  ["09-import-summary-success.png", "/?capture=summary-success"],
-  ["10-import-summary-failed.png", "/?capture=summary-failed"],
+  ["02-preview-normal.png", "/?capture=preview-normal", "primitive-colors.json"],
+  ["03-light-dark.png", "/?capture=light-dark", "light-dark-colors.json"],
+  ["04-oklch.png", "/?capture=oklch", "oklch-colors.json"],
+  ["05-warning.png", "/?capture=warning", "warning-cases.json"],
+  ["06-invalid-json.png", "/?capture=invalid-json", "error-invalid-json.json"],
+  ["07-conflict-preview.png", "/?capture=conflict", "conflict-many-colors.json"],
+  ["09-import-summary-success.png", "/?capture=summary-success", "light-dark-colors.json"],
+  ["10-import-summary-failed.png", "/?capture=summary-failed", "conflict-many-colors.json"],
 ]
 
 const projectRoot = process.cwd()
@@ -54,7 +54,7 @@ try {
 
   await page.goto(`${baseUrl}/src/main.tsx`, { waitUntil: "load" })
 
-  for (const [filename, route] of screens) {
+  for (const [filename, route, fixtureName] of screens) {
     const outputPath = path.join(outputDir, filename)
 
     await page.setViewportSize(VIEWPORT)
@@ -67,6 +67,9 @@ try {
     if (!frame) throw new Error(`Could not access iframe for ${filename}`)
 
     await frame.waitForSelector('main[data-ready="true"]', { timeout: 10_000 })
+    if (fixtureName) {
+      await fillCaptureFixture(frame, fixtureName)
+    }
     const captureHeight = await getFrameCaptureHeight(frame)
     await page.setViewportSize({ width: VIEWPORT.width, height: captureHeight })
     await resizeHostFrame(page, captureHeight)
@@ -194,6 +197,13 @@ function wait(ms) {
   return new Promise(resolve => {
     setTimeout(resolve, ms)
   })
+}
+
+async function fillCaptureFixture(frame, fixtureName) {
+  const fixturePath = path.join(projectRoot, "fixtures", fixtureName)
+  const fixtureText = await fs.readFile(fixturePath, "utf8")
+  await frame.locator('textarea[aria-label="JSON token source"]').fill(fixtureText)
+  await frame.waitForTimeout(CAPTURE_DELAY_MS)
 }
 
 function buildFramerHostPage(frameUrl) {
