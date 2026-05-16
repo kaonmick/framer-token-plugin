@@ -59,8 +59,8 @@ Phase 1 と Phase 2 では、以下の dark 見た目を変えない。
 
 - `src/app/App.tsx`
 - `src/components/ui.tsx`
+- `src/components/JsonFileDropZone.tsx`
 - `src/components/LanguageToggle.tsx`
-- `src/components/StatsGrid.tsx`
 - `src/components/TokenCard.tsx`
 - `src/components/TokenCardList.tsx`
 - `src/components/ImportSummary.tsx`

@@ -68,8 +68,8 @@ Framer を source of truth とし、プラグイン独自のテーマ切り替�
 - `src/app/App.tsx`
 - `src/components/ui.tsx`
 - `src/components/AppHeader.tsx`
+- `src/components/JsonFileDropZone.tsx`
 - `src/components/LanguageToggle.tsx`
-- `src/components/StatsGrid.tsx`
 - `src/components/TokenCard.tsx`
 - `src/components/TokenCardList.tsx`
 - `src/components/ImportSummary.tsx`

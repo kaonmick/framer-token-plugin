@@ -4,7 +4,6 @@ export const jsonTokenEditorLabels = {
   copied: "Copied JSON",
   copy: "Copy JSON",
   copyFailed: "Could not copy JSON",
-  resize: "Resize editor",
 }
 
 export const jsonTokenEditorFixtures = {

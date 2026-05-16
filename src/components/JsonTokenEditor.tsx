@@ -1,28 +1,22 @@
-import { Copy, Grip } from "lucide-react"
+import { Copy } from "lucide-react"
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import type {
-  KeyboardEvent,
   MouseEvent as ReactMouseEvent,
-  PointerEvent as ReactPointerEvent,
   RefObject,
   ReactNode,
   UIEvent,
 } from "react"
+import { ActionButton } from "./ui.tsx"
 import styles from "./JsonTokenEditor.module.css"
 
-const DEFAULT_EDITOR_HEIGHT = 300
-const PREVIOUS_DEFAULT_EDITOR_HEIGHT = 240
-const MIN_EDITOR_HEIGHT = 180
-const MAX_EDITOR_HEIGHT = 720
-const KEYBOARD_RESIZE_STEP = 16
-const KEYBOARD_RESIZE_PAGE_STEP = 48
+const DEFAULT_EDITOR_HEIGHT = 250
 const COPY_FEEDBACK_MS = 1200
 const COPY_TOAST_OFFSET_Y = 18
 const COPY_TOAST_MARGIN = 36
 const COPY_TOOLTIP_DELAY_MS = 600
 const EDITOR_LINE_HEIGHT = 16
 const EDITOR_PADDING_Y = 8
-const EDITOR_DEFAULT_PADDING_BOTTOM = 32
+const EDITOR_DEFAULT_PADDING_BOTTOM = 8
 const EDITOR_ESTIMATED_CHARACTER_WIDTH = 7
 const EDITOR_CONTENT_WIDTH_BUFFER = 40
 const DIAGNOSTIC_TOOLTIP_WIDTH = 260
@@ -67,7 +61,6 @@ interface JsonTokenEditorProps {
     copy: string
     copied: string
     copyFailed: string
-    resize: string
   }
   lineNumbersRef: RefObject<HTMLDivElement>
   placeholder?: string
@@ -85,7 +78,7 @@ export function JsonTokenEditor({
   onScroll,
   onTextChange,
 }: JsonTokenEditorProps) {
-  const [editorHeight, setEditorHeight] = useState(DEFAULT_EDITOR_HEIGHT)
+  const editorHeight = DEFAULT_EDITOR_HEIGHT
   const [copyState, setCopyState] = useState<CopyState>("idle")
   const [isCopyTooltipVisible, setIsCopyTooltipVisible] = useState(false)
   const [copyToastPosition, setCopyToastPosition] = useState<CopyToastPosition | null>(null)
@@ -97,7 +90,6 @@ export function JsonTokenEditor({
   const scrollAreaRef = useRef<HTMLDivElement | null>(null)
   const copyFeedbackTimerRef = useRef<number | null>(null)
   const copyTooltipTimerRef = useRef<number | null>(null)
-  const resizeCleanupRef = useRef<(() => void) | null>(null)
   const diagnosticsByLine = useMemo(() => groupDiagnosticsByLine(diagnostics), [diagnostics])
   const isPlaceholderVisible = value.length === 0 && placeholder.length > 0
   const displayValue = isPlaceholderVisible ? placeholder : value
@@ -119,14 +111,7 @@ export function JsonTokenEditor({
       if (copyTooltipTimerRef.current !== null) {
         window.clearTimeout(copyTooltipTimerRef.current)
       }
-      resizeCleanupRef.current?.()
     }
-  }, [])
-
-  useEffect(() => {
-    setEditorHeight(currentHeight =>
-      currentHeight === PREVIOUS_DEFAULT_EDITOR_HEIGHT ? DEFAULT_EDITOR_HEIGHT : currentHeight
-    )
   }, [])
 
   useLayoutEffect(() => {
@@ -146,7 +131,7 @@ export function JsonTokenEditor({
     return () => {
       window.removeEventListener("resize", updateHorizontalScrollbarHeight)
     }
-  }, [displayValue, editorHeight, editorContentWidth])
+  }, [displayValue, editorContentWidth])
 
   function setTemporaryCopyState(nextState: CopyState) {
     if (copyFeedbackTimerRef.current !== null) {
@@ -238,74 +223,6 @@ export function JsonTokenEditor({
     })
   }
 
-  function handleResizePointerDown(event: ReactPointerEvent<HTMLDivElement>) {
-    event.preventDefault()
-    resizeCleanupRef.current?.()
-
-    const startY = event.clientY
-    const startHeight = editorHeight
-    const previousCursor = document.body.style.cursor
-    const previousUserSelect = document.body.style.userSelect
-
-    document.body.style.cursor = "ns-resize"
-    document.body.style.userSelect = "none"
-
-    function handlePointerMove(moveEvent: PointerEvent) {
-      setEditorHeight(clampEditorHeight(startHeight + moveEvent.clientY - startY))
-    }
-
-    function cleanupResize() {
-      document.body.style.cursor = previousCursor
-      document.body.style.userSelect = previousUserSelect
-      document.removeEventListener("pointermove", handlePointerMove)
-      document.removeEventListener("pointerup", cleanupResize)
-      document.removeEventListener("pointercancel", cleanupResize)
-      resizeCleanupRef.current = null
-    }
-
-    resizeCleanupRef.current = cleanupResize
-    document.addEventListener("pointermove", handlePointerMove)
-    document.addEventListener("pointerup", cleanupResize)
-    document.addEventListener("pointercancel", cleanupResize)
-  }
-
-  function handleResizeKeyDown(event: KeyboardEvent<HTMLDivElement>) {
-    if (event.key === "ArrowUp") {
-      event.preventDefault()
-      setEditorHeight(currentHeight => clampEditorHeight(currentHeight - KEYBOARD_RESIZE_STEP))
-      return
-    }
-
-    if (event.key === "ArrowDown") {
-      event.preventDefault()
-      setEditorHeight(currentHeight => clampEditorHeight(currentHeight + KEYBOARD_RESIZE_STEP))
-      return
-    }
-
-    if (event.key === "PageUp") {
-      event.preventDefault()
-      setEditorHeight(currentHeight => clampEditorHeight(currentHeight - KEYBOARD_RESIZE_PAGE_STEP))
-      return
-    }
-
-    if (event.key === "PageDown") {
-      event.preventDefault()
-      setEditorHeight(currentHeight => clampEditorHeight(currentHeight + KEYBOARD_RESIZE_PAGE_STEP))
-      return
-    }
-
-    if (event.key === "Home") {
-      event.preventDefault()
-      setEditorHeight(MIN_EDITOR_HEIGHT)
-      return
-    }
-
-    if (event.key === "End") {
-      event.preventDefault()
-      setEditorHeight(MAX_EDITOR_HEIGHT)
-    }
-  }
-
   return (
     <div className="flex flex-col gap-2">
       <div
@@ -391,11 +308,15 @@ export function JsonTokenEditor({
             tooltip={diagnosticTooltip}
           />
         ) : null}
-        <button
+        <ActionButton
           aria-describedby={isCopyTooltipVisible ? "json-copy-tooltip" : undefined}
           aria-label={getCopyButtonLabel(copyState, labels)}
-          className="absolute right-2 top-2 z-10 inline-flex size-7 cursor-pointer items-center justify-center rounded bg-transparent text-text-secondary"
-          type="button"
+          className="absolute right-2 top-2 z-10"
+          color="secondary"
+          icon={<ContentCopyIcon />}
+          iconPosition="only"
+          size="sm"
+          variant="ghost"
           onBlur={hideCopyTooltip}
           onClick={event => {
             hideCopyTooltip()
@@ -403,9 +324,7 @@ export function JsonTokenEditor({
           }}
           onMouseEnter={showCopyTooltipAfterDelay}
           onMouseLeave={hideCopyTooltip}
-        >
-          <ContentCopyIcon />
-        </button>
+        />
         {isCopyTooltipVisible ? (
           <div
             className="pointer-events-none absolute right-2 top-10 z-50 rounded-full bg-surface-raised px-2.5 py-1 text-[11px] font-normal leading-none text-text-primary shadow-md"
@@ -424,20 +343,6 @@ export function JsonTokenEditor({
             copied
           </div>
         ) : null}
-        <div
-          aria-label={labels.resize}
-          aria-orientation="horizontal"
-          aria-valuemax={MAX_EDITOR_HEIGHT}
-          aria-valuemin={MIN_EDITOR_HEIGHT}
-          aria-valuenow={editorHeight}
-          className="absolute bottom-1 right-1 z-10 inline-flex size-6 cursor-ns-resize items-center justify-center rounded text-text-secondary"
-          role="separator"
-          tabIndex={0}
-          onKeyDown={handleResizeKeyDown}
-          onPointerDown={handleResizePointerDown}
-        >
-          <ResizeWindowIcon />
-        </div>
       </div>
       {diagnosticLineSummaries.length > 0 ? (
         <div className="flex flex-wrap gap-2" aria-label="Editor diagnostics summary">
@@ -463,10 +368,6 @@ export function JsonTokenEditor({
       ) : null}
     </div>
   )
-}
-
-function clampEditorHeight(height: number) {
-  return Math.min(Math.max(height, MIN_EDITOR_HEIGHT), MAX_EDITOR_HEIGHT)
 }
 
 function EditorDiagnosticMarkers({
@@ -915,8 +816,4 @@ async function copyTextToClipboard(text: string) {
 
 function ContentCopyIcon() {
   return <Copy aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
-}
-
-function ResizeWindowIcon() {
-  return <Grip aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={2} />
 }

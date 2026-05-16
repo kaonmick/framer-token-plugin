@@ -11,6 +11,8 @@ export const messages = {
     language: "Language",
     json: "JSON",
     uploadJson: "Upload JSON File",
+    uploadJsonButton: "Upload",
+    dropJsonTitle: "Drop or upload a JSON file",
     copyJson: "Copy JSON",
     copiedJson: "JSON copied",
     copyJsonFailed: "Copy failed",
@@ -28,7 +30,6 @@ export const messages = {
     }
   }
 }`,
-    resizeEditor: "Resize JSON editor height",
     analyze: "Reload",
     analyzing: "Reloading...",
     analyzeHelp:
@@ -80,6 +81,8 @@ export const messages = {
     language: "言語",
     json: "JSON",
     uploadJson: "JSONファイルをアップロード",
+    uploadJsonButton: "アップロード",
+    dropJsonTitle: "JSONファイルをドロップ、またはアップロード",
     copyJson: "JSONをコピー",
     copiedJson: "JSONをコピーしました",
     copyJsonFailed: "コピーに失敗しました",
@@ -97,7 +100,6 @@ export const messages = {
     }
   }
 }`,
-    resizeEditor: "JSONエディタの高さを変更",
     analyze: "再読み込み",
     analyzing: "再読み込み中...",
     analyzeHelp:

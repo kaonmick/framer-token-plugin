@@ -62,7 +62,6 @@ function JsonTokenEditorStory({
             copied: messages.ja.copiedJson,
             copy: messages.ja.copyJson,
             copyFailed: messages.ja.copyJsonFailed,
-            resize: messages.ja.resizeEditor,
           } : jsonTokenEditorLabels}
           lineNumbersRef={lineNumbersRef}
           placeholder={language === "ja" ? messages.ja.editorPlaceholder : jsonTokenEditorFixtures.emptyPlaceholder}

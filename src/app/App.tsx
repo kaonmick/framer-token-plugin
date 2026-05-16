@@ -1,17 +1,15 @@
 import { framer, useIsAllowedTo } from "framer-plugin"
 import { useEffect, useMemo, useRef, useState, useTransition } from "react"
-import type { ChangeEvent } from "react"
 import { AppHeader } from "../components/AppHeader.tsx"
 import { ImportSummary } from "../components/ImportSummary.tsx"
+import { JsonFileDropZone } from "../components/JsonFileDropZone.tsx"
 import { JsonTokenEditor, type EditorDiagnostic } from "../components/JsonTokenEditor.tsx"
-import { StatsGrid } from "../components/StatsGrid.tsx"
 import { TokenCardList } from "../components/TokenCardList.tsx"
 import {
   ActionButton,
   DialogActions,
   DialogBackdrop,
   DialogPanel,
-  FileButton,
 } from "../components/ui.tsx"
 import { findColorStyleConflicts, importColorStyles } from "../lib/framer/colorStyles.ts"
 import { parseColorTokenJson } from "../lib/parser/colorTokenParser.ts"
@@ -95,8 +93,6 @@ export function App() {
     ],
     [parseResult.tokens, parseResult.conflictGroups]
   )
-  const primitiveCount = allTokensForStats.filter(token => token.kind === "primitive").length
-  const semanticCount = allTokensForStats.filter(token => token.kind === "semantic").length
   const modePairCount = allTokensForStats.filter(token => token.darkValue).length
   const convertedOklchCount = allTokensForStats.reduce(
     (count, token) => count + (token.format === "oklch" ? 1 : 0) + (token.darkFormat === "oklch" ? 1 : 0),
@@ -184,16 +180,6 @@ export function App() {
     }
   }, [captureMode, parseResult, hasTokens])
 
-  const stats = useMemo(
-    () => [
-      { label: messages.en.primitive, value: primitiveCount },
-      { label: messages.en.semantic, value: semanticCount },
-      { label: messages.en.lightDark, value: modePairCount },
-      { label: messages.en.warnings, value: parseResult.warnings.length },
-    ],
-    [modePairCount, parseResult.warnings.length, primitiveCount, semanticCount]
-  )
-
   function analyzeJson(nextText = jsonText) {
     startTransition(() => {
       setParseResult(parseEditorJson(nextText))
@@ -214,14 +200,10 @@ export function App() {
     analyzeJson(nextText)
   }
 
-  async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.currentTarget.files?.[0]
-    if (!file) return
-
+  async function handleJsonFileSelect(file: File) {
     const text = await file.text()
     setJsonText(text)
     analyzeJson(text)
-    event.currentTarget.value = ""
   }
 
   function handleEditorScroll(scrollTop: number) {
@@ -299,13 +281,20 @@ export function App() {
       <AppHeader language={language} title={t.title} onLanguageChange={setLanguage} />
 
       <section className="flex flex-col gap-3" aria-label={t.json}>
+        <JsonFileDropZone
+          labels={{
+            button: t.uploadJsonButton,
+            title: t.dropJsonTitle,
+          }}
+          onFileSelect={handleJsonFileSelect}
+        />
+
         <JsonTokenEditor
           diagnostics={editorDiagnostics}
           labels={{
             copied: t.copiedJson,
             copy: t.copyJson,
             copyFailed: t.copyJsonFailed,
-            resize: t.resizeEditor,
           }}
           lineNumbersRef={lineNumbersRef}
           placeholder={t.editorPlaceholder}
@@ -315,10 +304,8 @@ export function App() {
         />
 
         <div className="flex flex-wrap items-center gap-3">
-          <FileButton accept="application/json,.json" size="md" onChange={handleFileChange}>
-            {t.uploadJson}
-          </FileButton>
           <ActionButton
+            className="self-start"
             disabled={isPending || isAnalyzing}
             size="md"
             variant="outline"
@@ -333,8 +320,6 @@ export function App() {
 
       {parseResult.error ? null : (
         <>
-          <StatsGrid items={stats} />
-
           <section aria-label={t.preview}>
             <TokenCardList
               tokens={parseResult.tokens}
@@ -399,6 +384,7 @@ export function App() {
 
       <div className="fixed inset-x-0 bottom-0 z-[8] border-t border-border-strong bg-surface-canvas px-5 py-3.5 md:px-16 md:py-4">
         <ActionButton
+          className="w-full"
           disabled={!canImport}
           size="md"
           title={importButtonTitle}
