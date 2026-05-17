@@ -19,7 +19,8 @@ describe("parseColorTokenJson", () => {
     expect(result.tokens[0]).toMatchObject({
       sourcePath: "color.blue.500",
       styleName: "blue/500",
-      value: "#0066ff",
+      value: "rgba(0, 102, 255, 1)",
+      sourceValue: "#0066FF",
       kind: "primitive",
     })
   })
@@ -36,6 +37,33 @@ describe("parseColorTokenJson", () => {
 
     expect(result.tokens).toHaveLength(1)
     expect(result.tokens[0]?.styleName).toBe("surface")
+  })
+
+  it("accepts CSS Color 4 rgb and hsl syntax", () => {
+    const result = parseColorTokenJson(`{
+      "color": {
+        "$type": "color",
+        "surface": {
+          "$value": "rgb(246 246 246 / .72)"
+        },
+        "accent": {
+          "$value": "hsl(210 50% 40% / 0.6)"
+        }
+      }
+    }`)
+
+    expect(result.warnings).toHaveLength(0)
+    expect(result.tokens).toHaveLength(2)
+    expect(result.tokens[0]).toMatchObject({
+      format: "rgb",
+      value: "rgba(246, 246, 246, 0.72)",
+      sourceValue: "rgb(246 246 246 / .72)",
+    })
+    expect(result.tokens[1]).toMatchObject({
+      format: "hsl",
+      value: "rgba(51, 102, 153, 0.6)",
+      sourceValue: "hsl(210 50% 40% / 0.6)",
+    })
   })
 
   it("resolves semantic aliases and keeps the semantic layer", () => {
@@ -62,7 +90,7 @@ describe("parseColorTokenJson", () => {
     expect(result.tokens[1]).toMatchObject({
       sourcePath: "color.semantic.button",
       styleName: "semantic/button",
-      value: "#0066ff",
+      value: "rgba(0, 102, 255, 1)",
       aliasPath: "color.primitive.blue.500",
       kind: "semantic",
     })
@@ -96,8 +124,8 @@ describe("parseColorTokenJson", () => {
       sourcePath: "color.light.semantic.surface",
       darkSourcePath: "color.dark.semantic.surface",
       styleName: "semantic/surface",
-      value: "#ffffff",
-      darkValue: "#101010",
+      value: "rgba(255, 255, 255, 1)",
+      darkValue: "rgba(16, 16, 16, 1)",
       modes: ["light", "dark"],
     })
   })
@@ -123,8 +151,8 @@ describe("parseColorTokenJson", () => {
       sourcePath: "color.semantic.surface.light",
       darkSourcePath: "color.semantic.surface.dark",
       styleName: "semantic/surface",
-      value: "#ffffff",
-      darkValue: "#101010",
+      value: "rgba(255, 255, 255, 1)",
+      darkValue: "rgba(16, 16, 16, 1)",
       modes: ["light", "dark"],
     })
   })
@@ -171,8 +199,8 @@ describe("parseColorTokenJson", () => {
 
     expect(result.warnings).toHaveLength(0)
     expect(buttonToken).toMatchObject({
-      value: "#0066ff",
-      darkValue: "#8bb7ff",
+      value: "rgba(0, 102, 255, 1)",
+      darkValue: "rgba(139, 183, 255, 1)",
       aliasPath: "color.light.primitive.blue.500",
       darkAliasPath: "color.dark.primitive.blue.500",
     })
@@ -196,7 +224,7 @@ describe("parseColorTokenJson", () => {
     expect(result.tokens[0]).toMatchObject({
       sourcePath: "color.dark.semantic.surface",
       styleName: "dark/semantic/surface",
-      value: "#101010",
+      value: "rgba(16, 16, 16, 1)",
     })
     expect(result.warnings[0]).toMatchObject({
       code: "dark-mode-without-light",
@@ -221,7 +249,7 @@ describe("parseColorTokenJson", () => {
     expect(result.tokens[0]).toMatchObject({
       sourcePath: "color.gray.light",
       styleName: "gray/light",
-      value: "#eeeeee",
+      value: "rgba(238, 238, 238, 1)",
     })
   })
 
@@ -361,8 +389,8 @@ describe("parseColorTokenJson", () => {
     expect(result.conflictGroups[0]).toMatchObject({
       styleName: "semantic/action",
       candidates: [
-        { sourcePath: "color.semantic.action", value: "#0066ff" },
-        { sourcePath: "colors.semantic.action", value: "#ff6600" },
+        { sourcePath: "color.semantic.action", value: "rgba(0, 102, 255, 1)" },
+        { sourcePath: "colors.semantic.action", value: "rgba(255, 102, 0, 1)" },
       ],
     })
     expect(result.warnings).toEqual(
@@ -460,26 +488,26 @@ describe("parseColorTokenJson", () => {
         expect.objectContaining({
           sourcePath: "color.light.semantic.surface",
           darkSourcePath: "color.dark.semantic.surface",
-          value: "#ffffff",
-          darkValue: "#111111",
+          value: "rgba(255, 255, 255, 1)",
+          darkValue: "rgba(17, 17, 17, 1)",
         }),
         expect.objectContaining({
           sourcePath: "colors.light.semantic.surface",
           darkSourcePath: "colors.dark.semantic.surface",
-          value: "#f5f5f5",
-          darkValue: "#151515",
+          value: "rgba(245, 245, 245, 1)",
+          darkValue: "rgba(21, 21, 21, 1)",
         }),
         expect.objectContaining({
           sourcePath: "colour.light.semantic.surface",
           darkSourcePath: "colour.dark.semantic.surface",
-          value: "#ededed",
-          darkValue: "#1d1d1d",
+          value: "rgba(237, 237, 237, 1)",
+          darkValue: "rgba(29, 29, 29, 1)",
         }),
         expect.objectContaining({
           sourcePath: "colours.light.semantic.surface",
           darkSourcePath: "colours.dark.semantic.surface",
-          value: "#e5e5e5",
-          darkValue: "#252525",
+          value: "rgba(229, 229, 229, 1)",
+          darkValue: "rgba(37, 37, 37, 1)",
         }),
       ])
     )

@@ -3,13 +3,13 @@ import { messages } from "../app/i18n.ts"
 import type { ImportColorStylesResult } from "../lib/types/tokens.ts"
 
 interface ImportSummaryProps {
-  convertedOklchCount: number
+  convertedColorCount: number
   language: Language
   modePairCount: number
   summary: ImportColorStylesResult
 }
 
-export function ImportSummary({ convertedOklchCount, language, modePairCount, summary }: ImportSummaryProps) {
+export function ImportSummary({ convertedColorCount, language, modePairCount, summary }: ImportSummaryProps) {
   const t = messages[language]
   const title = summary.failed > 0 ? t.importFailedTitle : t.importCompleteTitle
 
@@ -24,9 +24,9 @@ export function ImportSummary({ convertedOklchCount, language, modePairCount, su
           {t.created} {summary.created}, {t.replaced} {summary.replaced}, {t.skipped} {summary.skipped}, {t.failed}{" "}
           {summary.failed}.
         </p>
-        {convertedOklchCount > 0 ? (
+        {convertedColorCount > 0 ? (
           <p className="m-0 mt-1.5 text-xs leading-relaxed text-text-secondary">
-            {t.conversionNote.replace("{count}", String(convertedOklchCount))}
+            {t.conversionNote.replace("{count}", String(convertedColorCount))}
           </p>
         ) : null}
         {modePairCount > 0 ? (

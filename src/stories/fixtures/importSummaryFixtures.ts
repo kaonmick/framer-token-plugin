@@ -9,7 +9,7 @@ export const importSummaryFixtures = {
       failed: 0,
       failures: [],
     } satisfies ImportColorStylesResult,
-    convertedOklchCount: 2,
+    convertedColorCount: 2,
     modePairCount: 2,
   },
   partial: {
@@ -25,7 +25,7 @@ export const importSummaryFixtures = {
         },
       ],
     } satisfies ImportColorStylesResult,
-    convertedOklchCount: 1,
+    convertedColorCount: 1,
     modePairCount: 1,
   },
   failed: {
@@ -45,7 +45,7 @@ export const importSummaryFixtures = {
         },
       ],
     } satisfies ImportColorStylesResult,
-    convertedOklchCount: 0,
+    convertedColorCount: 0,
     modePairCount: 0,
   },
 }

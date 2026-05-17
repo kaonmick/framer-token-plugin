@@ -19,7 +19,7 @@ function ImportSummaryStory({
   return (
     <DialogPanel role="dialog" aria-modal="true" aria-labelledby="summary-dialog-title">
       <ImportSummary
-        convertedOklchCount={fixture.convertedOklchCount}
+        convertedColorCount={fixture.convertedColorCount}
         language={language}
         modePairCount={fixture.modePairCount}
         summary={fixture.summary}
