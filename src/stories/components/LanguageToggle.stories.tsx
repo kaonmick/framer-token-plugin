@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import type { Language } from "../../app/i18n.ts"
 import { LanguageToggle } from "../../components/LanguageToggle.tsx"
-import { getStoryLanguage, PluginPreviewFrame } from "../fixtures/storyLayout.tsx"
+import { getStoryLanguage, ThemeSummaryColumns } from "../fixtures/storyLayout.tsx"
 
 function LanguageToggleStory({ language: storyLanguage }: { language: Language }) {
   const [language, setLanguage] = useState(storyLanguage)
@@ -12,14 +12,7 @@ function LanguageToggleStory({ language: storyLanguage }: { language: Language }
   }, [storyLanguage])
 
   return (
-    <PluginPreviewFrame>
-      <div className="flex items-center justify-between gap-5">
-        <h1 className="m-0 min-w-0 text-ui-title font-normal text-text-primary" lang="en">
-          Token Color Importer
-        </h1>
-        <LanguageToggle language={language} onLanguageChange={setLanguage} />
-      </div>
-    </PluginPreviewFrame>
+    <LanguageToggle language={language} onLanguageChange={setLanguage} />
   )
 }
 
@@ -40,11 +33,18 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Summary: Story = {
+  parameters: {
+    hideThemeToggle: true,
+  },
   render: () => (
-    <div className="flex flex-col gap-4">
-      <LanguageToggleStory language="ja" />
-      <LanguageToggleStory language="en" />
-    </div>
+    <ThemeSummaryColumns>
+      {() => (
+        <div className="flex items-center gap-4">
+          <LanguageToggleStory language="ja" />
+          <LanguageToggleStory language="en" />
+        </div>
+      )}
+    </ThemeSummaryColumns>
   ),
 }
 

@@ -10,7 +10,7 @@ import {
   tokenCardListLabels,
   tokenCardListNewTokens,
 } from "../fixtures/tokenCardFixtures.ts"
-import { getStoryLanguage, PluginPreviewFrame } from "../fixtures/storyLayout.tsx"
+import { getStoryLanguage, PluginPreviewFrame, ThemeSummaryColumns } from "../fixtures/storyLayout.tsx"
 
 function TokenCardListStory({
   language,
@@ -106,17 +106,24 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Summary: Story = {
+  parameters: {
+    hideThemeToggle: true,
+  },
   render: (_args, context) => {
     const language = getStoryLanguage(context.globals)
 
     return (
-      <div className="flex flex-col gap-6">
-        {(["ideal", "empty", "loading", "partial", "error"] satisfies Array<"ideal" | "empty" | "loading" | "partial" | "error">).map(
-          state => (
-            <TokenCardListStory key={state} language={language} state={state} />
-          )
+      <ThemeSummaryColumns>
+        {() => (
+          <div className="flex flex-col gap-6">
+            {(["ideal", "empty", "loading", "partial", "error"] satisfies Array<"ideal" | "empty" | "loading" | "partial" | "error">).map(
+              state => (
+                <TokenCardListStory key={state} language={language} state={state} />
+              )
+            )}
+          </div>
         )}
-      </div>
+      </ThemeSummaryColumns>
     )
   },
 }

@@ -18,6 +18,7 @@
 - `13-git-workflow.md` — `main` 同期、branch、merge 後整理の最小 git 運用
 - `14-light-dark-theme.md` — light / dark テーマ対応の rollout 方針、status、残タスク
 - `15-project-retrospective.md` — 作り直し前に整理した課題、学び、次 repo への持ち出し方
+- `16-storybook-catalog.md` — Storybook の役割、Summary 2カラム、CI 確認の運用ルール
 
 ## プロダクト原則
 

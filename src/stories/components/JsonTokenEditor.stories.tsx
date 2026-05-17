@@ -8,7 +8,7 @@ import {
   jsonTokenEditorFixtures,
   jsonTokenEditorLabels,
 } from "../fixtures/jsonTokenEditorFixtures.ts"
-import { getStoryLanguage, PluginPreviewFrame } from "../fixtures/storyLayout.tsx"
+import { getStoryLanguage, PluginPreviewFrame, ThemeSummaryColumns } from "../fixtures/storyLayout.tsx"
 
 type EditorState = "ideal" | "empty" | "loading" | "partial" | "error"
 
@@ -96,15 +96,22 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Summary: Story = {
+  parameters: {
+    hideThemeToggle: true,
+  },
   render: (_args, context) => {
     const language = getStoryLanguage(context.globals)
 
     return (
-      <div className="flex flex-col gap-6">
-        {(["ideal", "empty", "loading", "partial", "error"] satisfies EditorState[]).map((state) => (
-          <JsonTokenEditorStory key={state} language={language} state={state} showStateLabel />
-        ))}
-      </div>
+      <ThemeSummaryColumns>
+        {() => (
+          <div className="flex flex-col gap-6">
+            {(["ideal", "empty", "loading", "partial", "error"] satisfies EditorState[]).map((state) => (
+              <JsonTokenEditorStory key={state} language={language} state={state} showStateLabel />
+            ))}
+          </div>
+        )}
+      </ThemeSummaryColumns>
     )
   },
 }

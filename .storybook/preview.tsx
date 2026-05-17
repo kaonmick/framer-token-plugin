@@ -3,10 +3,11 @@ import { useGlobals } from "storybook/preview-api"
 import { installBundledFonts } from "../src/app/fonts.ts"
 import "../src/tokens.css"
 
-const withTheme: Decorator = Story => {
+const withTheme: Decorator = (Story, context) => {
   const [globals, updateGlobals] = useGlobals()
   const theme = globals.theme === "light" ? "light" : "dark"
   const language = globals.language === "en" ? "en" : "ja"
+  const hideThemeToggle = context.parameters.hideThemeToggle === true
 
   if (typeof document !== "undefined") {
     document.documentElement.dataset.theme = theme
@@ -17,24 +18,26 @@ const withTheme: Decorator = Story => {
   return (
     <div className="min-h-screen bg-surface-canvas p-6 font-['Jost','Noto_Sans_JP',ui-sans-serif,system-ui,sans-serif] text-text-primary">
       <div className="mb-5 flex flex-wrap items-center gap-2 text-[12px] leading-none">
-        <span className="inline-flex overflow-hidden rounded-full border border-border-muted bg-surface-panel">
-          <button
-            type="button"
-            className={getToggleButtonClass(theme === "dark")}
-            aria-pressed={theme === "dark"}
-            onClick={() => updateGlobals({ theme: "dark" })}
-          >
-            Dark
-          </button>
-          <button
-            type="button"
-            className={getToggleButtonClass(theme === "light")}
-            aria-pressed={theme === "light"}
-            onClick={() => updateGlobals({ theme: "light" })}
-          >
-            Light
-          </button>
-        </span>
+        {hideThemeToggle ? null : (
+          <span className="inline-flex overflow-hidden rounded-full border border-border-muted bg-surface-panel">
+            <button
+              type="button"
+              className={getToggleButtonClass(theme === "dark")}
+              aria-pressed={theme === "dark"}
+              onClick={() => updateGlobals({ theme: "dark" })}
+            >
+              Dark
+            </button>
+            <button
+              type="button"
+              className={getToggleButtonClass(theme === "light")}
+              aria-pressed={theme === "light"}
+              onClick={() => updateGlobals({ theme: "light" })}
+            >
+              Light
+            </button>
+          </span>
+        )}
         <span className="inline-flex overflow-hidden rounded-full border border-border-muted bg-surface-panel">
           <button
             type="button"

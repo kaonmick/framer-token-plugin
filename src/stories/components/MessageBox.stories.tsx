@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import type { Language } from "../../app/i18n.ts"
 import { MessageBox } from "../../components/ui.tsx"
-import { getStoryLanguage, PluginPreviewFrame } from "../fixtures/storyLayout.tsx"
+import { getStoryLanguage, PluginPreviewFrame, ThemeSummaryColumns } from "../fixtures/storyLayout.tsx"
 
 const messageBoxLabels: Record<Language, {
   danger: string
@@ -63,16 +63,23 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Summary: Story = {
+  parameters: {
+    hideThemeToggle: true,
+  },
   render: (_args, context) => {
     const labels = messageBoxLabels[getStoryLanguage(context.globals)]
 
     return (
-      <PluginPreviewFrame>
-        <div className="flex flex-col gap-3">
-          <MessageBox tone="warning">{labels.warning}</MessageBox>
-          <MessageBox tone="danger">{labels.danger}</MessageBox>
-        </div>
-      </PluginPreviewFrame>
+      <ThemeSummaryColumns>
+        {() => (
+          <PluginPreviewFrame>
+            <div className="flex flex-col gap-3">
+              <MessageBox tone="warning">{labels.warning}</MessageBox>
+              <MessageBox tone="danger">{labels.danger}</MessageBox>
+            </div>
+          </PluginPreviewFrame>
+        )}
+      </ThemeSummaryColumns>
     )
   },
 }

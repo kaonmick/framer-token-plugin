@@ -3,7 +3,7 @@ import { ArrowRight, Plus } from "lucide-react"
 import { Fragment } from "react"
 import type { Language } from "../../app/i18n.ts"
 import { ActionButton, FileButton } from "../../components/ui.tsx"
-import { getStoryLanguage, PluginPreviewFrame } from "../fixtures/storyLayout.tsx"
+import { getStoryLanguage, PluginPreviewFrame, ThemeSummaryColumns } from "../fixtures/storyLayout.tsx"
 
 type ButtonColor = "primary" | "secondary" | "danger" | "neutral"
 type ButtonIcon = "none" | "left" | "right" | "only"
@@ -216,29 +216,36 @@ export const Playground: Story = {
 }
 
 export const Summary: Story = {
+  parameters: {
+    hideThemeToggle: true,
+  },
   render: (_args, context) => {
     const labels = buttonStoryLabels[getStoryLanguage(context.globals)]
 
     return (
-      <PluginPreviewFrame>
-        <div className="flex flex-col gap-3">
-          <ActionButton size="md">{labels.import}</ActionButton>
-          <div className="flex flex-wrap items-center gap-3">
-            <FileButton accept="application/json,.json" color="primary" size="md" variant="solid" onChange={() => {}}>
-              {labels.upload}
-            </FileButton>
-            <ActionButton size="md" variant="outline">
-              {labels.reload}
-            </ActionButton>
-          </div>
-          <ActionButton disabled size="md">
-            {labels.importing}
-          </ActionButton>
-          <ActionButton color="danger" size="sm" variant="solid">
-            {labels.remove}
-          </ActionButton>
-        </div>
-      </PluginPreviewFrame>
+      <ThemeSummaryColumns>
+        {() => (
+          <PluginPreviewFrame>
+            <div className="flex flex-col gap-3">
+              <ActionButton size="md">{labels.import}</ActionButton>
+              <div className="flex flex-wrap items-center gap-3">
+                <FileButton accept="application/json,.json" color="primary" size="md" variant="solid" onChange={() => {}}>
+                  {labels.upload}
+                </FileButton>
+                <ActionButton size="md" variant="outline">
+                  {labels.reload}
+                </ActionButton>
+              </div>
+              <ActionButton disabled size="md">
+                {labels.importing}
+              </ActionButton>
+              <ActionButton color="danger" size="sm" variant="solid">
+                {labels.remove}
+              </ActionButton>
+            </div>
+          </PluginPreviewFrame>
+        )}
+      </ThemeSummaryColumns>
     )
   },
 }

@@ -21,6 +21,7 @@
   - [13 Git Workflow](/specs/13-git-workflow.md)
   - [14 Light / Dark テーマ対応](/specs/14-light-dark-theme.md)
   - [15 Project Retrospective](/specs/15-project-retrospective.md)
+  - [16 Storybook Component Catalog](/specs/16-storybook-catalog.md)
 
 - 開発ログ
 

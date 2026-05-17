@@ -3,7 +3,7 @@ import { ImportSummary } from "../../components/ImportSummary.tsx"
 import { DialogPanel } from "../../components/ui.tsx"
 import type { Language } from "../../app/i18n.ts"
 import { importSummaryFixtures } from "../fixtures/importSummaryFixtures.ts"
-import { getStoryLanguage } from "../fixtures/storyLayout.tsx"
+import { getStoryLanguage, ThemeSummaryColumns } from "../fixtures/storyLayout.tsx"
 
 type ImportSummaryState = "success" | "partial" | "failed"
 
@@ -50,12 +50,19 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Summary: Story = {
+  parameters: {
+    hideThemeToggle: true,
+  },
   render: (args, context) => (
-    <div className="flex flex-col gap-4">
-      {(["success", "partial", "failed"] satisfies ImportSummaryState[]).map(state => (
-        <ImportSummaryStory key={state} {...args} language={getStoryLanguage(context.globals)} state={state} />
-      ))}
-    </div>
+    <ThemeSummaryColumns>
+      {() => (
+        <div className="flex flex-col gap-4">
+          {(["success", "partial", "failed"] satisfies ImportSummaryState[]).map(state => (
+            <ImportSummaryStory key={state} {...args} language={getStoryLanguage(context.globals)} state={state} />
+          ))}
+        </div>
+      )}
+    </ThemeSummaryColumns>
   ),
 }
 
