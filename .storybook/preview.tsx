@@ -16,10 +16,10 @@ const withTheme: Decorator = (Story, context) => {
   }
 
   return (
-    <div className="min-h-screen bg-surface-canvas p-6 font-['Jost','Noto_Sans_JP',ui-sans-serif,system-ui,sans-serif] text-text-primary">
+    <div className="min-h-screen bg-surface-base p-6 font-['Jost','Noto_Sans_JP',ui-sans-serif,system-ui,sans-serif] text-text-default">
       <div className="mb-5 flex flex-wrap items-center gap-2 text-[12px] leading-none">
         {hideThemeToggle ? null : (
-          <span className="inline-flex overflow-hidden rounded-full border border-border-muted bg-surface-panel">
+          <span className="inline-flex overflow-hidden rounded-full border border-border-muted bg-surface-subtle">
             <button
               type="button"
               className={getToggleButtonClass(theme === "dark")}
@@ -38,7 +38,7 @@ const withTheme: Decorator = (Story, context) => {
             </button>
           </span>
         )}
-        <span className="inline-flex overflow-hidden rounded-full border border-border-muted bg-surface-panel">
+        <span className="inline-flex overflow-hidden rounded-full border border-border-muted bg-surface-subtle">
           <button
             type="button"
             className={getToggleButtonClass(language === "ja")}
@@ -66,8 +66,8 @@ function getToggleButtonClass(isActive: boolean): string {
   return [
     "min-h-[28px] cursor-pointer border-0 px-3 py-1 font-normal transition-colors",
     isActive
-      ? "bg-accent-primary text-accent-foreground"
-      : "bg-transparent text-text-secondary hover:bg-surface-muted",
+      ? "bg-surface-brand text-text-on-brand"
+      : "bg-transparent text-text-subtle hover:bg-surface-muted",
   ].join(" ")
 }
 

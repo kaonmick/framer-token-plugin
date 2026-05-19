@@ -12,21 +12,30 @@ const primitiveGroups = [
 ]
 
 const semanticTokens = [
-  { name: "surface.canvas", cssVar: "--surface-canvas" },
-  { name: "surface.panel", cssVar: "--surface-panel" },
-  { name: "text.primary", cssVar: "--text-primary" },
-  { name: "text.secondary", cssVar: "--text-secondary" },
+  { name: "surface.base", cssVar: "--surface-base" },
+  { name: "surface.subtle", cssVar: "--surface-subtle" },
+  { name: "surface.diagnostic", cssVar: "--surface-diagnostic" },
+  { name: "surface.gutter", cssVar: "--surface-gutter" },
+  { name: "surface.warning", cssVar: "--surface-warning" },
+  { name: "surface.danger", cssVar: "--surface-danger" },
+  { name: "elevated.default", cssVar: "--elevated-default" },
+  { name: "overlay.default", cssVar: "--overlay-default" },
+  { name: "text.default", cssVar: "--text-default" },
+  { name: "text.subtle", cssVar: "--text-subtle" },
+  { name: "text.on-brand", cssVar: "--text-on-brand" },
+  { name: "text.danger", cssVar: "--text-danger" },
   { name: "border.default", cssVar: "--border-default" },
-  { name: "accent.primary", cssVar: "--accent-primary" },
-  { name: "status.warning", cssVar: "--status-warning" },
-  { name: "status.error", cssVar: "--status-error" },
+  { name: "border.brand", cssVar: "--border-brand" },
+  { name: "border.danger", cssVar: "--border-danger" },
+  { name: "surface.brand", cssVar: "--surface-brand" },
+  { name: "code.placeholder", cssVar: "--code-placeholder" },
 ]
 
 function TokenCatalog() {
   return (
     <div className="flex max-w-[920px] flex-col gap-8">
       <section className="flex flex-col gap-4">
-        <h1 className="m-0 text-[24px] leading-tight font-normal text-text-primary">Token catalog</h1>
+        <h1 className="m-0 text-[24px] leading-tight font-normal text-text-default">Token catalog</h1>
         <div className="grid gap-6 md:grid-cols-2">
           {primitiveGroups.map(group => (
             <PrimitiveGroup key={group.name} name={group.name} tokens={group.tokens} />
@@ -35,8 +44,8 @@ function TokenCatalog() {
       </section>
 
       <section className="flex flex-col gap-3">
-        <h2 className="m-0 text-[18px] leading-tight font-normal text-text-primary">Semantic tokens</h2>
-        <div className="overflow-hidden rounded-[4px] border border-border-muted bg-surface-panel">
+        <h2 className="m-0 text-[18px] leading-tight font-normal text-text-default">Semantic tokens</h2>
+        <div className="overflow-hidden rounded-[4px] border border-border-muted bg-surface-subtle">
           {semanticTokens.map(token => (
             <SemanticRow key={token.name} name={token.name} cssVar={token.cssVar} />
           ))}
@@ -48,8 +57,8 @@ function TokenCatalog() {
 
 function PrimitiveGroup({ name, tokens }: { name: string; tokens: string[] }) {
   return (
-    <section className="flex flex-col gap-3 rounded-[4px] border border-border-muted bg-surface-panel p-4">
-      <h2 className="m-0 text-[16px] leading-tight font-normal text-text-primary">{name}</h2>
+    <section className="flex flex-col gap-3 rounded-[4px] border border-border-muted bg-surface-subtle p-4">
+      <h2 className="m-0 text-[16px] leading-tight font-normal text-text-default">{name}</h2>
       <div className="grid grid-cols-2 gap-2">
         {tokens.map(token => (
           <Swatch key={token} label={token} color={`var(--color-${token})`} />
@@ -62,20 +71,20 @@ function PrimitiveGroup({ name, tokens }: { name: string; tokens: string[] }) {
 function SemanticRow({ name, cssVar }: { name: string; cssVar: string }) {
   return (
     <div className="grid grid-cols-[minmax(0,1fr)_96px_minmax(120px,1fr)] items-center gap-3 border-b border-border-muted px-4 py-3 last:border-b-0">
-      <span className="min-w-0 truncate text-[13px] leading-none text-text-primary" lang="en">
+      <span className="min-w-0 truncate text-[13px] leading-none text-text-default" lang="en">
         {name}
       </span>
       <span className="size-8 rounded-full border border-border-default" style={{ backgroundColor: `var(${cssVar})` }} aria-hidden="true" />
-      <code className="min-w-0 truncate font-['Fira_Code',monospace] text-[12px] leading-none text-text-secondary">{cssVar}</code>
+      <code className="min-w-0 truncate font-['Fira_Code',monospace] text-[12px] leading-none text-text-subtle">{cssVar}</code>
     </div>
   )
 }
 
 function Swatch({ label, color }: { label: string; color: string }) {
   return (
-    <div className="flex min-w-0 items-center gap-2 rounded-[4px] bg-surface-canvas p-2">
+    <div className="flex min-w-0 items-center gap-2 rounded-[4px] bg-surface-base p-2">
       <span className="size-6 shrink-0 rounded-full border border-border-default" style={{ backgroundColor: color }} aria-hidden="true" />
-      <span className="min-w-0 truncate text-[12px] leading-none text-text-secondary" lang="en">
+      <span className="min-w-0 truncate text-[12px] leading-none text-text-subtle" lang="en">
         {label}
       </span>
     </div>

@@ -59,7 +59,7 @@ Framer を source of truth とし、プラグイン独自のテーマ切り替�
 
 - `src/tokens.css` の `@layer base` に dark / light の CSS custom properties を実装
 - surface / text / border / accent / status / code の semantic token をここで切り替える
-- Tailwind utility は `bg-surface-canvas`、`text-text-primary`、`border-border-muted` などの名前で使う
+- Tailwind utility は `bg-surface-base`、`text-text-default`、`border-border-muted` などの名前で使う
 
 ### Phase 3 — core UI の置換
 

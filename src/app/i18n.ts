@@ -24,7 +24,7 @@ export const messages = {
       "blue": {
         "500": {
           "$type": "color",
-          "$value": "#0066ff"
+          "$value": "#2563eb"
         }
       }
     }
@@ -100,7 +100,7 @@ export const messages = {
       "blue": {
         "500": {
           "$type": "color",
-          "$value": "#0066ff"
+          "$value": "#2563eb"
         }
       }
     }

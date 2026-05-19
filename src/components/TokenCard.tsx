@@ -42,7 +42,7 @@ export function TokenCard({
       className={cx(
         "flex gap-3 rounded-[4px] p-2",
         hasRadio ? "items-center" : "items-start",
-        checked ? "bg-status-warning-ghost" : "",
+        checked ? "bg-[color:color-mix(in_srgb,var(--color-surface-brand)_40%,transparent)]" : "",
         className
       )}
     >
@@ -71,7 +71,7 @@ export function TokenCard({
   return (
     <div className="flex flex-col gap-1.5">
       {label ? (
-        <span className="inline-flex self-start rounded-[11px] bg-surface-muted px-2 py-1 text-[11px] leading-none text-text-secondary">
+        <span className="inline-flex self-start rounded-[11px] bg-surface-muted px-2 py-1 text-[11px] leading-none text-text-subtle">
           {label}
         </span>
       ) : null}
@@ -102,14 +102,14 @@ function TokenRows({ rows }: { rows: TokenCardRow[] }) {
                 </>
               ) : null}
               <span
-                className="block min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[12px] leading-none text-text-primary"
+                className="block min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[12px] leading-none text-text-default"
                 lang="en"
               >
                 {row.value}
               </span>
             </div>
             <span
-              className="block min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[14px] leading-none text-text-secondary"
+              className="block min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[14px] leading-none text-text-subtle"
               lang="en"
             >
               {row.name}
@@ -140,7 +140,7 @@ function ModeIcon({ mode }: { mode: TokenRowMode }) {
   return (
     <Icon
       aria-hidden="true"
-      className="block size-4 shrink-0 text-text-secondary"
+      className="block size-4 shrink-0 text-text-subtle"
       strokeWidth={2}
     />
   )

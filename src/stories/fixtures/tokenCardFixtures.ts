@@ -26,10 +26,10 @@ export const tokenCardListNewTokens: ParsedColorToken[] = [
     kind: "primitive",
   }),
   token({
-    id: "status-error",
-    path: ["color", "status", "error"],
-    styleName: "status / error",
-    value: "#f87171",
+    id: "text-danger",
+    path: ["color", "text", "danger"],
+    styleName: "text / danger",
+    value: "#dc2626",
     kind: "semantic",
   }),
 ]

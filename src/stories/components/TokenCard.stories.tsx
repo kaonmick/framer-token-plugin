@@ -80,7 +80,7 @@ export const Summary: Story = {
             />
             <TokenCard
               label="Existing style"
-              radioName="semantic-accent-primary-summary"
+              radioName="semantic-surface-brand-summary"
               radioValue="existing"
               checked
               rows={[
@@ -124,7 +124,7 @@ export const LightDark: Story = {
 export const SelectedConflict: Story = {
   args: {
     label: "Existing style",
-    radioName: "semantic-accent-primary",
+    radioName: "semantic-surface-brand",
     radioValue: "existing",
     checked: true,
     rows: [

@@ -13,7 +13,7 @@ Framer Token Importer の UI を、画面追加後も破綻しにくい semantic
 - コンポーネント内では raw color を直接増やさず、semantic token を優先する。
 - 既存の brand yellow は Tailwind `yellow-300` を基準色にする。
 - CTA hover は、旧 `#C8C800` に近い Tailwind 色として `yellow-500` を使う。
-- warning / diagnostic marker は accent と同じ yellow 系を使うが、必要になれば `status.warning` として分離する。
+- warning / diagnostic marker は brand 系の yellow を使い、背景・文字・border の役割ごとに semantic を分ける。
 
 ## Theme Token
 
@@ -37,20 +37,27 @@ Framer Token Importer の UI を、画面追加後も破綻しにくい semantic
 
 | Token | 用途 |
 |---|---|
-| `color.surface.canvas` | app 全体の背景 |
-| `color.surface.panel` | editor / preview / summary など主要な面 |
+| `color.surface.base` | app 全体の背景 |
+| `color.surface.subtle` | editor / preview / summary など主要な面 |
 | `color.surface.raised` | tooltip / popover / modal |
 | `color.surface.muted` | gutter / disabled area / secondary surface |
 | `color.surface.inset` | editor body など沈んだ面 |
+| `color.surface.diagnostic` | editor diagnostic の薄い背景 |
+| `color.surface.gutter` | editor line number gutter |
+| `color.surface.warning` | warning line highlight |
+| `color.surface.danger` | danger CTA background |
+| `color.overlay.default` | dialog backdrop など背面 overlay |
+| `color.elevated.default` | warning / error message background |
 
 ### Text
 
 | Token | 用途 |
 |---|---|
-| `color.text.primary` | 主要テキスト |
-| `color.text.secondary` | 説明文 / 補助テキスト |
+| `color.text.default` | 主要テキスト |
+| `color.text.subtle` | 説明文 / 補助テキスト |
 | `color.text.muted` | placeholder / inactive text |
-| `color.text.accent` | copied / emphasis など accent text |
+| `color.text.on-brand` | brand surface 上の文字 |
+| `color.text.danger` | danger outline / error message text |
 
 ### Border
 
@@ -60,26 +67,15 @@ Framer Token Importer の UI を、画面追加後も破綻しにくい semantic
 | `color.border.muted` | 控えめな区切り |
 | `color.border.strong` | editor frame / modal frame |
 | `color.border.focus` | focus ring |
+| `color.border.brand` | brand outline / active border |
+| `color.border.danger` | danger outline border |
 
 ### Accent
 
 | Token | Tailwind 初期値 | 用途 |
 |---|---|---|
-| `color.accent.primary` | `yellow-300` | CTA / focus / active indicator |
-| `color.accent.primaryHover` | `yellow-500` | CTA hover / active |
-| `color.accent.primaryDisabled` | `yellow-300/35` | disabled CTA background |
-| `color.accent.foreground` | `neutral-800` | accent surface 上の文字 |
-| `color.accent.foregroundDisabled` | `rgba(26,26,26,0.5)` | disabled CTA text |
-
-### Status
-
-| Token | 用途 |
-|---|---|
-| `color.status.warning` | warning / diagnostic dot / wavy underline |
-| `color.status.warningSurface` | warning line highlight |
-| `color.status.warningGhost` | editor ghost text |
-| `color.status.error` | JSON parse error / blocking error |
-| `color.status.errorSurface` | error state background |
+| `color.surface.brand` | `yellow-300` | CTA / active indicator background |
+| `color.surface.brand-hover` | `yellow-500` | CTA hover / active |
 
 ### Code
 
@@ -91,6 +87,7 @@ Framer Token Importer の UI を、画面追加後も破綻しにくい semantic
 | `color.code.boolean` | JSON boolean |
 | `color.code.null` | JSON null |
 | `color.code.punctuation` | braces / comma / colon |
+| `color.code.placeholder` | editor placeholder / sample code |
 | `color.code.diagnosticUnderline` | warning / error underline |
 
 ## 実装メモ
@@ -100,29 +97,39 @@ Framer Token Importer の UI を、画面追加後も破綻しにくい semantic
 ```css
 :root,
 [data-theme="dark"] {
-  --color-surface-canvas: var(--color-neutral-900);
-  --color-surface-panel: var(--color-neutral-800);
+  --color-surface-base: var(--color-neutral-900);
+  --color-surface-subtle: var(--color-neutral-800);
   --color-surface-raised: var(--color-neutral-950);
-  --color-text-primary: var(--color-neutral-100);
-  --color-text-secondary: var(--color-neutral-300);
+  --color-text-default: var(--color-neutral-100);
+  --color-text-subtle: var(--color-neutral-300);
   --color-border-default: var(--color-neutral-200);
-  --color-accent-primary: var(--color-yellow-300);
-  --color-accent-primary-hover: var(--color-yellow-500);
+  --color-border-brand: var(--color-yellow-300);
+  --color-border-danger: var(--color-red-600);
+  --color-surface-brand: var(--color-yellow-300);
+  --color-surface-brand-hover: var(--color-yellow-500);
+  --color-surface-danger: var(--color-red-600);
+  --color-text-on-brand: var(--color-neutral-800);
+  --color-text-danger: var(--color-red-300);
 }
 
 [data-theme="light"] {
-  --color-surface-canvas: var(--color-neutral-50);
-  --color-surface-panel: var(--color-white);
+  --color-surface-base: var(--color-neutral-50);
+  --color-surface-subtle: var(--color-white);
   --color-surface-raised: var(--color-white);
-  --color-text-primary: var(--color-neutral-900);
-  --color-text-secondary: var(--color-neutral-600);
+  --color-text-default: var(--color-neutral-900);
+  --color-text-subtle: var(--color-neutral-600);
   --color-border-default: var(--color-neutral-300);
-  --color-accent-primary: var(--color-yellow-300);
-  --color-accent-primary-hover: var(--color-yellow-500);
+  --color-border-brand: var(--color-yellow-300);
+  --color-border-danger: var(--color-red-600);
+  --color-surface-brand: var(--color-yellow-300);
+  --color-surface-brand-hover: var(--color-yellow-500);
+  --color-surface-danger: var(--color-red-400);
+  --color-text-on-brand: var(--color-neutral-800);
+  --color-text-danger: var(--color-red-600);
 }
 ```
 
-Tailwind class 化する場合は、まず `bg-[var(--color-surface-panel)]` のような任意値で始め、利用箇所が増えた段階で共通 class / component API にまとめる。
+Tailwind class 化する場合は、まず `bg-[var(--color-surface-subtle)]` のような任意値で始め、利用箇所が増えた段階で共通 class / component API にまとめる。
 
 ## 優先移行順
 

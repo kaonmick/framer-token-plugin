@@ -43,16 +43,16 @@ function JsonTokenEditorStory({
       <div className="flex flex-col gap-3">
         {showStateLabel || storyOnlyNotes[state] ? (
           <div className="flex flex-wrap items-center gap-2 text-[12px] leading-[1.5]">
-            {showStateLabel ? <span className="font-semibold text-text-primary">{stateLabels[state]}</span> : null}
+            {showStateLabel ? <span className="font-semibold text-text-default">{stateLabels[state]}</span> : null}
             {storyOnlyNotes[state] ? (
-              <span className="rounded-[4px] border border-border-muted bg-surface-panel px-2 py-1 text-text-secondary">
+              <span className="rounded-[4px] border border-border-muted bg-surface-subtle px-2 py-1 text-text-subtle">
                 {storyOnlyNotes[state]}
               </span>
             ) : null}
           </div>
         ) : null}
         {state === "loading" ? (
-          <div className="rounded-[4px] border border-border-muted bg-surface-panel px-3 py-2 text-[12px] leading-[1.5] text-text-secondary">
+          <div className="rounded-[4px] border border-border-muted bg-surface-subtle px-3 py-2 text-[12px] leading-[1.5] text-text-subtle">
             Analyzing JSON...
           </div>
         ) : null}

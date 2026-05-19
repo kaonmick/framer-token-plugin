@@ -53,8 +53,8 @@ export function JsonFileDropZone({ labels, onFileSelect }: JsonFileDropZoneProps
       className={cx(
         "flex h-[150px] max-h-[150px] flex-col items-center justify-center gap-3 rounded border border-dashed p-4 text-center transition-colors",
         isDragging
-          ? "border-accent-primary bg-surface-panel text-text-primary"
-          : "border-border-muted bg-surface-canvas text-text-secondary"
+          ? "border-border-brand bg-surface-subtle text-text-default"
+          : "border-border-muted bg-surface-base text-text-subtle"
       )}
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
@@ -62,7 +62,7 @@ export function JsonFileDropZone({ labels, onFileSelect }: JsonFileDropZoneProps
       onDrop={handleDrop}
     >
       <Upload aria-hidden="true" className="size-5 text-text-muted" strokeWidth={1.8} />
-      <p className="m-0 text-[14px] font-normal leading-tight text-text-secondary">{labels.title}</p>
+      <p className="m-0 text-[14px] font-normal leading-tight text-text-subtle">{labels.title}</p>
       <FileButton
         accept="application/json,.json"
         className="min-w-[152px]"

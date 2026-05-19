@@ -48,6 +48,20 @@ export const Summary: Story = {
 
 `hideThemeToggle` は Storybook preview の共通 decorator が読み取り、`Summary` だけ dark / light トグルを隠します。
 
+## Semantic Usage Map
+
+semantic color と UI の関係は `Tokens / Semantic Usage Map` で確認します。
+
+- semantic token を選ぶと、該当する UI preview をハイライトする
+- `Ideal / Blank or Empty / Loading / Partial / Error` を縦に並べる
+- dark / light は左右2カラムで並べる
+- まずは `src/components/ui.tsx` の共通 component を対象にする
+- 選択中の semantic が dark / light で参照している primitive も表示する
+- `text.*` を選んだ時は、各 state 内で使う背景とのコントラスト比と WCAG 判定を表示する
+- ハイライト対象とコントラスト表は、story 内の usage metadata を正にして生成する
+
+これは「値を決める場所」ではなく、「実装済み component のどこに効いているかを見る場所」です。
+
 ## CI で確認すること
 
 PR と `main` への push では、GitHub Actions で次を確認します。

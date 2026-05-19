@@ -87,8 +87,8 @@ function PlaygroundChip({ active, children }: { active: boolean; children: strin
       className={[
         "inline-flex min-h-[26px] items-center rounded-full border px-3 text-xs font-normal leading-none",
         active
-          ? "border-text-primary bg-text-primary text-surface-canvas"
-          : "border-border-muted bg-transparent text-text-secondary",
+          ? "border-text-default bg-text-default text-surface-base"
+          : "border-border-muted bg-transparent text-text-subtle",
       ].join(" ")}
     >
       {children}
@@ -172,7 +172,7 @@ export const Playground: Story = {
     const iconPosition = args.icon === "none" ? undefined : args.icon
 
     return (
-      <div className="w-full rounded border border-border-muted bg-surface-canvas p-6 shadow-sm">
+      <div className="w-full rounded border border-border-muted bg-surface-base p-6 shadow-sm">
         <div className="mb-6 text-[11px] uppercase tracking-widest text-text-muted">Playground</div>
         <div className="grid gap-6 md:grid-cols-[minmax(180px,240px)_1fr]">
           <div className="flex flex-col gap-5">
@@ -182,7 +182,7 @@ export const Playground: Story = {
             <PlaygroundGroup label="State" options={playgroundOptions.state} value={args.state} />
             <PlaygroundGroup label="Icon" options={playgroundOptions.icon} value={args.icon} />
           </div>
-          <div className="flex min-h-[180px] flex-col items-center justify-center gap-5 rounded bg-surface-panel p-6">
+          <div className="flex min-h-[180px] flex-col items-center justify-center gap-5 rounded bg-surface-subtle p-6">
             <span className="text-[10px] uppercase tracking-widest text-text-muted">Preview</span>
             <div className="flex flex-wrap items-center justify-center gap-3">
               <ActionButton
@@ -282,7 +282,7 @@ export const VariantColorMatrix: Story = {
     const variants = ["solid", "outline", "ghost", "text"] as const
 
     return (
-      <div className="w-full overflow-x-auto rounded border border-border-muted bg-surface-canvas p-4 shadow-sm">
+      <div className="w-full overflow-x-auto rounded border border-border-muted bg-surface-base p-4 shadow-sm">
         <div className="grid min-w-[560px] grid-cols-[88px_repeat(4,104px)] items-center gap-3">
           <span className="text-[10px] uppercase tracking-widest text-text-muted">Color</span>
           {variants.map(variant => (
@@ -292,7 +292,7 @@ export const VariantColorMatrix: Story = {
           ))}
           {colors.map(color => (
             <Fragment key={color}>
-              <span className="text-xs text-text-secondary" key={`${color}-label`}>
+              <span className="text-xs text-text-subtle" key={`${color}-label`}>
                 {color}
               </span>
               {variants.map(variant => (

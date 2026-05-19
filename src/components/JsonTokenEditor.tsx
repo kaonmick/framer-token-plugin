@@ -22,7 +22,7 @@ const EDITOR_CONTENT_WIDTH_BUFFER = 40
 const DIAGNOSTIC_TOOLTIP_WIDTH = 260
 const DIAGNOSTIC_TOOLTIP_MARGIN = 8
 const ACCENT_YELLOW_COLOR = "var(--color-code-diagnostic-underline)"
-const ACCENT_YELLOW_SOFT_COLOR = "color-mix(in srgb, var(--color-code-diagnostic-underline) 8%, transparent)"
+const ACCENT_YELLOW_SOFT_COLOR = "var(--color-surface-diagnostic)"
 const DIAGNOSTIC_GHOST_TEXT_COLOR = "var(--color-text-diagnostic-ghost)"
 const DIAGNOSTIC_GHOST_TEXT_HOVER_COLOR = "var(--color-text-diagnostic-ghost-hover)"
 
@@ -232,7 +232,7 @@ export function JsonTokenEditor({
         style={{ height: editorHeight }}
       >
         <div
-          className="overflow-hidden border-r border-border-muted bg-[color:color-mix(in_srgb,var(--color-surface-muted)_40%,transparent)] p-2 text-right font-['Fira_Code','Noto_Sans_JP'] text-[11px] leading-4 text-text-secondary select-none"
+          className="overflow-hidden border-r border-border-muted bg-surface-gutter p-2 text-right font-['Fira_Code','Noto_Sans_JP'] text-[11px] leading-4 text-text-subtle select-none"
           ref={lineNumbersRef}
           aria-hidden="true"
           style={{ paddingBottom: lineNumberPaddingBottom }}
@@ -267,17 +267,17 @@ export function JsonTokenEditor({
           >
             <pre
               aria-hidden="true"
-              className="pointer-events-none absolute inset-0 m-0 overflow-visible whitespace-pre border-0 bg-transparent p-2 font-['Fira_Code','Noto_Sans_JP'] text-[11px] leading-4 text-text-primary"
+              className="pointer-events-none absolute inset-0 m-0 overflow-visible whitespace-pre border-0 bg-transparent p-2 font-['Fira_Code','Noto_Sans_JP'] text-[11px] leading-4 text-text-default"
               style={{ paddingBottom: editorPaddingBottom }}
             >
               {isPlaceholderVisible ? (
-                <span className="text-text-muted">{displayValue}</span>
+                <span className="text-code-placeholder">{displayValue}</span>
               ) : (
                 renderJsonSyntaxLines(displayValue, diagnosticsByLine, hoveredLine)
               )}
             </pre>
             <textarea
-              className="absolute inset-0 z-[1] h-full w-full resize-none overflow-hidden border-0 bg-transparent p-2 font-['Fira_Code','Noto_Sans_JP'] text-[11px] leading-4 text-text-primary selection:bg-status-warning-ghost focus:outline-none"
+              className="absolute inset-0 z-[1] h-full w-full resize-none overflow-hidden border-0 bg-transparent p-2 font-['Fira_Code','Noto_Sans_JP'] text-[11px] leading-4 text-text-default selection:bg-[color:color-mix(in_srgb,var(--color-surface-brand)_40%,transparent)] focus:outline-none"
               value={value}
               style={{
                 WebkitTextFillColor: "transparent",
@@ -327,7 +327,7 @@ export function JsonTokenEditor({
         />
         {isCopyTooltipVisible ? (
           <div
-            className="pointer-events-none absolute right-2 top-10 z-50 rounded-full bg-surface-raised px-2.5 py-1 text-[11px] font-normal leading-none text-text-primary shadow-md"
+            className="pointer-events-none absolute right-2 top-10 z-50 rounded-full bg-surface-raised px-2.5 py-1 text-[11px] font-normal leading-none text-text-default shadow-md"
             id="json-copy-tooltip"
             role="tooltip"
           >
@@ -336,7 +336,7 @@ export function JsonTokenEditor({
         ) : null}
         {copyState === "copied" && copyToastPosition ? (
           <div
-            className="pointer-events-none absolute z-50 -translate-x-1/2 rounded-full bg-surface-raised px-2.5 py-1 text-[11px] font-normal leading-none text-text-accent shadow-md"
+            className="pointer-events-none absolute z-50 -translate-x-1/2 rounded-full bg-surface-raised px-2.5 py-1 text-[11px] font-normal leading-none text-text-default shadow-md"
             role="status"
             style={{ left: copyToastPosition.x, top: copyToastPosition.y }}
           >
@@ -350,8 +350,8 @@ export function JsonTokenEditor({
             <button
               className={`inline-flex max-w-full cursor-pointer items-center gap-1 rounded-full border px-2.5 py-1 text-left text-[11px] leading-none ${
                 diagnostic.tone === "danger"
-                  ? "border-status-error bg-status-error-ghost text-status-error"
-                  : "border-status-warning bg-status-warning-surface text-status-warning"
+                  ? "border-border-danger bg-elevated-default text-text-danger"
+                  : "border-border-brand bg-surface-warning text-text-default"
               }`}
               key={`${diagnostic.line}:${diagnostic.summary}`}
               title={diagnostic.message}
@@ -431,7 +431,7 @@ function EditorDiagnosticTooltip({
 
   return (
     <div
-      className="pointer-events-none absolute z-50 rounded bg-surface-raised px-2.5 py-2 text-[11px] font-normal leading-[1.35] text-text-primary shadow-md"
+      className="pointer-events-none absolute z-50 rounded bg-surface-raised px-2.5 py-2 text-[11px] font-normal leading-[1.35] text-text-default shadow-md"
       ref={tooltipRef}
       role="tooltip"
       style={{
@@ -460,11 +460,11 @@ function DiagnosticTooltipMessage({ message }: { message: string }) {
   const pathLine = splitDiagnosticPathLine(firstLine)
 
   if (remainingLines.length === 0) {
-    return <p className="m-0 mt-1 whitespace-pre-line text-text-secondary">{message}</p>
+    return <p className="m-0 mt-1 whitespace-pre-line text-text-subtle">{message}</p>
   }
 
   return (
-    <div className="mt-1 text-text-secondary">
+    <div className="mt-1 text-text-subtle">
       <p className="m-0 flex min-w-0">
         {pathLine.prefix ? <span className="shrink-0">{pathLine.prefix}</span> : null}
         <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap" title={pathLine.path}>

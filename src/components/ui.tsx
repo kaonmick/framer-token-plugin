@@ -48,43 +48,43 @@ const iconOnlySize = {
 const buttonToneClass = {
   primary: {
     solid:
-      "border-transparent bg-accent-primary text-accent-foreground hover:bg-accent-primary-hover active:bg-accent-primary-hover disabled:bg-accent-primary-disabled disabled:text-[color:var(--color-accent-foreground-disabled)] disabled:hover:bg-accent-primary-disabled",
+      "border-transparent bg-surface-brand text-text-on-brand hover:bg-surface-brand-hover active:bg-surface-brand-hover disabled:bg-surface-brand disabled:text-text-on-brand disabled:opacity-40 disabled:hover:bg-surface-brand",
     outline:
-      "border-accent-primary bg-transparent text-text-accent hover:bg-status-warning-ghost active:bg-status-warning-ghost disabled:border-border-muted disabled:text-text-muted disabled:hover:bg-transparent",
+      "border-border-brand bg-transparent text-text-default hover:bg-[color:color-mix(in_srgb,var(--color-surface-brand)_40%,transparent)] active:bg-[color:color-mix(in_srgb,var(--color-surface-brand)_40%,transparent)] disabled:border-border-muted disabled:text-text-muted disabled:hover:bg-transparent",
     ghost:
-      "border-transparent bg-transparent text-text-accent hover:bg-status-warning-ghost active:bg-status-warning-ghost disabled:text-text-muted disabled:hover:bg-transparent",
+      "border-transparent bg-transparent text-text-default hover:bg-[color:color-mix(in_srgb,var(--color-surface-brand)_40%,transparent)] active:bg-[color:color-mix(in_srgb,var(--color-surface-brand)_40%,transparent)] disabled:text-text-muted disabled:hover:bg-transparent",
     text:
-      "border-transparent bg-transparent px-0 text-text-accent hover:underline active:underline disabled:text-text-muted disabled:no-underline",
+      "border-transparent bg-transparent px-0 text-text-default hover:underline active:underline disabled:text-text-muted disabled:no-underline",
   },
   secondary: {
     solid:
-      "border-transparent bg-surface-panel text-text-primary hover:bg-surface-muted active:bg-surface-muted disabled:bg-surface-panel disabled:text-text-muted disabled:hover:bg-surface-panel",
+      "border-transparent bg-surface-subtle text-text-default hover:bg-surface-muted active:bg-surface-muted disabled:bg-surface-subtle disabled:text-text-muted disabled:hover:bg-surface-subtle",
     outline:
-      "border-border-muted bg-transparent text-text-secondary hover:bg-surface-panel active:bg-surface-panel disabled:border-border-muted disabled:text-text-muted disabled:hover:bg-transparent",
+      "border-border-muted bg-transparent text-text-subtle hover:bg-surface-subtle active:bg-surface-subtle disabled:border-border-muted disabled:text-text-muted disabled:hover:bg-transparent",
     ghost:
-      "border-transparent bg-transparent text-text-secondary hover:bg-surface-panel active:bg-surface-panel disabled:text-text-muted disabled:hover:bg-transparent",
+      "border-transparent bg-transparent text-text-subtle hover:bg-surface-subtle active:bg-surface-subtle disabled:text-text-muted disabled:hover:bg-transparent",
     text:
-      "border-transparent bg-transparent px-0 text-text-secondary hover:underline active:underline disabled:text-text-muted disabled:no-underline",
+      "border-transparent bg-transparent px-0 text-text-subtle hover:underline active:underline disabled:text-text-muted disabled:no-underline",
   },
   danger: {
     solid:
-      "border-transparent bg-status-error text-white hover:opacity-90 active:opacity-100 disabled:bg-status-error disabled:text-white disabled:opacity-40",
+      "border-transparent bg-surface-danger text-text-default hover:opacity-90 active:opacity-100 disabled:bg-surface-danger disabled:text-text-default disabled:opacity-40",
     outline:
-      "border-status-error bg-transparent text-status-error hover:bg-status-error-surface active:bg-status-error-surface disabled:border-border-muted disabled:text-text-muted disabled:hover:bg-transparent",
+      "border-border-danger bg-transparent text-text-danger hover:bg-elevated-default active:bg-elevated-default disabled:border-border-muted disabled:text-text-muted disabled:hover:bg-transparent",
     ghost:
-      "border-transparent bg-transparent text-status-error hover:bg-status-error-surface active:bg-status-error-surface disabled:text-text-muted disabled:hover:bg-transparent",
+      "border-transparent bg-transparent text-text-danger hover:bg-elevated-default active:bg-elevated-default disabled:text-text-muted disabled:hover:bg-transparent",
     text:
-      "border-transparent bg-transparent px-0 text-status-error hover:underline active:underline disabled:text-text-muted disabled:no-underline",
+      "border-transparent bg-transparent px-0 text-text-danger hover:underline active:underline disabled:text-text-muted disabled:no-underline",
   },
   neutral: {
     solid:
-      "border-transparent bg-text-primary text-surface-canvas hover:opacity-90 active:opacity-100 disabled:bg-surface-muted disabled:text-text-muted disabled:hover:opacity-100",
+      "border-transparent bg-text-default text-surface-base hover:opacity-90 active:opacity-100 disabled:bg-surface-muted disabled:text-text-muted disabled:hover:opacity-100",
     outline:
-      "border-border-strong bg-transparent text-text-primary hover:bg-surface-panel active:bg-surface-panel disabled:border-border-muted disabled:text-text-muted disabled:hover:bg-transparent",
+      "border-border-strong bg-transparent text-text-default hover:bg-surface-subtle active:bg-surface-subtle disabled:border-border-muted disabled:text-text-muted disabled:hover:bg-transparent",
     ghost:
-      "border-transparent bg-transparent text-text-primary hover:bg-surface-panel active:bg-surface-panel disabled:text-text-muted disabled:hover:bg-transparent",
+      "border-transparent bg-transparent text-text-default hover:bg-surface-subtle active:bg-surface-subtle disabled:text-text-muted disabled:hover:bg-transparent",
     text:
-      "border-transparent bg-transparent px-0 text-text-primary hover:underline active:underline disabled:text-text-muted disabled:no-underline",
+      "border-transparent bg-transparent px-0 text-text-default hover:underline active:underline disabled:text-text-muted disabled:no-underline",
   },
 } as const
 
@@ -100,11 +100,11 @@ const selectWrapClass = cx(
   "relative inline-flex min-w-[116px]",
   "after:pointer-events-none after:absolute after:right-2.5 after:top-1/2 after:size-[7px]",
   "after:-translate-y-[65%] after:rotate-45 after:border-b-[1.5px] after:border-r-[1.5px]",
-  "after:border-text-primary after:content-['']"
+  "after:border-text-default after:content-['']"
 )
 const selectClass = cx(
   "h-8 min-h-8 w-full cursor-pointer appearance-none rounded-full border border-border-default",
-  "bg-surface-canvas px-2 pr-7 text-xs text-text-primary"
+  "bg-surface-base px-2 pr-7 text-xs text-text-default"
 )
 
 export const tokenTextClass = "block min-w-0 max-w-full overflow-hidden truncate"
@@ -241,7 +241,7 @@ export function SelectControl({ children, className, ...selectProps }: SelectHTM
 
 export function SectionTitle({ children, className, ...headingProps }: HTMLAttributes<HTMLHeadingElement>) {
   return (
-    <h2 className={cx("m-0 text-base font-normal leading-tight text-text-primary", className)} {...headingProps}>
+    <h2 className={cx("m-0 text-base font-normal leading-tight text-text-default", className)} {...headingProps}>
       {children}
     </h2>
   )
@@ -249,7 +249,7 @@ export function SectionTitle({ children, className, ...headingProps }: HTMLAttri
 
 export function HelperText({ children, className, ...paragraphProps }: HTMLAttributes<HTMLParagraphElement>) {
   return (
-    <p className={cx("m-0 text-xs leading-relaxed text-text-secondary", className)} {...paragraphProps}>
+    <p className={cx("m-0 text-xs leading-relaxed text-text-subtle", className)} {...paragraphProps}>
       {children}
     </p>
   )
@@ -263,8 +263,8 @@ interface MessageBoxProps extends HTMLAttributes<HTMLElement> {
 export function MessageBox({ children, className, tone, ...sectionProps }: MessageBoxProps) {
   const toneClass =
     tone === "danger"
-      ? "whitespace-pre-line border border-status-error bg-status-error-surface text-status-error"
-      : "border border-status-warning bg-status-warning-surface text-status-warning"
+      ? "whitespace-pre-line border border-border-muted bg-elevated-default text-text-danger"
+      : "border border-border-muted bg-elevated-default text-text-default"
 
   return (
     <section className={cx("rounded p-2.5 text-xs leading-relaxed", toneClass, className)} {...sectionProps}>
@@ -282,7 +282,7 @@ export function DialogBackdrop({
 }) {
   return (
     <div
-      className="fixed inset-0 z-10 flex items-center justify-center bg-[color:color-mix(in_srgb,var(--color-surface-raised)_70%,transparent)] p-4"
+      className="fixed inset-0 z-10 flex items-center justify-center bg-overlay-default p-4"
       role="presentation"
       onClick={event => {
         if (event.currentTarget === event.target) onClose()
@@ -296,7 +296,7 @@ export function DialogBackdrop({
 export function DialogPanel({ children, className, ...sectionProps }: HTMLAttributes<HTMLElement>) {
   return (
     <section
-      className={cx("w-full max-w-[360px] rounded border border-border-muted bg-surface-canvas p-3.5 text-text-primary shadow-2xl", className)}
+      className={cx("w-full max-w-[360px] rounded border border-border-muted bg-surface-base p-3.5 text-text-default shadow-2xl", className)}
       {...sectionProps}
     >
       {children}

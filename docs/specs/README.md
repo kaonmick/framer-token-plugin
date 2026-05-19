@@ -19,6 +19,7 @@
 - `14-light-dark-theme.md` — light / dark テーマ対応の rollout 方針、status、残タスク
 - `15-project-retrospective.md` — 作り直し前に整理した課題、学び、次 repo への持ち出し方
 - `16-storybook-catalog.md` — Storybook の役割、Summary 2カラム、CI 確認の運用ルール
+- `17-semantic-color-map.md` — 現在の semantic color、CSS 変数、light / dark 値の対応表
 
 ## プロダクト原則
 

@@ -313,7 +313,7 @@ export function App() {
 
   return (
     <main
-      className="flex min-h-screen flex-col gap-6 bg-surface-canvas px-5 pb-28 pt-8 font-['Jost','Noto_Sans_JP'] text-text-primary md:gap-16 md:px-16 md:pb-32 md:pt-20"
+      className="flex min-h-screen flex-col gap-6 bg-surface-base px-5 pb-28 pt-8 font-['Jost','Noto_Sans_JP'] text-text-default md:gap-16 md:px-16 md:pb-32 md:pt-20"
       data-capture-mode={captureMode ?? undefined}
       data-ready="true"
       lang={language}
@@ -424,7 +424,7 @@ export function App() {
         </>
       )}
 
-      <div className="fixed inset-x-0 bottom-0 z-[8] border-t border-border-strong bg-surface-canvas px-5 py-3.5 md:px-16 md:py-4">
+      <div className="fixed inset-x-0 bottom-0 z-[8] border-t border-border-strong bg-surface-base px-5 py-3.5 md:px-16 md:py-4">
         {currentPage === "editor" ? (
           <ActionButton
             className="w-full"

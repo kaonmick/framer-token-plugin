@@ -22,6 +22,7 @@
   - [14 Light / Dark テーマ対応](/specs/14-light-dark-theme.md)
   - [15 Project Retrospective](/specs/15-project-retrospective.md)
   - [16 Storybook Component Catalog](/specs/16-storybook-catalog.md)
+  - [17 Semantic Color 対応表](/specs/17-semantic-color-map.md)
 
 - 開発ログ
 
