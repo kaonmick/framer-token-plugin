@@ -108,6 +108,11 @@ export function App() {
     (count, token) => count + countRgbaConversions(token),
     0
   )
+  const skippedWarningItems = useMemo(
+    () => getSkippedWarningItems(parseResult.warnings, language),
+    [language, parseResult.warnings]
+  )
+  const hasPreviewAnnouncements = rgbaConversionCount > 0 || skippedWarningItems.length > 0
   const editorDiagnostics = useMemo(
     () => buildEditorDiagnostics(parseResult, language),
     [language, parseResult.error, parseResult.errorLine, parseResult.warnings]
@@ -363,9 +368,25 @@ export function App() {
                 {t.backToJson}
               </ActionButton>
             </div>
-            {rgbaConversionCount > 0 ? (
+            {hasPreviewAnnouncements ? (
               <MessageBox tone="warning">
-                {t.rgbaConversionNotice.replace("{count}", String(rgbaConversionCount))}
+                <div className="flex flex-col gap-1">
+                  {rgbaConversionCount > 0 ? (
+                    <p className="m-0">{t.rgbaConversionNotice.replace("{count}", String(rgbaConversionCount))}</p>
+                  ) : null}
+                  {skippedWarningItems.length > 0 ? (
+                    <div>
+                      <p className="m-0">{t.skippedWarningsNotice}</p>
+                      <ul className="m-0 mt-1 flex list-none flex-col gap-0.5 p-0">
+                        {skippedWarningItems.map(item => (
+                          <li className="m-0" key={item}>
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+                </div>
               </MessageBox>
             ) : null}
             <TokenCardList
@@ -497,6 +518,24 @@ function countRgbaConversions(token: ParsedColorToken): number {
 
 function isConvertedToRgba(sourceValue: string, value: string): boolean {
   return !sourceValue.trim().startsWith("{") && sourceValue.trim() !== value.trim() && value.trim().startsWith("rgba(")
+}
+
+function getSkippedWarningItems(warnings: ParseWarning[], language: Language): string[] {
+  return warnings
+    .filter(isSkippedWarning)
+    .map(warning => {
+      const lineLabel = warning.line ? `${messages[language].line} ${warning.line}` : messages[language].warningTitle
+      return `${lineLabel} · ${warning.path} / ${formatWarningSummary(warning, language)}`
+    })
+}
+
+function isSkippedWarning(warning: ParseWarning): boolean {
+  return (
+    warning.code === "circular-alias" ||
+    warning.code === "unresolved-alias" ||
+    warning.code === "unsupported-color" ||
+    warning.code === "unsupported-token"
+  )
 }
 
 function getInitialCaptureState(

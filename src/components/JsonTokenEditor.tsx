@@ -1,6 +1,7 @@
 import { Copy } from "lucide-react"
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import type {
+  FocusEvent as ReactFocusEvent,
   MouseEvent as ReactMouseEvent,
   RefObject,
   ReactNode,
@@ -22,13 +23,14 @@ const EDITOR_CONTENT_WIDTH_BUFFER = 40
 const DIAGNOSTIC_TOOLTIP_WIDTH = 260
 const DIAGNOSTIC_TOOLTIP_MARGIN = 8
 const ACCENT_YELLOW_COLOR = "var(--color-code-diagnostic-underline)"
-const ACCENT_YELLOW_SOFT_COLOR = "var(--color-surface-diagnostic)"
-const DIAGNOSTIC_GHOST_TEXT_COLOR = "var(--color-text-diagnostic-ghost)"
-const DIAGNOSTIC_GHOST_TEXT_HOVER_COLOR = "var(--color-text-diagnostic-ghost-hover)"
+const ACCENT_YELLOW_SOFT_COLOR = "var(--color-code-highlight)"
+const DIAGNOSTIC_GHOST_TEXT_COLOR = "var(--color-text-highlight)"
+const DIAGNOSTIC_GHOST_TEXT_HOVER_COLOR = "var(--color-text-highlight)"
 
 type CopyState = "idle" | "copied" | "failed"
 type CopyToastPosition = { x: number; y: number }
 type DiagnosticTooltipState = { left: number; line: number; top: number }
+type DiagnosticSummaryTooltipState = { id: string; left: number; message: string; top: number }
 type JsonSyntaxKind = "boolean" | "key" | "null" | "number" | "punctuation" | "string"
 type TextRange = { end: number; start: number }
 
@@ -83,10 +85,12 @@ export function JsonTokenEditor({
   const [isCopyTooltipVisible, setIsCopyTooltipVisible] = useState(false)
   const [copyToastPosition, setCopyToastPosition] = useState<CopyToastPosition | null>(null)
   const [diagnosticTooltip, setDiagnosticTooltip] = useState<DiagnosticTooltipState | null>(null)
+  const [diagnosticSummaryTooltip, setDiagnosticSummaryTooltip] = useState<DiagnosticSummaryTooltipState | null>(null)
   const [editorScrollTop, setEditorScrollTop] = useState(0)
   const [horizontalScrollbarHeight, setHorizontalScrollbarHeight] = useState(0)
   const [hoveredLine, setHoveredLine] = useState<number | null>(null)
   const editorRef = useRef<HTMLDivElement | null>(null)
+  const diagnosticSummaryRef = useRef<HTMLDivElement | null>(null)
   const scrollAreaRef = useRef<HTMLDivElement | null>(null)
   const copyFeedbackTimerRef = useRef<number | null>(null)
   const copyTooltipTimerRef = useRef<number | null>(null)
@@ -223,16 +227,39 @@ export function JsonTokenEditor({
     })
   }
 
+  function showDiagnosticSummaryTooltip(
+    event: ReactMouseEvent<HTMLButtonElement> | ReactFocusEvent<HTMLButtonElement>,
+    diagnostic: ReturnType<typeof getDiagnosticLineSummaries>[number]
+  ) {
+    const summaryRect = diagnosticSummaryRef.current?.getBoundingClientRect()
+    if (!summaryRect) return
+
+    const buttonRect = event.currentTarget.getBoundingClientRect()
+    const tooltipWidth = Math.min(DIAGNOSTIC_TOOLTIP_WIDTH, Math.max(160, summaryRect.width - DIAGNOSTIC_TOOLTIP_MARGIN * 2))
+    const rawLeft = buttonRect.left - summaryRect.left + buttonRect.width / 2
+    const left = Math.min(
+      Math.max(rawLeft, DIAGNOSTIC_TOOLTIP_MARGIN + tooltipWidth / 2),
+      Math.max(DIAGNOSTIC_TOOLTIP_MARGIN + tooltipWidth / 2, summaryRect.width - DIAGNOSTIC_TOOLTIP_MARGIN - tooltipWidth / 2)
+    )
+
+    setDiagnosticSummaryTooltip({
+      id: `json-diagnostic-summary-tooltip-${diagnostic.line}`,
+      left,
+      message: diagnostic.message,
+      top: Math.max(0, buttonRect.top - summaryRect.top - 6),
+    })
+  }
+
   return (
     <div className="flex flex-col gap-2">
       <div
-        className="relative grid min-h-[180px] w-full grid-cols-[48px_minmax(0,1fr)] overflow-hidden rounded border border-border-default bg-surface-inset"
+        className="relative grid min-h-[180px] w-full grid-cols-[48px_minmax(0,1fr)] overflow-hidden rounded border border-border-default bg-surface-subtle"
         data-json-editor="true"
         ref={editorRef}
         style={{ height: editorHeight }}
       >
         <div
-          className="overflow-hidden border-r border-border-muted bg-surface-gutter p-2 text-right font-['Fira_Code','Noto_Sans_JP'] text-[11px] leading-4 text-text-subtle select-none"
+          className="overflow-hidden border-r border-border-muted bg-elevated-default p-2 text-right font-['Fira_Code','Noto_Sans_JP'] text-[11px] leading-4 text-text-subtle select-none"
           ref={lineNumbersRef}
           aria-hidden="true"
           style={{ paddingBottom: lineNumberPaddingBottom }}
@@ -345,25 +372,61 @@ export function JsonTokenEditor({
         ) : null}
       </div>
       {diagnosticLineSummaries.length > 0 ? (
-        <div className="flex flex-wrap gap-2" aria-label="Editor diagnostics summary">
-          {diagnosticLineSummaries.map(diagnostic => (
-            <button
-              className={`inline-flex max-w-full cursor-pointer items-center gap-1 rounded-full border px-2.5 py-1 text-left text-[11px] leading-none ${
-                diagnostic.tone === "danger"
-                  ? "border-border-danger bg-elevated-default text-text-danger"
-                  : "border-border-brand bg-surface-warning text-text-default"
-              }`}
-              key={`${diagnostic.line}:${diagnostic.summary}`}
-              title={diagnostic.message}
-              type="button"
-              onClick={() => {
-                scrollToDiagnosticLine(diagnostic.line)
+        <div
+          className="relative flex flex-wrap gap-2"
+          ref={diagnosticSummaryRef}
+          aria-label="Editor diagnostics summary"
+        >
+          {diagnosticLineSummaries.map(diagnostic => {
+            const tooltipId = `json-diagnostic-summary-tooltip-${diagnostic.line}`
+            const isTooltipVisible = diagnosticSummaryTooltip?.id === tooltipId
+
+            return (
+              <button
+                aria-describedby={isTooltipVisible ? tooltipId : undefined}
+                className={`inline-flex max-w-full cursor-pointer items-center gap-1 rounded-full border px-2.5 py-1 text-left text-[11px] leading-none ${
+                  diagnostic.tone === "danger"
+                    ? "border-border-danger bg-elevated-default text-text-danger"
+                    : "border-border-brand bg-surface-warning text-text-default"
+                }`}
+                key={`${diagnostic.line}:${diagnostic.summary}`}
+                type="button"
+                onBlur={() => {
+                  setDiagnosticSummaryTooltip(null)
+                }}
+                onClick={() => {
+                  scrollToDiagnosticLine(diagnostic.line)
+                }}
+                onFocus={event => {
+                  showDiagnosticSummaryTooltip(event, diagnostic)
+                }}
+                onMouseEnter={event => {
+                  showDiagnosticSummaryTooltip(event, diagnostic)
+                }}
+                onMouseLeave={() => {
+                  setDiagnosticSummaryTooltip(null)
+                }}
+              >
+                <span className="shrink-0 font-normal">{diagnostic.line}</span>
+                <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{diagnostic.summary}</span>
+              </button>
+            )
+          })}
+          {diagnosticSummaryTooltip ? (
+            <div
+              className="pointer-events-none absolute z-50 -translate-x-1/2 -translate-y-full rounded bg-surface-raised px-2.5 py-2 text-[11px] font-normal leading-[1.35] text-text-default shadow-md"
+              id={diagnosticSummaryTooltip.id}
+              role="tooltip"
+              style={{
+                left: diagnosticSummaryTooltip.left,
+                maxWidth: DIAGNOSTIC_TOOLTIP_WIDTH,
+                top: diagnosticSummaryTooltip.top,
+                width: DIAGNOSTIC_TOOLTIP_WIDTH,
               }}
             >
-              <span className="shrink-0 font-normal">{diagnostic.line}</span>
-              <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{diagnostic.summary}</span>
-            </button>
-          ))}
+              <DiagnosticTooltipMessage message={diagnosticSummaryTooltip.message} />
+            </div>
+          ) : null}
         </div>
       ) : null}
     </div>

@@ -42,7 +42,7 @@ export function TokenCard({
       className={cx(
         "flex gap-3 rounded-[4px] p-2",
         hasRadio ? "items-center" : "items-start",
-        checked ? "bg-[color:color-mix(in_srgb,var(--color-surface-brand)_40%,transparent)]" : "",
+        checked ? "bg-[color:color-mix(in_srgb,var(--color-surface-brand)_30%,transparent)]" : "",
         className
       )}
     >

@@ -7,15 +7,13 @@ const primitiveGroups = [
   },
   {
     name: "Functional",
-    tokens: ["red-400", "red-700", "yellow-300", "yellow-500", "green-700", "sky-300", "sky-700"],
+    tokens: ["red-400", "red-700", "yellow-100", "yellow-300", "yellow-500", "yellow-800", "green-300", "green-700", "sky-300", "sky-700", "blue-700", "orange-300", "orange-700", "pink-300", "pink-700"],
   },
 ]
 
 const semanticTokens = [
   { name: "surface.base", cssVar: "--surface-base" },
   { name: "surface.subtle", cssVar: "--surface-subtle" },
-  { name: "surface.diagnostic", cssVar: "--surface-diagnostic" },
-  { name: "surface.gutter", cssVar: "--surface-gutter" },
   { name: "surface.warning", cssVar: "--surface-warning" },
   { name: "surface.danger", cssVar: "--surface-danger" },
   { name: "elevated.default", cssVar: "--elevated-default" },
@@ -24,11 +22,13 @@ const semanticTokens = [
   { name: "text.subtle", cssVar: "--text-subtle" },
   { name: "text.on-brand", cssVar: "--text-on-brand" },
   { name: "text.danger", cssVar: "--text-danger" },
+  { name: "text.highlight", cssVar: "--text-highlight" },
   { name: "border.default", cssVar: "--border-default" },
   { name: "border.brand", cssVar: "--border-brand" },
   { name: "border.danger", cssVar: "--border-danger" },
   { name: "surface.brand", cssVar: "--surface-brand" },
   { name: "code.placeholder", cssVar: "--code-placeholder" },
+  { name: "code.highlight", cssVar: "--code-highlight" },
 ]
 
 function TokenCatalog() {

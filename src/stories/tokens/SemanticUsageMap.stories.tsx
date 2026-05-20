@@ -2,6 +2,13 @@ import type { Meta, StoryObj } from "@storybook/react-vite"
 import { Upload } from "lucide-react"
 import type { ReactNode } from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
+import type { Language } from "../../app/i18n.ts"
+import { messages } from "../../app/i18n.ts"
+import { AppHeader } from "../../components/AppHeader.tsx"
+import { ImportSummary } from "../../components/ImportSummary.tsx"
+import { JsonFileDropZone } from "../../components/JsonFileDropZone.tsx"
+import { JsonTokenEditor, type EditorDiagnostic } from "../../components/JsonTokenEditor.tsx"
+import { TokenCardList } from "../../components/TokenCardList.tsx"
 import {
   ActionButton,
   DialogActions,
@@ -13,11 +20,24 @@ import {
   SelectControl,
   cx,
 } from "../../components/ui.tsx"
-import { ThemeSummaryColumns } from "../fixtures/storyLayout.tsx"
+import {
+  jsonTokenEditorDiagnostics,
+  jsonTokenEditorFixtures,
+} from "../fixtures/jsonTokenEditorFixtures.ts"
+import { getStoryLanguage, ThemeSummaryColumns } from "../fixtures/storyLayout.tsx"
+import {
+  tokenCardListConflictCandidate,
+  tokenCardListDuplicateGroups,
+  tokenCardListExistingConflicts,
+  tokenCardListLabels,
+  tokenCardListNewTokens,
+} from "../fixtures/tokenCardFixtures.ts"
 
 type SemanticToken =
   | "surface.base"
   | "surface.subtle"
+  | "surface.raised"
+  | "surface.muted"
   | "surface.warning"
   | "surface.danger"
   | "overlay.default"
@@ -27,6 +47,7 @@ type SemanticToken =
   | "text.muted"
   | "text.on-brand"
   | "text.danger"
+  | "text.highlight"
   | "border.default"
   | "border.muted"
   | "border.strong"
@@ -35,8 +56,21 @@ type SemanticToken =
   | "border.danger"
   | "surface.brand"
   | "surface.brand-hover"
+  | "control.radio.selected"
+  | "preview.conflict-accent"
+  | "preview.new-token-accent"
+  | "code.key"
+  | "code.string"
+  | "code.number"
+  | "code.boolean"
+  | "code.null"
+  | "code.punctuation"
+  | "code.placeholder"
+  | "code.highlight"
+  | "code.diagnostic-underline"
 
 type UIStack = "ideal" | "empty" | "loading" | "partial" | "error"
+type SemanticUsageSection = "shared" | "page1" | "page2"
 type RgbColor = { b: number; g: number; r: number }
 type ContrastGrade = "AAA" | "AA" | "Fail"
 
@@ -46,7 +80,10 @@ const contrastBackgroundVars = {
   "surface.danger": "--color-surface-danger",
   "surface.warning": "--color-surface-warning",
   "surface.base": "--color-surface-base",
+  "surface.muted": "--color-surface-muted",
+  "surface.raised": "--color-surface-raised",
   "surface.subtle": "--color-surface-subtle",
+  "code.highlight": "--color-code-highlight",
 } as const
 
 type ContrastBackgroundToken = keyof typeof contrastBackgroundVars
@@ -68,11 +105,19 @@ type ReferenceTheme = "Dark" | "Light"
 const semanticGroups: { label: string; tokens: SemanticToken[] }[] = [
   {
     label: "Surface Base",
-    tokens: ["surface.base", "surface.subtle", "elevated.default"],
+    tokens: ["surface.base", "surface.subtle", "surface.raised", "elevated.default"],
+  },
+  {
+    label: "Surface Editor",
+    tokens: ["surface.muted"],
   },
   {
     label: "Surface Brand",
     tokens: ["surface.brand", "surface.brand-hover"],
+  },
+  {
+    label: "Preview",
+    tokens: ["control.radio.selected", "preview.conflict-accent", "preview.new-token-accent"],
   },
   {
     label: "Surface State",
@@ -84,7 +129,11 @@ const semanticGroups: { label: string; tokens: SemanticToken[] }[] = [
   },
   {
     label: "Text",
-    tokens: ["text.default", "text.subtle", "text.muted", "text.on-brand", "text.danger"],
+    tokens: ["text.default", "text.subtle", "text.muted", "text.on-brand", "text.danger", "text.highlight"],
+  },
+  {
+    label: "Code",
+    tokens: ["code.key", "code.string", "code.number", "code.boolean", "code.null", "code.punctuation", "code.placeholder", "code.highlight", "code.diagnostic-underline"],
   },
   {
     label: "Border",
@@ -104,6 +153,16 @@ const semanticReferences: Record<SemanticToken, SemanticReference> = {
     dark: "color.neutral.700",
     light: "color.neutral.100",
     token: "surface.subtle",
+  },
+  "surface.raised": {
+    dark: "color.neutral.800",
+    light: "color.neutral.50",
+    token: "surface.raised",
+  },
+  "surface.muted": {
+    dark: "color.neutral.600",
+    light: "color.neutral.200",
+    token: "surface.muted",
   },
   "surface.warning": {
     dark: "color.yellow.800",
@@ -150,6 +209,11 @@ const semanticReferences: Record<SemanticToken, SemanticReference> = {
     light: "color.red.600",
     token: "text.danger",
   },
+  "text.highlight": {
+    dark: "color.yellow.100",
+    light: "color.yellow.800",
+    token: "text.highlight",
+  },
   "border.default": {
     dark: "color.neutral.200",
     light: "color.neutral.400",
@@ -189,6 +253,66 @@ const semanticReferences: Record<SemanticToken, SemanticReference> = {
     dark: "color.yellow.500",
     light: "color.yellow.500",
     token: "surface.brand-hover",
+  },
+  "control.radio.selected": {
+    dark: "color.yellow.300",
+    light: "color.yellow.300",
+    token: "control.radio.selected",
+  },
+  "preview.conflict-accent": {
+    dark: "color.yellow.500",
+    light: "color.yellow.400",
+    token: "preview.conflict-accent",
+  },
+  "preview.new-token-accent": {
+    dark: "color.green.700",
+    light: "color.green.700",
+    token: "preview.new-token-accent",
+  },
+  "code.key": {
+    dark: "color.sky.300",
+    light: "color.sky.700",
+    token: "code.key",
+  },
+  "code.string": {
+    dark: "color.green.300",
+    light: "color.green.700",
+    token: "code.string",
+  },
+  "code.number": {
+    dark: "color.sky.300",
+    light: "color.blue.700",
+    token: "code.number",
+  },
+  "code.boolean": {
+    dark: "color.orange.300",
+    light: "color.orange.700",
+    token: "code.boolean",
+  },
+  "code.null": {
+    dark: "color.pink.300",
+    light: "color.pink.700",
+    token: "code.null",
+  },
+  "code.punctuation": {
+    dark: "color.neutral.300",
+    light: "color.neutral.600",
+    token: "code.punctuation",
+  },
+  "code.placeholder": {
+    dark: "color.neutral.400",
+    light: "color.neutral.500",
+    token: "code.placeholder",
+  },
+  "code.highlight": {
+    dark: "color.yellow.800",
+    light: "color.yellow.100",
+    token: "code.highlight",
+  },
+  "code.diagnostic-underline": {
+    dark: "color.yellow.300",
+    light: "color.yellow.800",
+    token: "code.diagnostic-underline",
   },
 }
 
@@ -396,6 +520,193 @@ const errorUsage = {
   },
 } satisfies Record<string, UsageMetadata>
 
+const editorCommonUsage = {
+  appHeader: {
+    background: "surface.base",
+    component: "AppHeader",
+    state: "ideal",
+    text: "text.default",
+    tokens: ["surface.base", "text.default"],
+    usage: "page title",
+  },
+  languageToggleTrack: {
+    background: "surface.muted",
+    component: "LanguageToggle",
+    state: "ideal",
+    text: "text.subtle",
+    tokens: ["surface.muted", "text.subtle"],
+    usage: "language toggle track",
+  },
+  languageToggleThumb: {
+    background: "surface.brand",
+    component: "LanguageToggle",
+    state: "ideal",
+    text: "text.on-brand",
+    tokens: ["surface.brand", "text.on-brand"],
+    usage: "language toggle selected side",
+  },
+  shell: {
+    background: "surface.subtle",
+    component: "JsonTokenEditor",
+    state: "ideal",
+    text: "text.default",
+    tokens: ["surface.subtle", "border.default", "text.default"],
+    usage: "editor canvas",
+  },
+  gutter: {
+    background: "elevated.default",
+    component: "JsonTokenEditor",
+    state: "ideal",
+    text: "text.subtle",
+    tokens: ["elevated.default", "border.muted", "text.subtle"],
+    usage: "line number gutter",
+  },
+  copyButton: {
+    background: "surface.subtle",
+    component: "JsonTokenEditor",
+    state: "ideal",
+    text: "text.default",
+    tokens: ["surface.subtle", "text.default", "border.focus"],
+    usage: "copy JSON icon button",
+  },
+  syntaxKey: {
+    background: "surface.subtle",
+    component: "JsonTokenEditor",
+    state: "ideal",
+    text: "code.key",
+    tokens: ["code.key", "surface.subtle"],
+    usage: "JSON key",
+  },
+  syntaxString: {
+    background: "surface.subtle",
+    component: "JsonTokenEditor",
+    state: "ideal",
+    text: "code.string",
+    tokens: ["code.string", "surface.subtle"],
+    usage: "JSON string",
+  },
+  syntaxNumber: {
+    background: "surface.subtle",
+    component: "JsonTokenEditor",
+    state: "ideal",
+    text: "code.number",
+    tokens: ["code.number", "surface.subtle"],
+    usage: "JSON number",
+  },
+  syntaxBoolean: {
+    background: "surface.subtle",
+    component: "JsonTokenEditor",
+    state: "ideal",
+    text: "code.boolean",
+    tokens: ["code.boolean", "surface.subtle"],
+    usage: "JSON boolean",
+  },
+  syntaxNull: {
+    background: "surface.subtle",
+    component: "JsonTokenEditor",
+    state: "ideal",
+    text: "code.null",
+    tokens: ["code.null", "surface.subtle"],
+    usage: "JSON null",
+  },
+  syntaxPunctuation: {
+    background: "surface.subtle",
+    component: "JsonTokenEditor",
+    state: "ideal",
+    text: "code.punctuation",
+    tokens: ["code.punctuation", "surface.subtle"],
+    usage: "JSON punctuation",
+  },
+} satisfies Record<string, UsageMetadata>
+
+const editorEmptyUsage = {
+  dropZone: {
+    background: "surface.base",
+    component: "JsonFileDropZone",
+    state: "empty",
+    text: "text.subtle",
+    tokens: ["surface.base", "border.muted", "text.subtle", "text.muted"],
+    usage: "file drop zone",
+  },
+  dropZoneButton: {
+    background: "surface.subtle",
+    component: "JsonFileDropZone",
+    state: "empty",
+    text: "text.subtle",
+    tokens: ["surface.subtle", "border.muted", "text.subtle", "border.focus"],
+    usage: "drop zone upload button",
+  },
+  placeholder: {
+    background: "surface.subtle",
+    component: "JsonTokenEditor",
+    state: "empty",
+    text: "code.placeholder",
+    tokens: ["code.placeholder", "surface.subtle"],
+    usage: "empty placeholder",
+  },
+} satisfies Record<string, UsageMetadata>
+
+const editorLoadingUsage = {
+  loadingLabel: {
+    background: "surface.subtle",
+    component: "JsonTokenEditor",
+    state: "loading",
+    text: "text.muted",
+    tokens: ["surface.subtle", "border.muted", "text.muted"],
+    usage: "story-only loading note",
+  },
+} satisfies Record<string, UsageMetadata>
+
+const editorDiagnosticUsage = {
+  diagnosticLine: {
+    background: "code.highlight",
+    component: "JsonTokenEditor",
+    state: "partial",
+    text: "code.diagnostic-underline",
+    tokens: ["code.highlight", "code.diagnostic-underline"],
+    usage: "diagnostic line highlight",
+  },
+  diagnosticGhost: {
+    background: "code.highlight",
+    component: "JsonTokenEditor",
+    state: "partial",
+    text: "text.highlight",
+    tokens: ["text.highlight", "code.highlight"],
+    usage: "inline diagnostic comment",
+  },
+  diagnosticSummary: {
+    background: "surface.warning",
+    component: "JsonTokenEditor",
+    state: "partial",
+    text: "text.default",
+    tokens: ["surface.warning", "border.brand", "text.default"],
+    usage: "diagnostic summary chip",
+  },
+  diagnosticTooltip: {
+    background: "surface.raised",
+    component: "JsonTokenEditor",
+    state: "partial",
+    text: "text.subtle",
+    tokens: ["surface.raised", "text.subtle", "code.diagnostic-underline", "border.strong"],
+    usage: "diagnostic tooltip",
+  },
+} satisfies Record<string, UsageMetadata>
+
+const editorErrorUsage = {
+  diagnosticSummary: {
+    background: "elevated.default",
+    component: "JsonTokenEditor",
+    state: "error",
+    text: "text.danger",
+    tokens: ["elevated.default", "border.danger", "text.danger"],
+    usage: "invalid JSON summary chip",
+  },
+} satisfies Record<string, UsageMetadata>
+
+function usageForState(usages: UsageMetadata[], state: UIStack) {
+  return usages.map(usage => ({ ...usage, state }))
+}
+
 const usageByState: Record<UIStack, UsageMetadata[]> = {
   ideal: Object.values(idealUsage),
   empty: Object.values(emptyUsage),
@@ -404,10 +715,149 @@ const usageByState: Record<UIStack, UsageMetadata[]> = {
   error: Object.values(errorUsage),
 }
 
-const allUsageMetadata = Object.values(usageByState).flat()
+const editorUsageByState: Record<UIStack, UsageMetadata[]> = {
+  ideal: Object.values(editorCommonUsage),
+  empty: [...usageForState(Object.values(editorCommonUsage), "empty"), ...Object.values(editorEmptyUsage)],
+  loading: [...usageForState(Object.values(editorCommonUsage), "loading"), ...Object.values(editorLoadingUsage)],
+  partial: [...usageForState(Object.values(editorCommonUsage), "partial"), ...Object.values(editorDiagnosticUsage)],
+  error: [
+    ...usageForState(Object.values(editorCommonUsage), "error"),
+    ...usageForState(Object.values(editorDiagnosticUsage), "error"),
+    ...Object.values(editorErrorUsage),
+  ],
+}
+
+const previewCommonUsage = {
+  importSummaryPanel: {
+    background: "surface.raised",
+    component: "ImportSummary",
+    state: "ideal",
+    text: "text.default",
+    tokens: ["surface.raised", "border.muted", "text.default", "text.subtle"],
+    usage: "import result summary",
+  },
+  tokenCard: {
+    background: "surface.subtle",
+    component: "TokenCard",
+    state: "ideal",
+    text: "text.default",
+    tokens: ["surface.subtle", "text.default", "text.subtle", "border.default"],
+    usage: "token card body",
+  },
+  colorBadge: {
+    background: "surface.subtle",
+    component: "TokenCard",
+    state: "ideal",
+    tokens: ["border.default"],
+    usage: "color badge border",
+  },
+  lightDarkRow: {
+    background: "surface.subtle",
+    component: "TokenCard",
+    state: "ideal",
+    text: "text.default",
+    tokens: ["text.default", "text.subtle"],
+    usage: "light / dark token rows",
+  },
+  newTokenAccent: {
+    component: "TokenCardList",
+    state: "ideal",
+    tokens: ["preview.new-token-accent"],
+    usage: "new tokens section accent",
+  },
+} satisfies Record<string, UsageMetadata>
+
+const previewEmptyUsage = {
+  emptyMessage: {
+    background: "surface.subtle",
+    component: "TokenCardList",
+    state: "empty",
+    text: "text.subtle",
+    tokens: ["surface.subtle", "text.subtle"],
+    usage: "empty preview message",
+  },
+} satisfies Record<string, UsageMetadata>
+
+const previewLoadingUsage = {
+  checkingMessage: {
+    background: "surface.subtle",
+    component: "TokenCardList",
+    state: "loading",
+    text: "text.default",
+    tokens: ["surface.subtle", "text.default", "text.subtle"],
+    usage: "checking conflicts message",
+  },
+} satisfies Record<string, UsageMetadata>
+
+const previewConflictUsage = {
+  previewNotice: {
+    background: "elevated.default",
+    component: "MessageBox",
+    state: "partial",
+    text: "text.default",
+    tokens: ["elevated.default", "text.default", "border.muted"],
+    usage: "preview warning notice",
+  },
+  conflictAccent: {
+    component: "TokenCardList",
+    state: "partial",
+    tokens: ["preview.conflict-accent"],
+    usage: "conflict section accent",
+  },
+  conflictPanel: {
+    background: "surface.subtle",
+    component: "TokenCardList",
+    state: "partial",
+    text: "text.subtle",
+    tokens: ["surface.subtle", "border.muted", "text.default", "text.subtle"],
+    usage: "conflict selection panel",
+  },
+  selectedCard: {
+    background: "surface.brand",
+    component: "TokenCard",
+    state: "partial",
+    text: "text.default",
+    tokens: ["surface.brand", "text.default", "control.radio.selected", "border.focus"],
+    usage: "selected conflict candidate",
+  },
+} satisfies Record<string, UsageMetadata>
+
+const previewErrorUsage = {
+  conflictError: {
+    background: "surface.subtle",
+    component: "TokenCardList",
+    state: "error",
+    text: "text.danger",
+    tokens: ["surface.subtle", "text.default", "text.danger"],
+    usage: "conflict check error",
+  },
+} satisfies Record<string, UsageMetadata>
+
+const previewUsageByState: Record<UIStack, UsageMetadata[]> = {
+  ideal: Object.values(previewCommonUsage),
+  empty: Object.values(previewEmptyUsage),
+  loading: [...usageForState(Object.values(previewCommonUsage), "loading"), ...Object.values(previewLoadingUsage)],
+  partial: [...usageForState(Object.values(previewCommonUsage), "partial"), ...Object.values(previewConflictUsage)],
+  error: [...usageForState(Object.values(previewCommonUsage), "error"), ...Object.values(previewErrorUsage)],
+}
+
+function usageMetadataForSections(sections: SemanticUsageSection[]) {
+  const sectionSet = new Set(sections)
+  const usages: UsageMetadata[] = []
+
+  if (sectionSet.has("shared")) usages.push(...Object.values(usageByState).flat())
+  if (sectionSet.has("page1")) usages.push(...Object.values(editorUsageByState).flat())
+  if (sectionSet.has("page2")) usages.push(...Object.values(previewUsageByState).flat())
+
+  return usages
+}
 
 function usageTokens(usage: UsageMetadata) {
   return Array.from(new Set([...usage.tokens, usage.text, usage.background].filter(Boolean))) as SemanticToken[]
+}
+
+function semanticTokensForUsages(usages: UsageMetadata[]) {
+  return new Set(usages.flatMap(usageTokens))
 }
 
 function hasSemantic(usages: UsageMetadata[], selected: SemanticToken) {
@@ -443,24 +893,28 @@ function UsageCard({
   children,
   selected,
   state,
+  usages,
 }: {
   children: ReactNode
   selected: SemanticToken
   state: UIStack
+  usages?: UsageMetadata[]
 }) {
   return (
     <section className="rounded-[6px] border border-border-muted bg-surface-subtle p-3">
       <div className="mb-3 text-[10px] uppercase tracking-widest text-text-muted">{stackLabels[state]}</div>
       <div className="flex flex-col gap-3">{children}</div>
-      <SectionTextContrast selected={selected} usages={usageByState[state]} />
+      <SectionTextContrast selected={selected} usages={usages ?? usageByState[state]} />
     </section>
   )
 }
 
 function SemanticSelector({
+  availableTokens,
   selected,
   onSelect,
 }: {
+  availableTokens: Set<SemanticToken>
   selected: SemanticToken
   onSelect: (token: SemanticToken) => void
 }) {
@@ -470,21 +924,27 @@ function SemanticSelector({
         <section className="flex min-w-0 flex-col gap-2 rounded-[6px] border border-border-muted bg-surface-subtle p-3" key={group.label}>
           <h2 className="m-0 text-[10px] uppercase tracking-widest text-text-muted">{group.label}</h2>
           <div className="flex flex-col gap-2">
-            {group.tokens.map(token => (
-              <button
-                className={cx(
-                  "min-h-[28px] w-full rounded-full border px-3 text-left text-[12px] leading-none",
-                  token === selected
-                    ? "border-text-default bg-text-default text-surface-base"
-                    : "border-border-muted bg-surface-base text-text-subtle hover:bg-surface-muted"
-                )}
-                key={token}
-                type="button"
-                onClick={() => onSelect(token)}
-              >
-                {token}
-              </button>
-            ))}
+            {group.tokens.map(token => {
+              const isAvailable = availableTokens.has(token)
+
+              return (
+                <button
+                  className={cx(
+                    "min-h-[28px] w-full rounded-full border px-3 text-left text-[12px] leading-none",
+                    token === selected
+                      ? "border-text-default bg-text-default text-surface-base"
+                      : "border-border-muted bg-surface-base text-text-subtle hover:bg-surface-muted",
+                    !isAvailable && "cursor-not-allowed opacity-40 hover:bg-surface-base"
+                  )}
+                  disabled={!isAvailable}
+                  key={token}
+                  type="button"
+                  onClick={() => onSelect(token)}
+                >
+                  {token}
+                </button>
+              )
+            })}
           </div>
         </section>
       ))}
@@ -543,8 +1003,8 @@ function ColorChip({ value }: { value: string }) {
   )
 }
 
-function SemanticUsageTable({ selected }: { selected: SemanticToken }) {
-  const rows = allUsageMetadata.filter(usage => usageTokens(usage).includes(selected))
+function SemanticUsageTable({ selected, usages }: { selected: SemanticToken; usages: UsageMetadata[] }) {
+  const rows = usages.filter(usage => usageTokens(usage).includes(selected))
 
   return (
     <div className="overflow-hidden rounded-[6px] border border-border-muted bg-surface-subtle">
@@ -747,27 +1207,324 @@ function SectionTextContrast({ selected, usages }: { selected: SemanticToken; us
   )
 }
 
-function IdealPreview({ selected }: { selected: SemanticToken }) {
+function getEditorLabels(language: Language) {
+  const t = messages[language]
+
+  return {
+    copied: t.copiedJson,
+    copy: t.copyJson,
+    copyFailed: t.copyJsonFailed,
+  }
+}
+
+function getTokenCardLabels(language: Language): typeof tokenCardListLabels {
+  const t = messages[language]
+
+  return {
+    ...tokenCardListLabels,
+    checkingConflicts: t.checkingConflicts,
+    conflict: t.conflict,
+    conflictCheckFailed: t.conflictCheckFailed,
+    dark: t.dark,
+    duplicateStyleNameDescription: t.duplicateStyleNameDescription,
+    duplicateStyleNameTitle: t.duplicateStyleNameTitle,
+    emptyState: t.emptyState,
+    existingStyle: t.existingStyle,
+    existingStyleConflictDescription: t.existingStyleConflictDescription,
+    existingStyleConflictTitle: t.existingStyleConflictTitle,
+    light: t.light,
+    newTokens: t.newTokens,
+    whichTokenToUse: t.whichTokenToUse,
+  }
+}
+
+const semanticMapCopy = {
+  en: {
+    cancel: "Cancel",
+    checkingJson: "Checking JSON...",
+    close: "Close",
+    dialogBackdrop: "Dialog backdrop",
+    editorDescription: "Semantic usage for the screen where users add, read, and fix JSON.",
+    editorTitle: "Page 1: Editor",
+    import: "Import",
+    importColors: "Import colors",
+    importComplete: "Import complete",
+    importCompleteBody: "3 styles were imported.",
+    importing: "Importing",
+    jsonHelp: "Review color tokens in JSON before importing.",
+    missingValue: "Missing paired light value",
+    noJson: "No JSON has been selected yet.",
+    partialMessage: "Some Color Styles need review.",
+    paste: "Paste",
+    preview: "Preview",
+    previewDescription: "Semantic usage for the screen where token cards show differences, conflicts, and new tokens.",
+    previewTitle: "Page 2: Preview",
+    remove: "Remove",
+    retry: "Retry",
+    review: "Review",
+    sharedDescription: "Shared components used across Page 1 and Page 2.",
+    sharedTitle: "Shared UI Components",
+    skipWarnings: "Skip warnings",
+    uploadJson: "Upload JSON",
+    waiting: "Waiting",
+    jsonError: "JSON could not be loaded.",
+  },
+  ja: {
+    cancel: "キャンセル",
+    checkingJson: "JSONを確認中...",
+    close: "閉じる",
+    dialogBackdrop: "Dialog backdrop",
+    editorDescription: "JSON を入れる、読む、修正する画面の semantic 使用箇所です。",
+    editorTitle: "Page 1: Editor",
+    import: "インポート",
+    importColors: "カラーをインポート",
+    importComplete: "インポート完了",
+    importCompleteBody: "3件のスタイルを取り込みました。",
+    importing: "インポート中",
+    jsonHelp: "JSON の color token を確認してから取り込みます。",
+    missingValue: "light の値が不足しています",
+    noJson: "まだ JSON が選択されていません。",
+    partialMessage: "一部の Color Style は確認が必要です。",
+    paste: "貼り付け",
+    preview: "プレビュー",
+    previewDescription: "token card で差分、競合、新規 token を確認する画面の semantic 使用箇所です。",
+    previewTitle: "Page 2: Preview",
+    remove: "削除",
+    retry: "再試行",
+    review: "確認",
+    sharedDescription: "Page 1 / Page 2 の両方で使う共通部品です。",
+    sharedTitle: "Shared UI Components",
+    skipWarnings: "警告をスキップ",
+    uploadJson: "JSONをアップロード",
+    waiting: "待機中",
+    jsonError: "JSON の読み込みに失敗しました。",
+  },
+} satisfies Record<Language, Record<string, string>>
+
+const importSummaryFixture = {
+  created: 3,
+  failed: 0,
+  failures: [],
+  replaced: 1,
+  skipped: 0,
+}
+
+const semanticMapEditorValue = `{
+  "color": {
+    "brand": {
+      "primary": {
+        "$type": "color",
+        "$value": "#fff085",
+        "$extensions": {
+          "deprecated": false,
+          "alpha": 1,
+          "fallback": null
+        }
+      }
+    }
+  }
+}`
+
+function editorStateValue(state: UIStack) {
+  if (state === "empty") return ""
+  if (state === "partial") return jsonTokenEditorFixtures.partial
+  if (state === "error") return jsonTokenEditorFixtures.error
+  return semanticMapEditorValue
+}
+
+function editorStateDiagnostics(state: UIStack): EditorDiagnostic[] {
+  if (state === "partial") return jsonTokenEditorDiagnostics.partial
+  if (state === "error") return jsonTokenEditorDiagnostics.error
+  return []
+}
+
+function EditorSample({ language, selected, state }: { language: Language; selected: SemanticToken; state: UIStack }) {
+  const lineNumbersRef = useRef<HTMLDivElement | null>(null)
+  const [value, setValue] = useState(editorStateValue(state))
+  const usages = editorUsageByState[state]
+  const t = semanticMapCopy[language]
+
+  return (
+    <UsageCard selected={selected} state={state} usages={usages}>
+      {state === "loading" ? (
+        <UsageTarget selected={selected} usage={editorLoadingUsage.loadingLabel}>
+          <div className="rounded-[4px] border border-border-muted bg-surface-subtle px-3 py-2 text-[12px] leading-[1.5] text-text-muted">
+            {t.checkingJson}
+          </div>
+        </UsageTarget>
+      ) : null}
+      <UsageTarget selected={selected} usage={usages}>
+        <JsonTokenEditor
+          diagnostics={editorStateDiagnostics(state)}
+          labels={getEditorLabels(language)}
+          lineNumbersRef={lineNumbersRef}
+          placeholder={language === "ja" ? messages.ja.editorPlaceholder : jsonTokenEditorFixtures.emptyPlaceholder}
+          value={value}
+          onScroll={() => {}}
+          onTextChange={setValue}
+        />
+      </UsageTarget>
+    </UsageCard>
+  )
+}
+
+function EditorPagePreview({ language, selected }: { language: Language; selected: SemanticToken }) {
+  const t = semanticMapCopy[language]
+
+  return (
+    <section className="flex flex-col gap-3">
+      <div>
+        <h2 className="m-0 text-[16px] font-normal leading-tight text-text-default">{t.editorTitle}</h2>
+        <p className="m-0 mt-1 text-[12px] leading-relaxed text-text-subtle">
+          {t.editorDescription}
+        </p>
+      </div>
+      <ThemeSummaryColumns>
+        {() => (
+          <div className="grid gap-3">
+            <EditorHeaderSample language={language} selected={selected} />
+            <DropZoneSample language={language} selected={selected} />
+            {(["ideal", "empty", "loading", "partial", "error"] satisfies UIStack[]).map(state => (
+              <EditorSample key={state} language={language} selected={selected} state={state} />
+            ))}
+          </div>
+        )}
+      </ThemeSummaryColumns>
+    </section>
+  )
+}
+
+function EditorHeaderSample({ language, selected }: { language: Language; selected: SemanticToken }) {
+  return (
+    <UsageCard selected={selected} state="ideal" usages={[editorCommonUsage.appHeader, editorCommonUsage.languageToggleTrack, editorCommonUsage.languageToggleThumb]}>
+      <UsageTarget selected={selected} usage={[editorCommonUsage.appHeader, editorCommonUsage.languageToggleTrack, editorCommonUsage.languageToggleThumb]}>
+        <AppHeader language={language} title={messages[language].title} onLanguageChange={() => {}} />
+      </UsageTarget>
+    </UsageCard>
+  )
+}
+
+function DropZoneSample({ language, selected }: { language: Language; selected: SemanticToken }) {
+  return (
+    <UsageCard selected={selected} state="empty" usages={[editorEmptyUsage.dropZone, editorEmptyUsage.dropZoneButton]}>
+      <UsageTarget selected={selected} usage={[editorEmptyUsage.dropZone, editorEmptyUsage.dropZoneButton]}>
+        <JsonFileDropZone
+          labels={{
+            button: messages[language].uploadJsonButton,
+            title: messages[language].dropJsonTitle,
+          }}
+          onFileSelect={() => {}}
+        />
+      </UsageTarget>
+    </UsageCard>
+  )
+}
+
+function PreviewPageSample({ language, selected, state }: { language: Language; selected: SemanticToken; state: UIStack }) {
+  const [selections, setSelections] = useState(new Map<string, string>())
+  const usages = previewUsageByState[state]
+
+  return (
+    <UsageCard selected={selected} state={state} usages={usages}>
+      {state === "partial" ? (
+        <UsageTarget selected={selected} usage={previewConflictUsage.previewNotice}>
+          <MessageBox tone="warning">
+            <div className="flex flex-col gap-1">
+              <p className="m-0">{messages[language].rgbaConversionNotice.replace("{count}", "1")}</p>
+              <div>
+                <p className="m-0">{messages[language].skippedWarningsNotice}</p>
+                <ul className="m-0 mt-1 flex list-none flex-col gap-0.5 p-0">
+                  <li className="m-0">
+                    {messages[language].line} 11 · color.badFormat / {language === "ja" ? "未対応の色形式" : "Unsupported color"}
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </MessageBox>
+        </UsageTarget>
+      ) : null}
+      <UsageTarget selected={selected} usage={usages}>
+        <TokenCardList
+          tokens={state === "empty" ? [] : state === "partial" ? [tokenCardListConflictCandidate, ...tokenCardListNewTokens] : tokenCardListNewTokens}
+          conflictGroups={state === "partial" ? tokenCardListDuplicateGroups : []}
+          existingConflicts={state === "partial" ? tokenCardListExistingConflicts : []}
+          isCheckingConflicts={state === "loading"}
+          conflictError={state === "error" ? "Framer styles could not be read in this preview." : null}
+          conflictSelections={selections}
+          onSelectionChange={setSelection}
+          labels={getTokenCardLabels(language)}
+        />
+      </UsageTarget>
+    </UsageCard>
+  )
+
+  function setSelection(styleName: string, selectedId: string) {
+    setSelections(prev => {
+      const next = new Map(prev)
+      next.set(styleName, selectedId)
+      return next
+    })
+  }
+}
+
+function PreviewPagePreview({ language, selected }: { language: Language; selected: SemanticToken }) {
+  const t = semanticMapCopy[language]
+
+  return (
+    <section className="flex flex-col gap-3">
+      <div>
+        <h2 className="m-0 text-[16px] font-normal leading-tight text-text-default">{t.previewTitle}</h2>
+        <p className="m-0 mt-1 text-[12px] leading-relaxed text-text-subtle">
+          {t.previewDescription}
+        </p>
+      </div>
+      <ThemeSummaryColumns>
+        {() => (
+          <div className="grid gap-3">
+            <ImportSummarySample language={language} selected={selected} />
+            {(["ideal", "empty", "loading", "partial", "error"] satisfies UIStack[]).map(state => (
+              <PreviewPageSample key={state} language={language} selected={selected} state={state} />
+            ))}
+          </div>
+        )}
+      </ThemeSummaryColumns>
+    </section>
+  )
+}
+
+function ImportSummarySample({ language, selected }: { language: Language; selected: SemanticToken }) {
+  return (
+    <UsageCard selected={selected} state="ideal" usages={[previewCommonUsage.importSummaryPanel]}>
+      <UsageTarget selected={selected} usage={previewCommonUsage.importSummaryPanel}>
+        <ImportSummary convertedColorCount={2} language={language} modePairCount={1} summary={importSummaryFixture} />
+      </UsageTarget>
+    </UsageCard>
+  )
+}
+
+function IdealPreview({ language, selected }: { language: Language; selected: SemanticToken }) {
+  const t = semanticMapCopy[language]
+
   return (
     <UsageCard selected={selected} state="ideal">
       <UsageTarget selected={selected} usage={idealUsage.title}>
-        <SectionTitle>Import colors</SectionTitle>
+        <SectionTitle>{t.importColors}</SectionTitle>
       </UsageTarget>
       <UsageTarget selected={selected} usage={idealUsage.helper}>
-        <HelperText>JSON の color token を確認してから取り込みます。</HelperText>
+        <HelperText>{t.jsonHelp}</HelperText>
       </UsageTarget>
       <div className="flex flex-wrap gap-2">
         <UsageTarget selected={selected} usage={idealUsage.primaryButton}>
-          <ActionButton>Import</ActionButton>
+          <ActionButton>{t.import}</ActionButton>
         </UsageTarget>
         <UsageTarget selected={selected} usage={idealUsage.secondaryButton}>
           <ActionButton color="secondary" variant="solid">
-            Preview
+            {t.preview}
           </ActionButton>
         </UsageTarget>
         <UsageTarget selected={selected} usage={idealUsage.neutralButton}>
           <ActionButton color="neutral" variant="outline">
-            Cancel
+            {t.cancel}
           </ActionButton>
         </UsageTarget>
       </div>
@@ -779,13 +1536,13 @@ function IdealPreview({ selected }: { selected: SemanticToken }) {
       </UsageTarget>
       <UsageTarget selected={selected} usage={idealUsage.dialog}>
         <DialogPanel>
-          <SectionTitle>Import complete</SectionTitle>
-          <HelperText className="mt-2">3件のスタイルを取り込みました。</HelperText>
+          <SectionTitle>{t.importComplete}</SectionTitle>
+          <HelperText className="mt-2">{t.importCompleteBody}</HelperText>
           <DialogActions>
             <ActionButton color="neutral" variant="outline">
-              Close
+              {t.close}
             </ActionButton>
-            <ActionButton>OK</ActionButton>
+            <ActionButton>{messages[language].ok}</ActionButton>
           </DialogActions>
         </DialogPanel>
       </UsageTarget>
@@ -793,21 +1550,23 @@ function IdealPreview({ selected }: { selected: SemanticToken }) {
   )
 }
 
-function EmptyPreview({ selected }: { selected: SemanticToken }) {
+function EmptyPreview({ language, selected }: { language: Language; selected: SemanticToken }) {
+  const t = semanticMapCopy[language]
+
   return (
     <UsageCard selected={selected} state="empty">
       <UsageTarget selected={selected} usage={emptyUsage.helper}>
-        <HelperText>まだ JSON が選択されていません。</HelperText>
+        <HelperText>{t.noJson}</HelperText>
       </UsageTarget>
       <div className="flex flex-wrap gap-2">
         <UsageTarget selected={selected} usage={emptyUsage.uploadButton}>
           <FileButton accept="application/json,.json" color="primary" size="md" variant="solid" onChange={() => {}}>
-            Upload JSON
+            {t.uploadJson}
           </FileButton>
         </UsageTarget>
         <UsageTarget selected={selected} usage={emptyUsage.pasteButton}>
           <ActionButton color="secondary" icon={<Upload />} iconPosition="left" variant="outline">
-            Paste
+            {t.paste}
           </ActionButton>
         </UsageTarget>
       </div>
@@ -815,63 +1574,69 @@ function EmptyPreview({ selected }: { selected: SemanticToken }) {
   )
 }
 
-function LoadingPreview({ selected }: { selected: SemanticToken }) {
+function LoadingPreview({ language, selected }: { language: Language; selected: SemanticToken }) {
+  const t = semanticMapCopy[language]
+
   return (
     <UsageCard selected={selected} state="loading">
       <UsageTarget selected={selected} usage={loadingUsage.label}>
-        <div className="text-[12px] text-text-muted">Checking JSON...</div>
+        <div className="text-[12px] text-text-muted">{t.checkingJson}</div>
       </UsageTarget>
       <div className="flex flex-wrap gap-2">
         <UsageTarget selected={selected} usage={loadingUsage.loadingButton}>
-          <ActionButton loading>Importing</ActionButton>
+          <ActionButton loading>{t.importing}</ActionButton>
         </UsageTarget>
         <UsageTarget selected={selected} usage={loadingUsage.disabledButton}>
-          <ActionButton disabled>Waiting</ActionButton>
+          <ActionButton disabled>{t.waiting}</ActionButton>
         </UsageTarget>
       </div>
     </UsageCard>
   )
 }
 
-function PartialPreview({ selected }: { selected: SemanticToken }) {
+function PartialPreview({ language, selected }: { language: Language; selected: SemanticToken }) {
+  const t = semanticMapCopy[language]
+
   return (
     <UsageCard selected={selected} state="partial">
       <UsageTarget selected={selected} usage={partialUsage.message}>
-        <MessageBox tone="warning">一部の Color Style は確認が必要です。</MessageBox>
+        <MessageBox tone="warning">{t.partialMessage}</MessageBox>
       </UsageTarget>
       <div className="flex flex-wrap gap-2">
         <UsageTarget selected={selected} usage={partialUsage.reviewButton}>
-          <ActionButton variant="outline">Review</ActionButton>
+          <ActionButton variant="outline">{t.review}</ActionButton>
         </UsageTarget>
         <UsageTarget selected={selected} usage={partialUsage.skipButton}>
-          <ActionButton variant="ghost">Skip warnings</ActionButton>
+          <ActionButton variant="ghost">{t.skipWarnings}</ActionButton>
         </UsageTarget>
       </div>
       <UsageTarget selected={selected} usage={partialUsage.diagnosticSummary}>
         <div className="inline-flex max-w-full items-center gap-1 self-start rounded-full border border-border-brand bg-surface-warning px-2.5 py-1 text-[11px] leading-none text-text-default">
           <span className="shrink-0 font-normal">12</span>
-          <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">Missing paired light value</span>
+          <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{t.missingValue}</span>
         </div>
       </UsageTarget>
     </UsageCard>
   )
 }
 
-function ErrorPreview({ selected }: { selected: SemanticToken }) {
+function ErrorPreview({ language, selected }: { language: Language; selected: SemanticToken }) {
+  const t = semanticMapCopy[language]
+
   return (
     <UsageCard selected={selected} state="error">
       <UsageTarget selected={selected} usage={errorUsage.message}>
-        <MessageBox tone="danger">JSON の読み込みに失敗しました。</MessageBox>
+        <MessageBox tone="danger">{t.jsonError}</MessageBox>
       </UsageTarget>
       <div className="flex flex-wrap gap-2">
         <UsageTarget selected={selected} usage={errorUsage.retryButton}>
           <ActionButton color="danger" variant="solid">
-            Retry
+            {t.retry}
           </ActionButton>
         </UsageTarget>
         <UsageTarget selected={selected} usage={errorUsage.removeButton}>
           <ActionButton color="danger" variant="outline">
-            Remove
+            {t.remove}
           </ActionButton>
         </UsageTarget>
       </div>
@@ -879,7 +1644,7 @@ function ErrorPreview({ selected }: { selected: SemanticToken }) {
         <div className="relative h-24 overflow-hidden rounded-[6px] border border-border-muted bg-surface-base">
           <div className="absolute inset-0 bg-overlay-default" />
           <div className="absolute inset-x-4 top-4 rounded-[6px] border border-border-muted bg-surface-base p-3 text-[12px] text-text-default">
-            Dialog backdrop
+            {t.dialogBackdrop}
           </div>
         </div>
       </UsageTarget>
@@ -887,12 +1652,48 @@ function ErrorPreview({ selected }: { selected: SemanticToken }) {
   )
 }
 
-function SemanticUsageMap({ selectedSemantic }: { selectedSemantic: SemanticToken }) {
+function SharedComponentsPreview({ language, selected }: { language: Language; selected: SemanticToken }) {
+  const t = semanticMapCopy[language]
+
+  return (
+    <section className="flex flex-col gap-3">
+      <div>
+        <h2 className="m-0 text-[16px] font-normal leading-tight text-text-default">{t.sharedTitle}</h2>
+        <p className="m-0 mt-1 text-[12px] leading-relaxed text-text-subtle">
+          {t.sharedDescription}
+        </p>
+      </div>
+      <ThemeSummaryColumns>
+        {() => (
+          <div className="grid gap-3">
+            <IdealPreview language={language} selected={selected} />
+            <EmptyPreview language={language} selected={selected} />
+            <LoadingPreview language={language} selected={selected} />
+            <PartialPreview language={language} selected={selected} />
+            <ErrorPreview language={language} selected={selected} />
+          </div>
+        )}
+      </ThemeSummaryColumns>
+    </section>
+  )
+}
+
+type SemanticUsageMapProps = {
+  language?: Language
+  sections?: SemanticUsageSection[]
+  selectedSemantic: SemanticToken
+}
+
+function SemanticUsageMap({ language = "ja", selectedSemantic, sections = ["shared"] }: SemanticUsageMapProps) {
   const [selected, setSelected] = useState<SemanticToken>(selectedSemantic)
+  const visibleSections = useMemo(() => new Set(sections), [sections])
+  const storyUsageMetadata = useMemo(() => usageMetadataForSections(sections), [sections])
+  const availableTokens = useMemo(() => semanticTokensForUsages(storyUsageMetadata), [storyUsageMetadata])
 
   useEffect(() => {
-    setSelected(selectedSemantic)
-  }, [selectedSemantic])
+    const fallbackToken = semanticOptions.find(token => availableTokens.has(token)) ?? selectedSemantic
+    setSelected(availableTokens.has(selectedSemantic) ? selectedSemantic : fallbackToken)
+  }, [availableTokens, selectedSemantic])
 
   return (
     <div className="flex max-w-[1180px] flex-col gap-6">
@@ -908,21 +1709,13 @@ function SemanticUsageMap({ selectedSemantic }: { selectedSemantic: SemanticToke
       `}</style>
       <section className="flex flex-col gap-3">
         <h1 className="m-0 text-[22px] font-normal leading-tight text-text-default">Semantic Usage Map</h1>
-        <SemanticSelector selected={selected} onSelect={setSelected} />
+        <SemanticSelector availableTokens={availableTokens} selected={selected} onSelect={setSelected} />
         <SemanticReferencePanel selected={selected} />
-        <SemanticUsageTable selected={selected} />
+        <SemanticUsageTable selected={selected} usages={storyUsageMetadata} />
       </section>
-      <ThemeSummaryColumns>
-        {() => (
-          <div className="grid gap-3">
-            <IdealPreview selected={selected} />
-            <EmptyPreview selected={selected} />
-            <LoadingPreview selected={selected} />
-            <PartialPreview selected={selected} />
-            <ErrorPreview selected={selected} />
-          </div>
-        )}
-      </ThemeSummaryColumns>
+      {visibleSections.has("page1") ? <EditorPagePreview language={language} selected={selected} /> : null}
+      {visibleSections.has("page2") ? <PreviewPagePreview language={language} selected={selected} /> : null}
+      {visibleSections.has("shared") ? <SharedComponentsPreview language={language} selected={selected} /> : null}
     </div>
   )
 }
@@ -931,9 +1724,17 @@ const meta = {
   title: "Tokens/Semantic Usage Map",
   component: SemanticUsageMap,
   args: {
+    language: "ja",
+    sections: ["shared"],
     selectedSemantic: "surface.brand",
   },
   argTypes: {
+    language: {
+      table: { disable: true },
+    },
+    sections: {
+      table: { disable: true },
+    },
     selectedSemantic: {
       control: "select",
       options: semanticOptions,
@@ -947,4 +1748,22 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const UiComponents: Story = {}
+export const UiComponents: Story = {
+  render: (args, context) => <SemanticUsageMap {...args} language={getStoryLanguage(context.globals)} />,
+}
+
+export const Page1Editor: Story = {
+  args: {
+    sections: ["page1"],
+    selectedSemantic: "code.key",
+  },
+  render: (args, context) => <SemanticUsageMap {...args} language={getStoryLanguage(context.globals)} />,
+}
+
+export const Page2Preview: Story = {
+  args: {
+    sections: ["page2"],
+    selectedSemantic: "preview.new-token-accent",
+  },
+  render: (args, context) => <SemanticUsageMap {...args} language={getStoryLanguage(context.globals)} />,
+}

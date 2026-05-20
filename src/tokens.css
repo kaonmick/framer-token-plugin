@@ -115,9 +115,6 @@
   --color-surface-subtle: var(--surface-subtle);
   --color-surface-raised: var(--surface-raised);
   --color-surface-muted: var(--surface-muted);
-  --color-surface-inset: var(--surface-inset);
-  --color-surface-diagnostic: var(--surface-diagnostic);
-  --color-surface-gutter: var(--surface-gutter);
   --color-surface-warning: var(--surface-warning);
   --color-surface-danger: var(--surface-danger);
   --color-overlay-default: var(--overlay-default);
@@ -128,8 +125,7 @@
   --color-text-muted: var(--text-muted);
   --color-text-on-brand: var(--text-on-brand);
   --color-text-danger: var(--text-danger);
-  --color-text-diagnostic-ghost: var(--text-diagnostic-ghost);
-  --color-text-diagnostic-ghost-hover: var(--text-diagnostic-ghost-hover);
+  --color-text-highlight: var(--text-highlight);
 
   --color-border-default: var(--border-default);
   --color-border-muted: var(--border-muted);
@@ -151,6 +147,7 @@
   --color-code-null: var(--code-null);
   --color-code-punctuation: var(--code-punctuation);
   --color-code-placeholder: var(--code-placeholder);
+  --color-code-highlight: var(--code-highlight);
   --color-code-diagnostic-underline: var(--code-diagnostic-underline);
 }
 
@@ -163,9 +160,6 @@
     --surface-subtle: var(--color-neutral-700);
     --surface-raised: var(--color-neutral-800);
     --surface-muted: var(--color-neutral-600);
-    --surface-inset: var(--color-neutral-700);
-    --surface-diagnostic: var(--color-yellow-950);
-    --surface-gutter: var(--color-neutral-600);
     --surface-warning: var(--color-yellow-800);
     --surface-danger: var(--color-red-600);
     --overlay-default: color-mix(in srgb, var(--color-neutral-800) 70%, transparent);
@@ -176,8 +170,7 @@
     --text-muted: var(--color-neutral-400);
     --text-on-brand: var(--color-neutral-800);
     --text-danger: var(--color-red-300);
-    --text-diagnostic-ghost: color-mix(in srgb, var(--color-surface-brand) 40%, transparent);
-    --text-diagnostic-ghost-hover: color-mix(in srgb, var(--color-code-diagnostic-underline) 32%, transparent);
+    --text-highlight: var(--color-yellow-100);
 
     --border-default: var(--color-neutral-200);
     --border-muted: var(--color-neutral-500);
@@ -190,16 +183,17 @@
     --surface-brand-hover: var(--color-yellow-500);
 
     --control-radio-selected: var(--color-yellow-300);
-    --preview-conflict-accent: var(--color-yellow-700);
+    --preview-conflict-accent: var(--color-yellow-500);
     --preview-new-token-accent: var(--color-green-700);
 
     --code-key: var(--color-sky-300);
-    --code-string: #8be9a1;
-    --code-number: #80c7ff;
-    --code-boolean: #ffb86c;
-    --code-null: #ff8ba7;
+    --code-string: var(--color-green-300);
+    --code-number: var(--color-sky-300);
+    --code-boolean: var(--color-orange-300);
+    --code-null: var(--color-pink-300);
     --code-punctuation: var(--color-neutral-300);
-    --code-placeholder: var(--color-blue-300);
+    --code-placeholder: var(--color-neutral-400);
+    --code-highlight: var(--color-yellow-800);
     --code-diagnostic-underline: var(--border-brand);
   }
 
@@ -210,9 +204,6 @@
     --surface-subtle: var(--color-neutral-100);
     --surface-raised: var(--color-neutral-50);
     --surface-muted: var(--color-neutral-200);
-    --surface-inset: var(--color-neutral-100);
-    --surface-diagnostic: var(--color-yellow-100);
-    --surface-gutter: var(--color-neutral-200);
     --surface-warning: var(--color-yellow-100);
     --surface-danger: var(--color-red-400);
     --overlay-default: color-mix(in srgb, var(--color-neutral-50) 70%, transparent);
@@ -223,8 +214,7 @@
     --text-muted: var(--color-neutral-500);
     --text-on-brand: var(--color-neutral-800);
     --text-danger: var(--color-red-600);
-    --text-diagnostic-ghost: color-mix(in srgb, var(--color-code-diagnostic-underline) 56%, var(--color-surface-inset));
-    --text-diagnostic-ghost-hover: color-mix(in srgb, var(--color-code-diagnostic-underline) 64%, var(--color-surface-inset));
+    --text-highlight: var(--color-yellow-800);
 
     --border-default: var(--color-neutral-400);
     --border-muted: var(--color-neutral-300);
@@ -241,13 +231,14 @@
     --preview-new-token-accent: var(--color-green-700);
 
     --code-key: var(--color-sky-700);
-    --code-string: #15803d;
-    --code-number: #1d4ed8;
-    --code-boolean: #b45309;
-    --code-null: #be185d;
+    --code-string: var(--color-green-700);
+    --code-number: var(--color-blue-700);
+    --code-boolean: var(--color-orange-700);
+    --code-null: var(--color-pink-700);
     --code-punctuation: var(--color-neutral-600);
-    --code-placeholder: var(--color-blue-700);
-    --code-diagnostic-underline: var(--border-brand);
+    --code-placeholder: var(--color-neutral-500);
+    --code-highlight: var(--color-yellow-100);
+    --code-diagnostic-underline: var(--color-yellow-800);
   }
 }
 
