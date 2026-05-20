@@ -1,5 +1,5 @@
 .scrollArea {
-  scrollbar-color: var(--color-border-strong) var(--color-surface-panel);
+  scrollbar-color: var(--color-border-strong) var(--color-surface-subtle);
   scrollbar-width: thin;
 }
 
@@ -9,7 +9,7 @@
 }
 
 .scrollArea::-webkit-scrollbar-track {
-  background: var(--color-surface-panel);
+  background: var(--color-surface-subtle);
 }
 
 .scrollArea::-webkit-scrollbar-thumb {
@@ -18,5 +18,5 @@
 }
 
 .scrollArea::-webkit-scrollbar-corner {
-  background: var(--color-surface-panel);
+  background: var(--color-surface-subtle);
 }

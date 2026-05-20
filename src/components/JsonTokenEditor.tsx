@@ -1,39 +1,36 @@
+import { Copy } from "lucide-react"
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import type {
-  KeyboardEvent,
+  FocusEvent as ReactFocusEvent,
   MouseEvent as ReactMouseEvent,
-  PointerEvent as ReactPointerEvent,
   RefObject,
   ReactNode,
   UIEvent,
 } from "react"
+import { ActionButton } from "./ui.tsx"
 import styles from "./JsonTokenEditor.module.css"
 
-const DEFAULT_EDITOR_HEIGHT = 300
-const PREVIOUS_DEFAULT_EDITOR_HEIGHT = 240
-const MIN_EDITOR_HEIGHT = 180
-const MAX_EDITOR_HEIGHT = 720
-const KEYBOARD_RESIZE_STEP = 16
-const KEYBOARD_RESIZE_PAGE_STEP = 48
+const DEFAULT_EDITOR_HEIGHT = 250
 const COPY_FEEDBACK_MS = 1200
 const COPY_TOAST_OFFSET_Y = 18
 const COPY_TOAST_MARGIN = 36
 const COPY_TOOLTIP_DELAY_MS = 600
 const EDITOR_LINE_HEIGHT = 16
 const EDITOR_PADDING_Y = 8
-const EDITOR_DEFAULT_PADDING_BOTTOM = 32
+const EDITOR_DEFAULT_PADDING_BOTTOM = 8
 const EDITOR_ESTIMATED_CHARACTER_WIDTH = 7
 const EDITOR_CONTENT_WIDTH_BUFFER = 40
 const DIAGNOSTIC_TOOLTIP_WIDTH = 260
 const DIAGNOSTIC_TOOLTIP_MARGIN = 8
 const ACCENT_YELLOW_COLOR = "var(--color-code-diagnostic-underline)"
-const ACCENT_YELLOW_SOFT_COLOR = "color-mix(in srgb, var(--color-code-diagnostic-underline) 8%, transparent)"
-const DIAGNOSTIC_GHOST_TEXT_COLOR = "var(--color-text-diagnostic-ghost)"
-const DIAGNOSTIC_GHOST_TEXT_HOVER_COLOR = "var(--color-text-diagnostic-ghost-hover)"
+const ACCENT_YELLOW_SOFT_COLOR = "var(--color-code-highlight)"
+const DIAGNOSTIC_GHOST_TEXT_COLOR = "var(--color-text-highlight)"
+const DIAGNOSTIC_GHOST_TEXT_HOVER_COLOR = "var(--color-text-highlight)"
 
 type CopyState = "idle" | "copied" | "failed"
 type CopyToastPosition = { x: number; y: number }
 type DiagnosticTooltipState = { left: number; line: number; top: number }
+type DiagnosticSummaryTooltipState = { id: string; left: number; message: string; top: number }
 type JsonSyntaxKind = "boolean" | "key" | "null" | "number" | "punctuation" | "string"
 type TextRange = { end: number; start: number }
 
@@ -66,7 +63,6 @@ interface JsonTokenEditorProps {
     copy: string
     copied: string
     copyFailed: string
-    resize: string
   }
   lineNumbersRef: RefObject<HTMLDivElement>
   placeholder?: string
@@ -84,17 +80,20 @@ export function JsonTokenEditor({
   onScroll,
   onTextChange,
 }: JsonTokenEditorProps) {
-  const [editorHeight, setEditorHeight] = useState(DEFAULT_EDITOR_HEIGHT)
+  const editorHeight = DEFAULT_EDITOR_HEIGHT
   const [copyState, setCopyState] = useState<CopyState>("idle")
   const [isCopyTooltipVisible, setIsCopyTooltipVisible] = useState(false)
   const [copyToastPosition, setCopyToastPosition] = useState<CopyToastPosition | null>(null)
   const [diagnosticTooltip, setDiagnosticTooltip] = useState<DiagnosticTooltipState | null>(null)
+  const [diagnosticSummaryTooltip, setDiagnosticSummaryTooltip] = useState<DiagnosticSummaryTooltipState | null>(null)
   const [editorScrollTop, setEditorScrollTop] = useState(0)
+  const [horizontalScrollbarHeight, setHorizontalScrollbarHeight] = useState(0)
   const [hoveredLine, setHoveredLine] = useState<number | null>(null)
   const editorRef = useRef<HTMLDivElement | null>(null)
+  const diagnosticSummaryRef = useRef<HTMLDivElement | null>(null)
+  const scrollAreaRef = useRef<HTMLDivElement | null>(null)
   const copyFeedbackTimerRef = useRef<number | null>(null)
   const copyTooltipTimerRef = useRef<number | null>(null)
-  const resizeCleanupRef = useRef<(() => void) | null>(null)
   const diagnosticsByLine = useMemo(() => groupDiagnosticsByLine(diagnostics), [diagnostics])
   const isPlaceholderVisible = value.length === 0 && placeholder.length > 0
   const displayValue = isPlaceholderVisible ? placeholder : value
@@ -103,8 +102,10 @@ export function JsonTokenEditor({
     [displayValue]
   )
   const editorPaddingBottom = EDITOR_DEFAULT_PADDING_BOTTOM
+  const lineNumberPaddingBottom = editorPaddingBottom + horizontalScrollbarHeight
   const editorContentHeight = Math.max(editorHeight, lineNumbers.length * EDITOR_LINE_HEIGHT + EDITOR_PADDING_Y + editorPaddingBottom)
   const editorContentWidth = useMemo(() => getEditorContentWidth(displayValue, diagnosticsByLine), [diagnosticsByLine, displayValue])
+  const diagnosticLineSummaries = useMemo(() => getDiagnosticLineSummaries(diagnosticsByLine), [diagnosticsByLine])
 
   useEffect(() => {
     return () => {
@@ -114,15 +115,27 @@ export function JsonTokenEditor({
       if (copyTooltipTimerRef.current !== null) {
         window.clearTimeout(copyTooltipTimerRef.current)
       }
-      resizeCleanupRef.current?.()
     }
   }, [])
 
-  useEffect(() => {
-    setEditorHeight(currentHeight =>
-      currentHeight === PREVIOUS_DEFAULT_EDITOR_HEIGHT ? DEFAULT_EDITOR_HEIGHT : currentHeight
-    )
-  }, [])
+  useLayoutEffect(() => {
+    function updateHorizontalScrollbarHeight() {
+      const scrollArea = scrollAreaRef.current
+      if (!scrollArea) {
+        setHorizontalScrollbarHeight(0)
+        return
+      }
+
+      setHorizontalScrollbarHeight(Math.max(0, scrollArea.offsetHeight - scrollArea.clientHeight))
+    }
+
+    updateHorizontalScrollbarHeight()
+    window.addEventListener("resize", updateHorizontalScrollbarHeight)
+
+    return () => {
+      window.removeEventListener("resize", updateHorizontalScrollbarHeight)
+    }
+  }, [displayValue, editorContentWidth])
 
   function setTemporaryCopyState(nextState: CopyState) {
     if (copyFeedbackTimerRef.current !== null) {
@@ -175,6 +188,18 @@ export function JsonTokenEditor({
     onScroll(event.currentTarget.scrollTop)
   }
 
+  function scrollToDiagnosticLine(line: number) {
+    const scrollArea = scrollAreaRef.current
+    if (!scrollArea) return
+
+    const nextScrollTop = Math.max(0, EDITOR_PADDING_Y + (line - 1) * EDITOR_LINE_HEIGHT - EDITOR_LINE_HEIGHT * 2)
+    scrollArea.scrollTo({
+      behavior: "smooth",
+      top: nextScrollTop,
+    })
+    setHoveredLine(line)
+  }
+
   function handleEditorMouseMove(event: ReactMouseEvent<HTMLDivElement>) {
     const editorRect = editorRef.current?.getBoundingClientRect()
     if (!editorRect) return
@@ -202,207 +227,210 @@ export function JsonTokenEditor({
     })
   }
 
-  function handleResizePointerDown(event: ReactPointerEvent<HTMLDivElement>) {
-    event.preventDefault()
-    resizeCleanupRef.current?.()
+  function showDiagnosticSummaryTooltip(
+    event: ReactMouseEvent<HTMLButtonElement> | ReactFocusEvent<HTMLButtonElement>,
+    diagnostic: ReturnType<typeof getDiagnosticLineSummaries>[number]
+  ) {
+    const summaryRect = diagnosticSummaryRef.current?.getBoundingClientRect()
+    if (!summaryRect) return
 
-    const startY = event.clientY
-    const startHeight = editorHeight
-    const previousCursor = document.body.style.cursor
-    const previousUserSelect = document.body.style.userSelect
+    const buttonRect = event.currentTarget.getBoundingClientRect()
+    const tooltipWidth = Math.min(DIAGNOSTIC_TOOLTIP_WIDTH, Math.max(160, summaryRect.width - DIAGNOSTIC_TOOLTIP_MARGIN * 2))
+    const rawLeft = buttonRect.left - summaryRect.left + buttonRect.width / 2
+    const left = Math.min(
+      Math.max(rawLeft, DIAGNOSTIC_TOOLTIP_MARGIN + tooltipWidth / 2),
+      Math.max(DIAGNOSTIC_TOOLTIP_MARGIN + tooltipWidth / 2, summaryRect.width - DIAGNOSTIC_TOOLTIP_MARGIN - tooltipWidth / 2)
+    )
 
-    document.body.style.cursor = "ns-resize"
-    document.body.style.userSelect = "none"
-
-    function handlePointerMove(moveEvent: PointerEvent) {
-      setEditorHeight(clampEditorHeight(startHeight + moveEvent.clientY - startY))
-    }
-
-    function cleanupResize() {
-      document.body.style.cursor = previousCursor
-      document.body.style.userSelect = previousUserSelect
-      document.removeEventListener("pointermove", handlePointerMove)
-      document.removeEventListener("pointerup", cleanupResize)
-      document.removeEventListener("pointercancel", cleanupResize)
-      resizeCleanupRef.current = null
-    }
-
-    resizeCleanupRef.current = cleanupResize
-    document.addEventListener("pointermove", handlePointerMove)
-    document.addEventListener("pointerup", cleanupResize)
-    document.addEventListener("pointercancel", cleanupResize)
-  }
-
-  function handleResizeKeyDown(event: KeyboardEvent<HTMLDivElement>) {
-    if (event.key === "ArrowUp") {
-      event.preventDefault()
-      setEditorHeight(currentHeight => clampEditorHeight(currentHeight - KEYBOARD_RESIZE_STEP))
-      return
-    }
-
-    if (event.key === "ArrowDown") {
-      event.preventDefault()
-      setEditorHeight(currentHeight => clampEditorHeight(currentHeight + KEYBOARD_RESIZE_STEP))
-      return
-    }
-
-    if (event.key === "PageUp") {
-      event.preventDefault()
-      setEditorHeight(currentHeight => clampEditorHeight(currentHeight - KEYBOARD_RESIZE_PAGE_STEP))
-      return
-    }
-
-    if (event.key === "PageDown") {
-      event.preventDefault()
-      setEditorHeight(currentHeight => clampEditorHeight(currentHeight + KEYBOARD_RESIZE_PAGE_STEP))
-      return
-    }
-
-    if (event.key === "Home") {
-      event.preventDefault()
-      setEditorHeight(MIN_EDITOR_HEIGHT)
-      return
-    }
-
-    if (event.key === "End") {
-      event.preventDefault()
-      setEditorHeight(MAX_EDITOR_HEIGHT)
-    }
+    setDiagnosticSummaryTooltip({
+      id: `json-diagnostic-summary-tooltip-${diagnostic.line}`,
+      left,
+      message: diagnostic.message,
+      top: Math.max(0, buttonRect.top - summaryRect.top - 6),
+    })
   }
 
   return (
-    <div
-      className="relative grid min-h-[180px] w-full grid-cols-[48px_minmax(0,1fr)] overflow-hidden rounded border border-border-default bg-surface-inset"
-      data-json-editor="true"
-      ref={editorRef}
-      style={{ height: editorHeight }}
-    >
+    <div className="flex flex-col gap-2">
       <div
-        className="overflow-hidden border-r border-border-muted bg-[color:color-mix(in_srgb,var(--color-surface-muted)_40%,transparent)] p-2 text-right font-['Fira_Code','Noto_Sans_JP'] text-[11px] leading-4 text-text-secondary select-none"
-        ref={lineNumbersRef}
-        aria-hidden="true"
-        style={{ paddingBottom: editorPaddingBottom }}
+        className="relative grid min-h-[180px] w-full grid-cols-[48px_minmax(0,1fr)] overflow-hidden rounded border border-border-default bg-surface-subtle"
+        data-json-editor="true"
+        ref={editorRef}
+        style={{ height: editorHeight }}
       >
-        {lineNumbers.map(lineNumber => {
-          const hasDiagnostic = diagnosticsByLine.has(lineNumber)
+        <div
+          className="overflow-hidden border-r border-border-muted bg-elevated-default p-2 text-right font-['Fira_Code','Noto_Sans_JP'] text-[11px] leading-4 text-text-subtle select-none"
+          ref={lineNumbersRef}
+          aria-hidden="true"
+          style={{ paddingBottom: lineNumberPaddingBottom }}
+        >
+          {lineNumbers.map(lineNumber => {
+            const hasDiagnostic = diagnosticsByLine.has(lineNumber)
 
-          return (
-            <span
-              className="block h-4"
-              key={lineNumber}
-              style={hasDiagnostic ? { backgroundColor: ACCENT_YELLOW_SOFT_COLOR, color: ACCENT_YELLOW_COLOR } : undefined}
-            >
-              {lineNumber}
-            </span>
-          )
-        })}
-      </div>
-      <div
-        className={`${styles.scrollArea} relative min-w-0 overflow-auto`}
-        data-json-editor-scroll="true"
-        onMouseLeave={() => {
-          setHoveredLine(null)
-        }}
-        onMouseMove={handleEditorMouseMove}
-        onScroll={handleEditorScroll}
-      >
+            return (
+              <span
+                className="block h-4"
+                key={lineNumber}
+                style={hasDiagnostic ? { backgroundColor: ACCENT_YELLOW_SOFT_COLOR, color: ACCENT_YELLOW_COLOR } : undefined}
+              >
+                {lineNumber}
+              </span>
+            )
+          })}
+        </div>
         <div
-          className="relative min-w-full"
-          style={{ height: editorContentHeight, width: editorContentWidth }}
+          className={`${styles.scrollArea} relative min-w-0 overflow-auto`}
+          data-json-editor-scroll="true"
+          ref={scrollAreaRef}
+          onMouseLeave={() => {
+            setHoveredLine(null)
+          }}
+          onMouseMove={handleEditorMouseMove}
+          onScroll={handleEditorScroll}
         >
-          <pre
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 m-0 overflow-visible whitespace-pre border-0 bg-transparent p-2 font-['Fira_Code','Noto_Sans_JP'] text-[11px] leading-4 text-text-primary"
-            style={{ paddingBottom: editorPaddingBottom }}
+          <div
+            className="relative min-w-full"
+            style={{ height: editorContentHeight, width: editorContentWidth }}
           >
-            {isPlaceholderVisible ? (
-              <span className="text-text-muted">{displayValue}</span>
-            ) : (
-              renderJsonSyntaxLines(displayValue, diagnosticsByLine, hoveredLine)
-            )}
-          </pre>
-          <textarea
-            className="absolute inset-0 z-[1] h-full w-full resize-none overflow-hidden border-0 bg-transparent p-2 font-['Fira_Code','Noto_Sans_JP'] text-[11px] leading-4 text-transparent caret-accent-primary selection:bg-status-warning-ghost focus:outline-none"
-            value={value}
-            style={{ paddingBottom: editorPaddingBottom }}
-            onChange={event => {
-              onTextChange(event.currentTarget.value)
-            }}
-            spellCheck={false}
-            wrap="off"
-            aria-label="JSON token source"
-          />
+            <pre
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 m-0 overflow-visible whitespace-pre border-0 bg-transparent p-2 font-['Fira_Code','Noto_Sans_JP'] text-[11px] leading-4 text-text-default"
+              style={{ paddingBottom: editorPaddingBottom }}
+            >
+              {isPlaceholderVisible ? (
+                <span className="text-code-placeholder">{displayValue}</span>
+              ) : (
+                renderJsonSyntaxLines(displayValue, diagnosticsByLine, hoveredLine)
+              )}
+            </pre>
+            <textarea
+              className="absolute inset-0 z-[1] h-full w-full resize-none overflow-hidden border-0 bg-transparent p-2 font-['Fira_Code','Noto_Sans_JP'] text-[11px] leading-4 text-text-default selection:bg-[color:color-mix(in_srgb,var(--color-surface-brand)_40%,transparent)] focus:outline-none"
+              value={value}
+              style={{
+                WebkitTextFillColor: "transparent",
+                paddingBottom: editorPaddingBottom,
+              }}
+              onChange={event => {
+                onTextChange(event.currentTarget.value)
+              }}
+              spellCheck={false}
+              wrap="off"
+              aria-label="JSON token source"
+            />
+          </div>
         </div>
-      </div>
-      <EditorDiagnosticMarkers
-        diagnosticsByLine={diagnosticsByLine}
-        editorHeight={editorHeight}
-        scrollTop={editorScrollTop}
-        onHideTooltip={() => {
-          setDiagnosticTooltip(null)
-        }}
-        onShowTooltip={showDiagnosticTooltip}
-      />
-      {diagnosticTooltip ? (
-        <EditorDiagnosticTooltip
-          diagnostics={diagnosticsByLine.get(diagnosticTooltip.line) ?? []}
+        <EditorDiagnosticMarkers
+          diagnosticsByLine={diagnosticsByLine}
           editorHeight={editorHeight}
-          tooltip={diagnosticTooltip}
+          scrollTop={editorScrollTop}
+          onHideTooltip={() => {
+            setDiagnosticTooltip(null)
+          }}
+          onShowTooltip={showDiagnosticTooltip}
         />
-      ) : null}
-      <button
-        aria-describedby={isCopyTooltipVisible ? "json-copy-tooltip" : undefined}
-        aria-label={getCopyButtonLabel(copyState, labels)}
-        className="absolute right-2 top-2 z-10 inline-flex size-7 cursor-pointer items-center justify-center rounded bg-transparent text-text-secondary"
-        type="button"
-        onBlur={hideCopyTooltip}
-        onClick={event => {
-          hideCopyTooltip()
-          void handleCopyClick(event)
-        }}
-        onMouseEnter={showCopyTooltipAfterDelay}
-        onMouseLeave={hideCopyTooltip}
-      >
-        <ContentCopyIcon />
-      </button>
-      {isCopyTooltipVisible ? (
-        <div
-          className="pointer-events-none absolute right-2 top-10 z-50 rounded-full bg-surface-raised px-2.5 py-1 text-[11px] font-normal leading-none text-text-primary shadow-md"
-          id="json-copy-tooltip"
-          role="tooltip"
-        >
-          {labels.copy}
-        </div>
-      ) : null}
-      {copyState === "copied" && copyToastPosition ? (
-        <div
-          className="pointer-events-none absolute z-50 -translate-x-1/2 rounded-full bg-surface-raised px-2.5 py-1 text-[11px] font-normal leading-none text-text-accent shadow-md"
-          role="status"
-          style={{ left: copyToastPosition.x, top: copyToastPosition.y }}
-        >
-          copied
-        </div>
-      ) : null}
-      <div
-        aria-label={labels.resize}
-        aria-orientation="horizontal"
-        aria-valuemax={MAX_EDITOR_HEIGHT}
-        aria-valuemin={MIN_EDITOR_HEIGHT}
-        aria-valuenow={editorHeight}
-        className="absolute bottom-1 right-1 z-10 inline-flex size-6 cursor-ns-resize items-center justify-center rounded text-text-secondary"
-        role="separator"
-        tabIndex={0}
-        onKeyDown={handleResizeKeyDown}
-        onPointerDown={handleResizePointerDown}
-      >
-        <ResizeWindowIcon />
+        {diagnosticTooltip ? (
+          <EditorDiagnosticTooltip
+            diagnostics={diagnosticsByLine.get(diagnosticTooltip.line) ?? []}
+            editorHeight={editorHeight}
+            tooltip={diagnosticTooltip}
+          />
+        ) : null}
+        <ActionButton
+          aria-describedby={isCopyTooltipVisible ? "json-copy-tooltip" : undefined}
+          aria-label={getCopyButtonLabel(copyState, labels)}
+          className="absolute right-2 top-2 z-10"
+          color="secondary"
+          icon={<ContentCopyIcon />}
+          iconPosition="only"
+          size="sm"
+          variant="ghost"
+          onBlur={hideCopyTooltip}
+          onClick={event => {
+            hideCopyTooltip()
+            void handleCopyClick(event)
+          }}
+          onMouseEnter={showCopyTooltipAfterDelay}
+          onMouseLeave={hideCopyTooltip}
+        />
+        {isCopyTooltipVisible ? (
+          <div
+            className="pointer-events-none absolute right-2 top-10 z-50 rounded-full bg-surface-raised px-2.5 py-1 text-[11px] font-normal leading-none text-text-default shadow-md"
+            id="json-copy-tooltip"
+            role="tooltip"
+          >
+            {labels.copy}
+          </div>
+        ) : null}
+        {copyState === "copied" && copyToastPosition ? (
+          <div
+            className="pointer-events-none absolute z-50 -translate-x-1/2 rounded-full bg-surface-raised px-2.5 py-1 text-[11px] font-normal leading-none text-text-default shadow-md"
+            role="status"
+            style={{ left: copyToastPosition.x, top: copyToastPosition.y }}
+          >
+            copied
+          </div>
+        ) : null}
       </div>
+      {diagnosticLineSummaries.length > 0 ? (
+        <div
+          className="relative flex flex-wrap gap-2"
+          ref={diagnosticSummaryRef}
+          aria-label="Editor diagnostics summary"
+        >
+          {diagnosticLineSummaries.map(diagnostic => {
+            const tooltipId = `json-diagnostic-summary-tooltip-${diagnostic.line}`
+            const isTooltipVisible = diagnosticSummaryTooltip?.id === tooltipId
+
+            return (
+              <button
+                aria-describedby={isTooltipVisible ? tooltipId : undefined}
+                className={`inline-flex max-w-full cursor-pointer items-center gap-1 rounded-full border px-2.5 py-1 text-left text-[11px] leading-none ${
+                  diagnostic.tone === "danger"
+                    ? "border-border-danger bg-elevated-default text-text-danger"
+                    : "border-border-brand bg-surface-warning text-text-default"
+                }`}
+                key={`${diagnostic.line}:${diagnostic.summary}`}
+                type="button"
+                onBlur={() => {
+                  setDiagnosticSummaryTooltip(null)
+                }}
+                onClick={() => {
+                  scrollToDiagnosticLine(diagnostic.line)
+                }}
+                onFocus={event => {
+                  showDiagnosticSummaryTooltip(event, diagnostic)
+                }}
+                onMouseEnter={event => {
+                  showDiagnosticSummaryTooltip(event, diagnostic)
+                }}
+                onMouseLeave={() => {
+                  setDiagnosticSummaryTooltip(null)
+                }}
+              >
+                <span className="shrink-0 font-normal">{diagnostic.line}</span>
+                <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{diagnostic.summary}</span>
+              </button>
+            )
+          })}
+          {diagnosticSummaryTooltip ? (
+            <div
+              className="pointer-events-none absolute z-50 -translate-x-1/2 -translate-y-full rounded bg-surface-raised px-2.5 py-2 text-[11px] font-normal leading-[1.35] text-text-default shadow-md"
+              id={diagnosticSummaryTooltip.id}
+              role="tooltip"
+              style={{
+                left: diagnosticSummaryTooltip.left,
+                maxWidth: DIAGNOSTIC_TOOLTIP_WIDTH,
+                top: diagnosticSummaryTooltip.top,
+                width: DIAGNOSTIC_TOOLTIP_WIDTH,
+              }}
+            >
+              <DiagnosticTooltipMessage message={diagnosticSummaryTooltip.message} />
+            </div>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   )
-}
-
-function clampEditorHeight(height: number) {
-  return Math.min(Math.max(height, MIN_EDITOR_HEIGHT), MAX_EDITOR_HEIGHT)
 }
 
 function EditorDiagnosticMarkers({
@@ -466,7 +494,7 @@ function EditorDiagnosticTooltip({
 
   return (
     <div
-      className="pointer-events-none absolute z-50 rounded bg-surface-raised px-2.5 py-2 text-[11px] font-normal leading-[1.35] text-text-primary shadow-md"
+      className="pointer-events-none absolute z-50 rounded bg-surface-raised px-2.5 py-2 text-[11px] font-normal leading-[1.35] text-text-default shadow-md"
       ref={tooltipRef}
       role="tooltip"
       style={{
@@ -495,11 +523,11 @@ function DiagnosticTooltipMessage({ message }: { message: string }) {
   const pathLine = splitDiagnosticPathLine(firstLine)
 
   if (remainingLines.length === 0) {
-    return <p className="m-0 mt-1 whitespace-pre-line text-text-secondary">{message}</p>
+    return <p className="m-0 mt-1 whitespace-pre-line text-text-subtle">{message}</p>
   }
 
   return (
-    <div className="mt-1 text-text-secondary">
+    <div className="mt-1 text-text-subtle">
       <p className="m-0 flex min-w-0">
         {pathLine.prefix ? <span className="shrink-0">{pathLine.prefix}</span> : null}
         <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap" title={pathLine.path}>
@@ -628,6 +656,21 @@ function renderJsonSyntaxLine(source: string, problemRange: TextRange | null): R
 
 function getGhostText(diagnostic: EditorDiagnostic, count: number) {
   return count > 1 ? `${diagnostic.summary} +${count - 1}` : diagnostic.summary
+}
+
+function getDiagnosticLineSummaries(diagnosticsByLine: Map<number, EditorDiagnostic[]>) {
+  return Array.from(diagnosticsByLine.entries())
+    .sort(([leftLine], [rightLine]) => leftLine - rightLine)
+    .map(([line, diagnostics]) => {
+      const firstDiagnostic = diagnostics[0]
+
+      return {
+        line,
+        message: diagnostics.map(diagnostic => diagnostic.message).join("\n\n"),
+        summary: firstDiagnostic ? getGhostText(firstDiagnostic, diagnostics.length) : "",
+        tone: diagnostics.some(diagnostic => diagnostic.tone === "danger") ? ("danger" as const) : ("warning" as const),
+      }
+    })
 }
 
 function getEditorContentWidth(source: string, diagnosticsByLine: Map<number, EditorDiagnostic[]>) {
@@ -835,25 +878,5 @@ async function copyTextToClipboard(text: string) {
 }
 
 function ContentCopyIcon() {
-  return (
-    <svg aria-hidden="true" className="h-4 w-4" fill="none" viewBox="0 0 11.3333 13.3333">
-      <path
-        d="M1.33333 13.3333C0.966667 13.3333 0.652667 13.2029 0.391333 12.942C0.130444 12.6807 0 12.3667 0 12V2.66667H1.33333V12H8.66667V13.3333H1.33333ZM4 10.6667C3.63333 10.6667 3.31956 10.5362 3.05867 10.2753C2.79733 10.014 2.66667 9.7 2.66667 9.33333V1.33333C2.66667 0.966667 2.79733 0.652667 3.05867 0.391333C3.31956 0.130444 3.63333 0 4 0H10C10.3667 0 10.6807 0.130444 10.942 0.391333C11.2029 0.652667 11.3333 0.966667 11.3333 1.33333V9.33333C11.3333 9.7 11.2029 10.014 10.942 10.2753C10.6807 10.5362 10.3667 10.6667 10 10.6667H4ZM4 9.33333H10V1.33333H4V9.33333Z"
-        fill="currentColor"
-      />
-    </svg>
-  )
-}
-
-function ResizeWindowIcon() {
-  return (
-    <svg aria-hidden="true" className="h-3.5 w-3.5" fill="none" viewBox="0 0 11.2 11.2">
-      <g transform="translate(11.2 0) scale(-1 1)">
-        <path
-          d="M10.35 11.2L0 0.85L0.85 0L11.2 10.35L10.35 11.2ZM4.35 11.2L0 6.85L0.85 6L5.2 10.35L4.35 11.2Z"
-          fill="currentColor"
-        />
-      </g>
-    </svg>
-  )
+  return <Copy aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
 }

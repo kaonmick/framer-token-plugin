@@ -16,7 +16,7 @@ Framer を source of truth とし、プラグイン独自のテーマ切り替�
 
 - Framer テーマの受け取り方を固める前に、アプリ側の `data-theme` と fallback を触り始めた
 - テーマ追従だけでよいのに、semantic token 置換やカラーリファクタまで一気に広げた
-- Ladle の見た目を直しながら本体の色も変えたため、どちらが正なのかわからなくなった
+- component 確認面の見た目を直しながら本体の色も変えたため、どちらが正なのかわからなくなった
 - 変更前の baseline を記録せずに進めた
 - コンポーネント単位でなくアプリ全体を先に動かし、副作用が連鎖した
 - editor の scroll sync 実装にも手を入れてしまい、テーマと無関係な不具合を持ち込んだ
@@ -39,7 +39,7 @@ Framer を source of truth とし、プラグイン独自のテーマ切り替�
 | Phase 1 | 完了 | `src/app/theme.ts` で `data-framer-theme` を `html[data-theme]` に同期し、theme 未取得時は `dark` fallback |
 | Phase 2 | 完了 | `src/tokens.css` に light / dark の semantic color layer を追加し、Tailwind utility へ接続 |
 | Phase 3 | 進行中 | core UI は semantic color class へ移行済み。差分監査と parity 確認を継続 |
-| Phase 4 | 未完 | light theme の capture 更新、Ladle と plugin 実画面の整合確認、docs 最終同期が残り |
+| Phase 4 | 未完 | light theme の capture 更新、plugin 実画面の整合確認、docs 最終同期が残り |
 
 ## 実装済みの要点
 
@@ -59,7 +59,7 @@ Framer を source of truth とし、プラグイン独自のテーマ切り替�
 
 - `src/tokens.css` の `@layer base` に dark / light の CSS custom properties を実装
 - surface / text / border / accent / status / code の semantic token をここで切り替える
-- Tailwind utility は `bg-surface-canvas`、`text-text-primary`、`border-border-muted` などの名前で使う
+- Tailwind utility は `bg-surface-base`、`text-text-default`、`border-border-muted` などの名前で使う
 
 ### Phase 3 — core UI の置換
 
@@ -68,23 +68,23 @@ Framer を source of truth とし、プラグイン独自のテーマ切り替�
 - `src/app/App.tsx`
 - `src/components/ui.tsx`
 - `src/components/AppHeader.tsx`
+- `src/components/JsonFileDropZone.tsx`
 - `src/components/LanguageToggle.tsx`
-- `src/components/StatsGrid.tsx`
 - `src/components/TokenCard.tsx`
 - `src/components/TokenCardList.tsx`
 - `src/components/ImportSummary.tsx`
 - `src/components/JsonTokenEditor.tsx`
 
-あわせて `src/story/ColorAudit.stories.tsx` が入り、semantic color の確認面も追加された。
+semantic color の確認は、実装ファイルとスクリーンショットを基準に行う。
 
 ## 残タスク
 
 ### Phase 4 — parity と検証
 
 - light theme の capture mode 画像を `docs/screenshots/` に追加する
-- Ladle の theme 切り替えと plugin 実画面の表示差を確認する
+- plugin 実画面で light / dark の表示差を確認する
 - dark baseline と current dark UI を比較し、意図しない drift がないか確認する
-- `doc-hub` / sidebar / issue メモを最終状態へ同期する
+- Docsify sidebar / issue メモを最終状態へ同期する
 
 ### 監査メモ
 
@@ -98,14 +98,12 @@ Framer を source of truth とし、プラグイン独自のテーマ切り替�
 |---|---|
 | dark baseline の基準 | [Issue 28 Phase 0 Dark Baseline](../issues/28-phase0-dark-baseline.md) |
 | semantic token の定義 | [09 Design System](./09-design-system.md) |
-| component 単位の確認面 | [11 Component Catalog](./11-component-catalog.md) |
-| theme token の調整面 | [Theme Token Workbench](../workbench/token-workbench.html) |
-| 実装ハンドオフ | [Theme Token Workbench Handoff](../workbench/token-workbench-handoff.md) |
+| UI の実装 | `src/app/App.tsx`, `src/components/` |
+| semantic token の定義 | [09 Design System](./09-design-system.md) |
 
 ## 関連ファイル
 
 - `src/app/theme.ts`
 - `src/tokens.css`
 - `tests/themeSync.test.ts`
-- `src/story/ColorAudit.stories.tsx`
 - `docs/issues/28-phase0-dark-baseline.md`

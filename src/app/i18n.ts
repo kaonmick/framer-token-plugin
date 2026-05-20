@@ -11,6 +11,8 @@ export const messages = {
     language: "Language",
     json: "JSON",
     uploadJson: "Upload JSON File",
+    uploadJsonButton: "Upload",
+    dropJsonTitle: "Drop or upload a JSON file",
     copyJson: "Copy JSON",
     copiedJson: "JSON copied",
     copyJsonFailed: "Copy failed",
@@ -22,13 +24,12 @@ export const messages = {
       "blue": {
         "500": {
           "$type": "color",
-          "$value": "#0066ff"
+          "$value": "#2563eb"
         }
       }
     }
   }
 }`,
-    resizeEditor: "Resize JSON editor height",
     analyze: "Reload",
     analyzing: "Reloading...",
     analyzeHelp:
@@ -55,6 +56,13 @@ export const messages = {
       "Multiple tokens have the same style name. Select the token that should be imported.",
     checkingConflicts: "Checking existing Color Styles...",
     conflictCheckFailed: "Could not check existing Color Styles.",
+    extractColor: "Extract Color",
+    extractColorDisabled: "Upload a JSON file or paste JSON before extracting colors.",
+    fileParseErrorAlert: "This file could not be read as importable JSON. Check the error shown in the editor.",
+    fileEmptyAlert: "No importable color tokens were found in this file. Check the editor and token values.",
+    backToJson: "Back",
+    rgbaConversionNotice: "{count} color value(s) were converted to rgba() for import.",
+    skippedWarningsNotice: "As shown on Page 1, these items were left out of the import:",
     cancel: "Cancel",
     ok: "OK",
     import: "Import Color Styles",
@@ -70,7 +78,7 @@ export const messages = {
     importedNotice: "Imported {count} color style(s){failed}.",
     importFailed: "Import failed: {message}",
     alias: "Reference",
-    conversionNote: "{count} OKLCH color(s) were converted to rgba() for Framer compatibility.",
+    conversionNote: "{count} color value(s) were converted to rgba() for Framer compatibility.",
     modePairNote: "{count} light/dark pair(s) were imported as Framer Color Style theme values.",
     invalidJsonTitle: "Invalid JSON",
     invalidJson: "Invalid JSON: {message}",
@@ -80,6 +88,8 @@ export const messages = {
     language: "言語",
     json: "JSON",
     uploadJson: "JSONファイルをアップロード",
+    uploadJsonButton: "アップロード",
+    dropJsonTitle: "JSONファイルをドロップ、またはアップロード",
     copyJson: "JSONをコピー",
     copiedJson: "JSONをコピーしました",
     copyJsonFailed: "コピーに失敗しました",
@@ -91,13 +101,12 @@ export const messages = {
       "blue": {
         "500": {
           "$type": "color",
-          "$value": "#0066ff"
+          "$value": "#2563eb"
         }
       }
     }
   }
 }`,
-    resizeEditor: "JSONエディタの高さを変更",
     analyze: "再読み込み",
     analyzing: "再読み込み中...",
     analyzeHelp:
@@ -122,12 +131,19 @@ export const messages = {
     duplicateStyleNameDescription: "同じスタイル名が複数あります。インポートするトークンを選択してください。",
     checkingConflicts: "既存のカラースタイルを確認中...",
     conflictCheckFailed: "既存のカラースタイルを確認できませんでした。",
+    extractColor: "カラーを抽出",
+    extractColorDisabled: "JSONファイルをアップロード、またはJSONを貼り付けると実行できます。",
+    fileParseErrorAlert: "このファイルはインポート可能なJSONとして読み込めません。editor内のエラーを確認してください。",
+    fileEmptyAlert: "このファイルにはインポート可能なカラートークンがありません。editor内の値を確認してください。",
+    backToJson: "戻る",
+    rgbaConversionNotice: "{count}件のカラー値をrgba()に変更しました。",
+    skippedWarningsNotice: "次の項目は取り込み対象から外しています。",
     cancel: "キャンセル",
     ok: "OK",
     import: "カラースタイルをインポート",
     importing: "インポート中...",
     insufficientPermissions: "権限が不足しています",
-    importCompleteTitle: "インポートが完了しました！",
+    importCompleteTitle: "インポート完了",
     importFailedTitle: "インポートに失敗しました",
     summary: "サマリー",
     created: "作成",
@@ -137,7 +153,7 @@ export const messages = {
     importedNotice: "{count}件のカラースタイルをインポートしました{failed}。",
     importFailed: "インポートに失敗しました: {message}",
     alias: "参照先のトークン",
-    conversionNote: "{count}件のOKLCHカラーをFramer互換のためrgba()に変換しました。",
+    conversionNote: "{count}件のカラー値をFramer互換のためrgba()に変換しました。",
     modePairNote: "{count}件のlight/darkペアをFramerカラースタイルのテーマ値としてインポートしました。",
     invalidJsonTitle: "JSONが不正です",
     invalidJson: "JSONが不正です。構文を確認してください。\n詳細: {message}",

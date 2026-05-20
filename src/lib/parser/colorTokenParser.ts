@@ -21,10 +21,19 @@ const META_KEYS = new Set([
 ])
 
 const HEX_COLOR_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i
-const RGB_COLOR_RE =
-  /^rgba?\(\s*(?:\d{1,3}%?\s*,\s*){2}\d{1,3}%?(?:\s*,\s*(?:0|1|0?\.\d+|\d{1,3}%))?\s*\)$/i
-const HSL_COLOR_RE =
-  /^hsla?\(\s*-?(?:\d+|\d*\.\d+)(?:deg|rad|turn)?\s*,\s*\d{1,3}%\s*,\s*\d{1,3}%(?:\s*,\s*(?:0|1|0?\.\d+|\d{1,3}%))?\s*\)$/i
+const NUMBER_RE_PART = "-?(?:\\d+|\\d*\\.\\d+)"
+const COLOR_CHANNEL_RE_PART = "(?:\\d{1,3}|\\d*\\.\\d+)%?"
+const PERCENT_RE_PART = "(?:\\d{1,3}|\\d*\\.\\d+)%"
+const ALPHA_RE_PART = "(?:0|1|0?\\.\\d+|\\d{1,3}%)"
+const HUE_RE_PART = `${NUMBER_RE_PART}(?:deg|rad|turn)?`
+const RGB_COLOR_RE = new RegExp(
+  `^rgba?\\(\\s*${COLOR_CHANNEL_RE_PART}(?:\\s*,\\s*${COLOR_CHANNEL_RE_PART}\\s*,\\s*${COLOR_CHANNEL_RE_PART}(?:\\s*,\\s*${ALPHA_RE_PART})?|\\s+${COLOR_CHANNEL_RE_PART}\\s+${COLOR_CHANNEL_RE_PART}(?:\\s*/\\s*${ALPHA_RE_PART})?)\\s*\\)$`,
+  "i"
+)
+const HSL_COLOR_RE = new RegExp(
+  `^hsla?\\(\\s*${HUE_RE_PART}(?:\\s*,\\s*${PERCENT_RE_PART}\\s*,\\s*${PERCENT_RE_PART}(?:\\s*,\\s*${ALPHA_RE_PART})?|\\s+${PERCENT_RE_PART}\\s+${PERCENT_RE_PART}(?:\\s*/\\s*${ALPHA_RE_PART})?)\\s*\\)$`,
+  "i"
+)
 const ALIAS_RE = /^\{([^{}]+)\}$/
 
 interface RawColorToken {
@@ -258,25 +267,28 @@ function resolveColorToken(
 }
 
 function parseColorValue(value: string): ResolvedColorValue | null {
-  if (HEX_COLOR_RE.test(value)) {
+  const hex = parseHexColor(value)
+  if (hex) {
     return {
-      value: value.toLowerCase(),
+      value: hex,
       sourceValue: value,
       format: "hex",
     }
   }
 
-  if (RGB_COLOR_RE.test(value)) {
+  const rgb = parseRgbColor(value)
+  if (rgb) {
     return {
-      value,
+      value: rgb,
       sourceValue: value,
       format: "rgb",
     }
   }
 
-  if (HSL_COLOR_RE.test(value)) {
+  const hsl = parseHslColor(value)
+  if (hsl) {
     return {
-      value,
+      value: hsl,
       sourceValue: value,
       format: "hsl",
     }
@@ -286,6 +298,120 @@ function parseColorValue(value: string): ResolvedColorValue | null {
   if (oklch) return oklch
 
   return null
+}
+
+function parseHexColor(value: string): string | null {
+  if (!HEX_COLOR_RE.test(value)) return null
+
+  const hex = value.slice(1)
+  const normalized =
+    hex.length === 3 || hex.length === 4
+      ? hex
+          .split("")
+          .map(character => `${character}${character}`)
+          .join("")
+      : hex
+
+  const red = Number.parseInt(normalized.slice(0, 2), 16)
+  const green = Number.parseInt(normalized.slice(2, 4), 16)
+  const blue = Number.parseInt(normalized.slice(4, 6), 16)
+  const alpha = normalized.length === 8 ? Number.parseInt(normalized.slice(6, 8), 16) / 255 : 1
+
+  return formatRgba(red, green, blue, alpha)
+}
+
+function parseRgbColor(value: string): string | null {
+  if (!RGB_COLOR_RE.test(value)) return null
+
+  const body = readFunctionBody(value)
+  if (!body) return null
+
+  const { channels, alpha } = readColorFunctionParts(body)
+  if (channels.length !== 3) return null
+
+  const red = parseRgbChannel(channels[0])
+  const green = parseRgbChannel(channels[1])
+  const blue = parseRgbChannel(channels[2])
+  const parsedAlpha = alpha ? parseAlpha(alpha) : 1
+
+  if (red === null || green === null || blue === null || parsedAlpha === null) return null
+
+  return formatRgba(red, green, blue, parsedAlpha)
+}
+
+function parseHslColor(value: string): string | null {
+  if (!HSL_COLOR_RE.test(value)) return null
+
+  const body = readFunctionBody(value)
+  if (!body) return null
+
+  const { channels, alpha } = readColorFunctionParts(body)
+  if (channels.length !== 3) return null
+
+  const [hueChannel, saturationChannel, lightnessChannel] = channels
+  if (!hueChannel || !saturationChannel || !lightnessChannel) return null
+
+  const hue = parseHue(hueChannel)
+  const saturation = parsePercentage(saturationChannel)
+  const lightness = parsePercentage(lightnessChannel)
+  const parsedAlpha = alpha ? parseAlpha(alpha) : 1
+
+  if (hue === null || saturation === null || lightness === null || parsedAlpha === null) return null
+
+  const chroma = (1 - Math.abs(2 * lightness - 1)) * saturation
+  const normalizedHue = (((hue % 360) + 360) % 360) / 60
+  const x = chroma * (1 - Math.abs((normalizedHue % 2) - 1))
+  const m = lightness - chroma / 2
+  const [redPrime, greenPrime, bluePrime] =
+    normalizedHue < 1
+      ? [chroma, x, 0]
+      : normalizedHue < 2
+        ? [x, chroma, 0]
+        : normalizedHue < 3
+          ? [0, chroma, x]
+          : normalizedHue < 4
+            ? [0, x, chroma]
+            : normalizedHue < 5
+              ? [x, 0, chroma]
+              : [chroma, 0, x]
+
+  return formatRgba((redPrime + m) * 255, (greenPrime + m) * 255, (bluePrime + m) * 255, parsedAlpha)
+}
+
+function readFunctionBody(value: string): string | null {
+  const start = value.indexOf("(")
+  const end = value.lastIndexOf(")")
+  if (start < 0 || end < start) return null
+  return value.slice(start + 1, end).trim()
+}
+
+function readColorFunctionParts(body: string): { channels: string[]; alpha?: string } {
+  if (body.includes(",")) {
+    const parts = body.split(",").map(part => part.trim()).filter(Boolean)
+    return {
+      channels: parts.slice(0, 3),
+      alpha: parts[3],
+    }
+  }
+
+  const [channelPart = "", alpha] = body.split("/").map(part => part.trim())
+  return {
+    channels: channelPart.split(/\s+/).filter(Boolean),
+    alpha,
+  }
+}
+
+function parseRgbChannel(value: string | undefined): number | null {
+  if (!value) return null
+
+  if (value.endsWith("%")) {
+    const percentage = parsePercentage(value)
+    return percentage === null ? null : Math.round(percentage * 255)
+  }
+
+  const channel = Number(value)
+  if (!Number.isFinite(channel)) return null
+  return Math.round(Math.min(255, Math.max(0, channel)))
 }
 
 function parseOklch(value: string): ResolvedColorValue | null {
@@ -323,7 +449,7 @@ function oklchToRgba(lightness: number, chroma: number, hueDegrees: number, alph
   const green = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s
   const blue = -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s
 
-  return `rgba(${linearToSrgbByte(red)}, ${linearToSrgbByte(green)}, ${linearToSrgbByte(blue)}, ${roundAlpha(alpha)})`
+  return formatRgba(linearToSrgbByte(red), linearToSrgbByte(green), linearToSrgbByte(blue), alpha)
 }
 
 function linearToSrgbByte(value: number): number {
@@ -378,6 +504,10 @@ function parseFiniteNumber(value: string): number | null {
 
 function roundAlpha(alpha: number): number {
   return Math.round(alpha * 1000) / 1000
+}
+
+function formatRgba(red: number, green: number, blue: number, alpha: number): string {
+  return `rgba(${Math.round(red)}, ${Math.round(green)}, ${Math.round(blue)}, ${roundAlpha(alpha)})`
 }
 
 function readAliasPath(value: string): string | null {

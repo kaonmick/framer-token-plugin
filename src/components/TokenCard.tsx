@@ -1,9 +1,5 @@
-import { useEffect, useState } from "react"
+import { Moon, Sun } from "lucide-react"
 import { cx } from "./ui.tsx"
-import defaultDarkModeIcon from "../assets/icons/dark-mode.svg"
-import defaultLightModeIcon from "../assets/icons/light-mode.svg"
-import darkModeIconOnLight from "../assets/icons/dark-mode--black.svg"
-import lightModeIconOnLight from "../assets/icons/light-mode--black.svg"
 
 type TokenRowMode = "light" | "dark"
 
@@ -40,14 +36,13 @@ export function TokenCard({
   className,
 }: TokenCardProps) {
   const hasRadio = radioName !== undefined
-  const themeMode = useDocumentThemeMode()
 
   const inner = (
     <div
       className={cx(
         "flex gap-3 rounded-[4px] p-2",
         hasRadio ? "items-center" : "items-start",
-        checked ? "bg-status-warning-ghost" : "",
+        checked ? "bg-[color:color-mix(in_srgb,var(--color-surface-brand)_30%,transparent)]" : "",
         className
       )}
     >
@@ -69,14 +64,14 @@ export function TokenCard({
           />
         </span>
       ) : null}
-      <TokenRows rows={rows} themeMode={themeMode} />
+      <TokenRows rows={rows} />
     </div>
   )
 
   return (
     <div className="flex flex-col gap-1.5">
       {label ? (
-        <span className="inline-flex self-start rounded-[11px] bg-surface-muted px-2 py-1 text-[11px] leading-none text-text-secondary">
+        <span className="inline-flex self-start rounded-[11px] bg-surface-muted px-2 py-1 text-[11px] leading-none text-text-subtle">
           {label}
         </span>
       ) : null}
@@ -89,13 +84,7 @@ export function TokenCard({
   )
 }
 
-function TokenRows({
-  rows,
-  themeMode,
-}: {
-  rows: TokenCardRow[]
-  themeMode: ThemeMode
-}) {
+function TokenRows({ rows }: { rows: TokenCardRow[] }) {
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-3">
       {rows.map((row, index) => (
@@ -108,19 +97,19 @@ function TokenRows({
             <div className={cx("flex min-w-0 items-center", row.mode ? "gap-2" : "")}>
               {row.mode ? (
                 <>
-                  <ModeIcon mode={row.mode} themeMode={themeMode} />
+                  <ModeIcon mode={row.mode} />
                   <span className="sr-only">{row.modeLabel ?? (row.mode === "light" ? "Light" : "Dark")}</span>
                 </>
               ) : null}
               <span
-                className="block min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[12px] leading-none text-text-primary"
+                className="block min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[12px] leading-none text-text-default"
                 lang="en"
               >
                 {row.value}
               </span>
             </div>
             <span
-              className="block min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[14px] leading-none text-text-secondary"
+              className="block min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[14px] leading-none text-text-subtle"
               lang="en"
             >
               {row.name}
@@ -145,59 +134,14 @@ function ColorBadge({ color, borderColor }: { color: string; borderColor?: strin
   )
 }
 
-function ModeIcon({
-  mode,
-  themeMode,
-}: {
-  mode: TokenRowMode
-  themeMode: ThemeMode
-}) {
-  const iconSrc =
-    themeMode === "light"
-      ? mode === "light"
-        ? lightModeIconOnLight
-        : darkModeIconOnLight
-      : mode === "light"
-        ? defaultLightModeIcon
-        : defaultDarkModeIcon
+function ModeIcon({ mode }: { mode: TokenRowMode }) {
+  const Icon = mode === "light" ? Sun : Moon
 
   return (
-    <img
+    <Icon
       aria-hidden="true"
-      alt=""
-      className="block size-4 shrink-0"
-      src={iconSrc}
+      className="block size-4 shrink-0 text-text-subtle"
+      strokeWidth={2}
     />
   )
-}
-
-type ThemeMode = "light" | "dark"
-
-function useDocumentThemeMode(): ThemeMode {
-  const [themeMode, setThemeMode] = useState<ThemeMode>(() => getCurrentThemeMode())
-
-  useEffect(() => {
-    if (typeof document === "undefined") return
-
-    const updateThemeMode = () => {
-      setThemeMode(getCurrentThemeMode())
-    }
-
-    updateThemeMode()
-
-    const observer = new MutationObserver(updateThemeMode)
-    observer.observe(document.documentElement, {
-      attributeFilter: ["data-theme"],
-      attributes: true,
-    })
-
-    return () => observer.disconnect()
-  }, [])
-
-  return themeMode
-}
-
-function getCurrentThemeMode(): ThemeMode {
-  if (typeof document === "undefined") return "dark"
-  return document.documentElement.dataset.theme === "light" ? "light" : "dark"
 }

@@ -52,16 +52,15 @@ Phase 1 と Phase 2 では、以下の dark 見た目を変えない。
 
 ## 関連成果物
 
-- [Theme Token Workbench](../workbench/token-workbench.html)
-- [Theme Token Workbench Handoff](../workbench/token-workbench-handoff.md)
-- [Theme Token JSON Snapshot](../workbench/token-workbench-current-data.json)
+- [Light / Dark テーマ対応](../specs/14-light-dark-theme.md)
+- [Design System](../specs/09-design-system.md)
 
 ## 主な参照元
 
 - `src/app/App.tsx`
 - `src/components/ui.tsx`
+- `src/components/JsonFileDropZone.tsx`
 - `src/components/LanguageToggle.tsx`
-- `src/components/StatsGrid.tsx`
 - `src/components/TokenCard.tsx`
 - `src/components/TokenCardList.tsx`
 - `src/components/ImportSummary.tsx`

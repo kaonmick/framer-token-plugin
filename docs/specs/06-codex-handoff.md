@@ -65,12 +65,10 @@ framer-token-importer/
   src/
     app/
     components/
-    features/import/
-    features/preview/
     lib/parser/
     lib/mapping/
     lib/types/
-    fixtures/
+  fixtures/
   docs/
     roadmap.md
     mvp-spec.md

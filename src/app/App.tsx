@@ -1,24 +1,18 @@
 import { framer, useIsAllowedTo } from "framer-plugin"
+import { ArrowLeft } from "lucide-react"
 import { useEffect, useMemo, useRef, useState, useTransition } from "react"
-import type { ChangeEvent } from "react"
 import { AppHeader } from "../components/AppHeader.tsx"
 import { ImportSummary } from "../components/ImportSummary.tsx"
+import { JsonFileDropZone } from "../components/JsonFileDropZone.tsx"
 import { JsonTokenEditor, type EditorDiagnostic } from "../components/JsonTokenEditor.tsx"
-import { StatsGrid } from "../components/StatsGrid.tsx"
 import { TokenCardList } from "../components/TokenCardList.tsx"
 import {
   ActionButton,
   DialogActions,
   DialogBackdrop,
   DialogPanel,
-  FileButton,
+  MessageBox,
 } from "../components/ui.tsx"
-import conflictManyColorsJson from "../fixtures/conflict-many-colors.json?raw"
-import invalidJsonFixture from "../fixtures/error-invalid-json.json?raw"
-import lightDarkColorsJson from "../fixtures/light-dark-colors.json?raw"
-import oklchColorsJson from "../fixtures/oklch-colors.json?raw"
-import primitiveColorsJson from "../fixtures/primitive-colors.json?raw"
-import warningCasesJson from "../fixtures/warning-cases.json?raw"
 import { findColorStyleConflicts, importColorStyles } from "../lib/framer/colorStyles.ts"
 import { parseColorTokenJson } from "../lib/parser/colorTokenParser.ts"
 import type {
@@ -45,6 +39,8 @@ const CAPTURE_MODES = [
 ] as const
 
 type CaptureMode = (typeof CAPTURE_MODES)[number]
+type AppPage = "editor" | "preview"
+type JsonInputSource = "empty" | "file" | "text"
 
 interface InitialCaptureState {
   conflicts: ColorStyleConflict[]
@@ -82,15 +78,21 @@ export function App() {
   const [isCheckingConflicts, setIsCheckingConflicts] = useState(false)
   const [conflictSelections, setConflictSelections] = useState<Map<string, string>>(new Map())
   const [summary, setSummary] = useState<ImportColorStylesResult | null>(initialCaptureState.summary)
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [isImporting, setIsImporting] = useState(false)
+  const [currentPage, setCurrentPage] = useState<AppPage>("editor")
+  const [inputSource, setInputSource] = useState<JsonInputSource>(initialJsonText.trim() ? "text" : "empty")
+  const [fileAlert, setFileAlert] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const lineNumbersRef = useRef<HTMLDivElement | null>(null)
 
   const t = messages[language]
   const isAllowedToImportColorStyles = useIsAllowedTo("createColorStyle", "ColorStyle.setAttributes")
   const hasTokens = parseResult.tokens.length > 0 || parseResult.conflictGroups.length > 0
-  const canImport = hasTokens && (isAllowedToImportColorStyles || Boolean(captureMode)) && !isImporting
+  const hasJsonInput = jsonText.trim().length > 0
+  const canExtract = hasJsonInput && hasTokens && !parseResult.error && !isPending
+  const canImport =
+    currentPage === "preview" && hasTokens && (isAllowedToImportColorStyles || Boolean(captureMode)) && !isImporting
+  const extractButtonTitle = hasJsonInput ? undefined : t.extractColorDisabled
   const importButtonLabel = isImporting ? t.importing : t.import
   const importButtonTitle = isAllowedToImportColorStyles || captureMode ? undefined : t.insufficientPermissions
 
@@ -101,13 +103,16 @@ export function App() {
     ],
     [parseResult.tokens, parseResult.conflictGroups]
   )
-  const primitiveCount = allTokensForStats.filter(token => token.kind === "primitive").length
-  const semanticCount = allTokensForStats.filter(token => token.kind === "semantic").length
   const modePairCount = allTokensForStats.filter(token => token.darkValue).length
-  const convertedOklchCount = allTokensForStats.reduce(
-    (count, token) => count + (token.format === "oklch" ? 1 : 0) + (token.darkFormat === "oklch" ? 1 : 0),
+  const rgbaConversionCount = allTokensForStats.reduce(
+    (count, token) => count + countRgbaConversions(token),
     0
   )
+  const skippedWarningItems = useMemo(
+    () => getSkippedWarningItems(parseResult.warnings, language),
+    [language, parseResult.warnings]
+  )
+  const hasPreviewAnnouncements = rgbaConversionCount > 0 || skippedWarningItems.length > 0
   const editorDiagnostics = useMemo(
     () => buildEditorDiagnostics(parseResult, language),
     [language, parseResult.error, parseResult.errorLine, parseResult.warnings]
@@ -149,6 +154,10 @@ export function App() {
 
   useEffect(() => {
     if (captureMode) {
+      if (captureMode === "conflict") {
+        setConflicts(getCaptureConflicts(parseResult))
+        setConflictError(null)
+      }
       setIsCheckingConflicts(false)
       return
     }
@@ -184,46 +193,59 @@ export function App() {
     return () => {
       isCurrent = false
     }
-  }, [captureMode, parseResult.error, parseResult.tokens, hasTokens])
-
-  const stats = useMemo(
-    () => [
-      { label: messages.en.primitive, value: primitiveCount },
-      { label: messages.en.semantic, value: semanticCount },
-      { label: messages.en.lightDark, value: modePairCount },
-      { label: messages.en.warnings, value: parseResult.warnings.length },
-    ],
-    [modePairCount, parseResult.warnings.length, primitiveCount, semanticCount]
-  )
+  }, [captureMode, parseResult, hasTokens])
 
   function analyzeJson(nextText = jsonText) {
+    const nextResult = parseEditorJson(nextText)
     startTransition(() => {
-      setParseResult(parseEditorJson(nextText))
+      setParseResult(nextResult)
       setSummary(null)
     })
+    return nextResult
   }
 
-  async function runManualAnalyze() {
-    const analyzeStartedAt = Date.now()
-    setIsAnalyzing(true)
-    analyzeJson()
-    await waitForMinimumActionFeedback(analyzeStartedAt)
-    setIsAnalyzing(false)
+  function goToPreview() {
+    if (!canExtract) return
+    setFileAlert(null)
+    setCurrentPage("preview")
   }
 
   function handleJsonTextChange(nextText: string) {
+    const nextResult = analyzeJson(nextText)
     setJsonText(nextText)
-    analyzeJson(nextText)
+    setInputSource(nextText.trim() ? "text" : "empty")
+    setFileAlert(null)
+
+    if (captureMode && nextText.length > 0 && captureMode !== "default" && captureMode !== "invalid-json") {
+      setCurrentPage("preview")
+      return
+    }
+
+    if (nextResult.error || currentPage === "preview" || nextText.trim().length === 0) {
+      setCurrentPage("editor")
+    }
   }
 
-  async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.currentTarget.files?.[0]
-    if (!file) return
-
+  async function handleJsonFileSelect(file: File) {
     const text = await file.text()
+    const nextResult = analyzeJson(text)
     setJsonText(text)
-    analyzeJson(text)
-    event.currentTarget.value = ""
+    setInputSource(text.trim() ? "file" : "empty")
+
+    if (nextResult.error) {
+      setCurrentPage("editor")
+      setFileAlert(t.fileParseErrorAlert)
+      return
+    }
+
+    if (!hasImportableTokens(nextResult)) {
+      setCurrentPage("editor")
+      setFileAlert(t.fileEmptyAlert)
+      return
+    }
+
+    setFileAlert(null)
+    setCurrentPage(nextResult.warnings.length > 0 ? "editor" : "preview")
   }
 
   function handleEditorScroll(scrollTop: number) {
@@ -239,6 +261,9 @@ export function App() {
     setIsCheckingConflicts(false)
     setConflictSelections(new Map())
     setSummary(null)
+    setCurrentPage("editor")
+    setInputSource("empty")
+    setFileAlert(null)
   }
 
   async function runImport() {
@@ -293,51 +318,77 @@ export function App() {
 
   return (
     <main
-      className="flex min-h-screen flex-col gap-6 bg-surface-canvas px-5 pb-28 pt-8 font-['Jost','Noto_Sans_JP'] text-text-primary md:gap-16 md:px-16 md:pb-32 md:pt-20"
+      className="flex min-h-screen flex-col gap-6 bg-surface-base px-5 pb-28 pt-8 font-['Jost','Noto_Sans_JP'] text-text-default md:gap-16 md:px-16 md:pb-32 md:pt-20"
       data-capture-mode={captureMode ?? undefined}
       data-ready="true"
       lang={language}
     >
       <AppHeader language={language} title={t.title} onLanguageChange={setLanguage} />
 
-      <section className="flex flex-col gap-3" aria-label={t.json}>
-        <JsonTokenEditor
-          diagnostics={editorDiagnostics}
-          labels={{
-            copied: t.copiedJson,
-            copy: t.copyJson,
-            copyFailed: t.copyJsonFailed,
-            resize: t.resizeEditor,
-          }}
-          lineNumbersRef={lineNumbersRef}
-          placeholder={t.editorPlaceholder}
-          value={jsonText}
-          onScroll={handleEditorScroll}
-          onTextChange={handleJsonTextChange}
-        />
-
-        <div className="flex flex-wrap items-center gap-3">
-          <FileButton accept="application/json,.json" size="md" onChange={handleFileChange}>
-            {t.uploadJson}
-          </FileButton>
-          <ActionButton
-            disabled={isPending || isAnalyzing}
-            size="md"
-            variant="outline"
-            onClick={() => {
-              void runManualAnalyze()
+      {currentPage === "editor" ? (
+        <section className="flex flex-col gap-3" aria-label={t.json}>
+          <JsonFileDropZone
+            labels={{
+              button: t.uploadJsonButton,
+              title: t.dropJsonTitle,
             }}
-          >
-            {isPending || isAnalyzing ? t.analyzing : t.analyze}
-          </ActionButton>
-        </div>
-      </section>
+            onFileSelect={handleJsonFileSelect}
+          />
 
-      {parseResult.error ? null : (
+          {fileAlert ? <MessageBox tone="danger">{fileAlert}</MessageBox> : null}
+
+          <JsonTokenEditor
+            diagnostics={editorDiagnostics}
+            labels={{
+              copied: t.copiedJson,
+              copy: t.copyJson,
+              copyFailed: t.copyJsonFailed,
+            }}
+            lineNumbersRef={lineNumbersRef}
+            placeholder={t.editorPlaceholder}
+            value={jsonText}
+            onScroll={handleEditorScroll}
+            onTextChange={handleJsonTextChange}
+          />
+        </section>
+      ) : (
         <>
-          <StatsGrid items={stats} />
-
-          <section aria-label={t.preview}>
+          <section className="flex flex-col gap-4" aria-label={t.preview}>
+            <div className="flex justify-start">
+              <ActionButton
+                color="secondary"
+                icon={<ArrowLeft />}
+                iconPosition="left"
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  setCurrentPage("editor")
+                }}
+              >
+                {t.backToJson}
+              </ActionButton>
+            </div>
+            {hasPreviewAnnouncements ? (
+              <MessageBox tone="warning">
+                <div className="flex flex-col gap-1">
+                  {rgbaConversionCount > 0 ? (
+                    <p className="m-0">{t.rgbaConversionNotice.replace("{count}", String(rgbaConversionCount))}</p>
+                  ) : null}
+                  {skippedWarningItems.length > 0 ? (
+                    <div>
+                      <p className="m-0">{t.skippedWarningsNotice}</p>
+                      <ul className="m-0 mt-1 flex list-none flex-col gap-0.5 p-0">
+                        {skippedWarningItems.map(item => (
+                          <li className="m-0" key={item}>
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+                </div>
+              </MessageBox>
+            ) : null}
             <TokenCardList
               tokens={parseResult.tokens}
               conflictGroups={parseResult.conflictGroups}
@@ -369,25 +420,20 @@ export function App() {
           {summary ? (
             <DialogBackdrop
               onClose={() => {
-                setSummary(null)
+                resetImportSession()
               }}
             >
               <DialogPanel role="dialog" aria-modal="true" aria-labelledby="summary-dialog-title">
                 <ImportSummary
                   summary={summary}
                   language={language}
-                  convertedOklchCount={convertedOklchCount}
+                  convertedColorCount={rgbaConversionCount}
                   modePairCount={modePairCount}
                 />
                 <DialogActions className="grid-cols-1">
                   <ActionButton
                     onClick={() => {
-                      if (summary.failed === 0) {
-                        resetImportSession()
-                        return
-                      }
-
-                      setSummary(null)
+                      resetImportSession()
                     }}
                   >
                     {t.ok}
@@ -399,17 +445,31 @@ export function App() {
         </>
       )}
 
-      <div className="fixed inset-x-0 bottom-0 z-[8] border-t border-border-strong bg-surface-canvas px-5 py-3.5 md:px-16 md:py-4">
-        <ActionButton
-          disabled={!canImport}
-          size="md"
-          title={importButtonTitle}
-          onClick={() => {
-            void runImport()
-          }}
-        >
-          {importButtonLabel}
-        </ActionButton>
+      <div className="fixed inset-x-0 bottom-0 z-[8] border-t border-border-strong bg-surface-base px-5 py-3.5 md:px-16 md:py-4">
+        {currentPage === "editor" ? (
+          <ActionButton
+            className="w-full"
+            disabled={!canExtract}
+            loading={isPending && inputSource !== "empty"}
+            size="md"
+            title={extractButtonTitle}
+            onClick={goToPreview}
+          >
+            {t.extractColor}
+          </ActionButton>
+        ) : (
+          <ActionButton
+            className="w-full"
+            disabled={!canImport}
+            size="md"
+            title={importButtonTitle}
+            onClick={() => {
+              void runImport()
+            }}
+          >
+            {importButtonLabel}
+          </ActionButton>
+        )}
       </div>
     </main>
   )
@@ -426,21 +486,15 @@ function getCaptureMode(): CaptureMode | null {
 
 function getInitialJsonText(captureMode: CaptureMode | null): string {
   switch (captureMode) {
-    case "preview-normal":
-      return primitiveColorsJson
-    case "light-dark":
-    case "summary-success":
-      return lightDarkColorsJson
-    case "oklch":
-      return oklchColorsJson
-    case "warning":
-      return warningCasesJson
-    case "invalid-json":
-      return invalidJsonFixture
-    case "conflict":
-    case "summary-failed":
-      return conflictManyColorsJson
     case "default":
+    case "preview-normal":
+    case "light-dark":
+    case "oklch":
+    case "warning":
+    case "invalid-json":
+    case "conflict":
+    case "summary-success":
+    case "summary-failed":
     case null:
       return ""
   }
@@ -449,6 +503,39 @@ function getInitialJsonText(captureMode: CaptureMode | null): string {
 function parseEditorJson(jsonText: string): ParseColorTokensResult {
   if (jsonText.length === 0) return EMPTY_PARSE_RESULT
   return parseColorTokenJson(jsonText)
+}
+
+function hasImportableTokens(parseResult: ParseColorTokensResult): boolean {
+  return parseResult.tokens.length > 0 || parseResult.conflictGroups.length > 0
+}
+
+function countRgbaConversions(token: ParsedColorToken): number {
+  return (
+    (isConvertedToRgba(token.sourceValue, token.value) ? 1 : 0) +
+    (token.darkSourceValue && token.darkValue && isConvertedToRgba(token.darkSourceValue, token.darkValue) ? 1 : 0)
+  )
+}
+
+function isConvertedToRgba(sourceValue: string, value: string): boolean {
+  return !sourceValue.trim().startsWith("{") && sourceValue.trim() !== value.trim() && value.trim().startsWith("rgba(")
+}
+
+function getSkippedWarningItems(warnings: ParseWarning[], language: Language): string[] {
+  return warnings
+    .filter(isSkippedWarning)
+    .map(warning => {
+      const lineLabel = warning.line ? `${messages[language].line} ${warning.line}` : messages[language].warningTitle
+      return `${lineLabel} · ${warning.path} / ${formatWarningSummary(warning, language)}`
+    })
+}
+
+function isSkippedWarning(warning: ParseWarning): boolean {
+  return (
+    warning.code === "circular-alias" ||
+    warning.code === "unresolved-alias" ||
+    warning.code === "unsupported-color" ||
+    warning.code === "unsupported-token"
+  )
 }
 
 function getInitialCaptureState(
