@@ -54,7 +54,7 @@
 
 | Semantic token | Tailwind class | Public CSS var | 実体 CSS var | Dark | Light | 用途 |
 |---|---|---|---|---|---|---|
-| `color.control.radioSelected` | `var(--color-control-radio-selected)` | `--color-control-radio-selected` | `--control-radio-selected` | `var(--color-yellow-300)` | `var(--color-yellow-300)` | radio selected border / dot |
+| `color.control.radioSelected` | `var(--color-control-radio-selected)` | `--color-control-radio-selected` | `--control-radio-selected` | `var(--color-yellow-300)` | `var(--color-yellow-500)` | radio selected border / dot |
 | `color.preview.conflictAccent` | `bg-[var(--color-preview-conflict-accent)]` | `--color-preview-conflict-accent` | `--preview-conflict-accent` | `var(--color-yellow-700)` | `var(--color-yellow-400)` | conflict preview の accent bar |
 | `color.preview.newTokenAccent` | `bg-[var(--color-preview-new-token-accent)]` | `--color-preview-new-token-accent` | `--preview-new-token-accent` | `var(--color-green-700)` | `var(--color-green-700)` | new token preview の accent bar |
 

@@ -256,7 +256,7 @@ const semanticReferences: Record<SemanticToken, SemanticReference> = {
   },
   "control.radio.selected": {
     dark: "color.yellow.300",
-    light: "color.yellow.300",
+    light: "color.yellow.500",
     token: "control.radio.selected",
   },
   "preview.conflict-accent": {

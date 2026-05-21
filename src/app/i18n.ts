@@ -7,7 +7,7 @@ export const languageLabels: Record<Language, string> = {
 
 export const messages = {
   en: {
-    title: "Token Color Importer",
+    title: "Json Color Importer",
     language: "Language",
     json: "JSON",
     uploadJson: "Upload JSON File",
@@ -84,7 +84,7 @@ export const messages = {
     invalidJson: "Invalid JSON: {message}",
   },
   ja: {
-    title: "Token Color Importer",
+    title: "Json Color Importer",
     language: "言語",
     json: "JSON",
     uploadJson: "JSONファイルをアップロード",

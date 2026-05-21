@@ -2,7 +2,7 @@
 
 ## 目的
 
-Framer Token Importer の UI を、画面追加後も破綻しにくい semantic token ベースで管理する。
+Json Color Importer の UI を、画面追加後も破綻しにくい semantic token ベースで管理する。
 
 このドキュメントは叩き台とし、実装が進んだら Figma / Tailwind / CSS custom properties の実値に合わせて更新する。
 

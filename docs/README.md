@@ -1,4 +1,4 @@
-# Framer Token Importer Docs
+# Json Color Importer Docs
 
 このページは、既存の Markdown 文書を Docsify で横断的に読むための入口です。
 

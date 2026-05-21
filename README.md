@@ -1,4 +1,4 @@
-# Framer Token Importer
+# Json Color Importer
 
 JSON color tokensをFramerのColor Styleへインポートするプラグインです。
 
