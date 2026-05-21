@@ -1,4 +1,4 @@
-# Framer Token Importer / 仕様パック
+# Json Color Importer / 仕様パック
 
 このディレクトリには、JSON のカラートークンを忠実にインポートする Framer プラグイン開発向けの軽量な仕様パックをまとめています。
 

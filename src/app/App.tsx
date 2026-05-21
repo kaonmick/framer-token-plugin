@@ -59,6 +59,11 @@ if (!initialCaptureMode) {
     position: "top right",
     width: 420,
     height: 620,
+    resizable: true,
+    minWidth: 360,
+    minHeight: 520,
+    maxWidth: 720,
+    maxHeight: 900,
   })
 }
 
@@ -270,7 +275,7 @@ export function App() {
     if (!canImport) return
 
     if (captureMode) {
-      setSummary(getManualCaptureImportSummary())
+      setSummary(getManualCaptureImportSummary(captureMode))
       return
     }
 
@@ -612,7 +617,26 @@ function getCaptureConflicts(parseResult: ParseColorTokensResult): ColorStyleCon
   }))
 }
 
-function getManualCaptureImportSummary(): ImportColorStylesResult {
+function getManualCaptureImportSummary(captureMode: CaptureMode): ImportColorStylesResult {
+  if (captureMode === "summary-failed") {
+    return {
+      created: 2,
+      replaced: 0,
+      skipped: 1,
+      failed: 2,
+      failures: [
+        {
+          name: "Color / Conflict / Five",
+          reason: "Color Style could not be updated.",
+        },
+        {
+          name: "Color / Conflict / Six",
+          reason: "Permission changed while importing.",
+        },
+      ],
+    }
+  }
+
   return {
     created: 3,
     replaced: 0,

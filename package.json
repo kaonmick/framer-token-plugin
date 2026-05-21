@@ -14,6 +14,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "build": "tsc --noEmit && vite build",
+    "pack": "npm run build && cd dist && zip -qrFS ../plugin.zip .",
     "check": "tsc --noEmit",
     "screenshots": "node scripts/capture-screenshots.mjs",
     "test": "vitest run",

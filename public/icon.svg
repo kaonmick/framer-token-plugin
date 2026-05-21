@@ -1,7 +1,8 @@
-<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="128" height="128" rx="24" fill="#151515"/>
-  <path d="M32 35C32 31.6863 34.6863 29 38 29H90C93.3137 29 96 31.6863 96 35V93C96 96.3137 93.3137 99 90 99H38C34.6863 99 32 96.3137 32 93V35Z" fill="#F4F4F4"/>
-  <path d="M45 45H83" stroke="#151515" stroke-width="8" stroke-linecap="round"/>
-  <path d="M45 64H69" stroke="#007A5A" stroke-width="8" stroke-linecap="round"/>
-  <path d="M45 83H78" stroke="#D7263D" stroke-width="8" stroke-linecap="round"/>
+<svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="34" height="34" fill="#404040"/>
+<rect x="26" y="12" width="4" height="16" rx="2" fill="#FDE047"/>
+<circle cx="28" cy="8" r="2" fill="#FDE047"/>
+<circle cx="10" cy="8" r="2" fill="#FDE047"/>
+<path d="M22 12C22.6906 12 23.3608 12.0874 24 12.252V16H22C19.7909 16 18 17.7909 18 20C18 22.2091 19.7909 24 22 24H24V27.7471C23.3607 27.9116 22.6907 28 22 28C17.5817 28 14 24.4183 14 20C14 15.5817 17.5817 12 22 12Z" fill="#FDE047"/>
+<path d="M12 24C12 26.2091 10.2091 28 8 28C5.79086 28 4 26.2091 4 24V23H8V14C8 12.8954 8.89543 12 10 12C11.1046 12 12 12.8954 12 14V24Z" fill="#FDE047"/>
 </svg>

@@ -103,7 +103,7 @@ const themePreviewStyles: Record<ThemeName, ThemePreviewStyle> = {
     "--border-danger": "var(--color-red-600)",
     "--surface-brand": "var(--color-yellow-300)",
     "--surface-brand-hover": "var(--color-yellow-500)",
-    "--control-radio-selected": "var(--color-yellow-300)",
+    "--control-radio-selected": "var(--color-yellow-500)",
     "--preview-conflict-accent": "var(--color-yellow-400)",
     "--preview-new-token-accent": "var(--color-green-700)",
     "--code-key": "var(--color-sky-700)",

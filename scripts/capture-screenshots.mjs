@@ -70,6 +70,10 @@ try {
     if (fixtureName) {
       await fillCaptureFixture(frame, fixtureName)
     }
+    if (isSummaryCaptureRoute(route)) {
+      await frame.getByRole("button", { name: /Import Color Styles/ }).click()
+      await frame.waitForSelector('[role="dialog"]', { timeout: 10_000 })
+    }
     const captureHeight = await getFrameCaptureHeight(frame)
     await page.setViewportSize({ width: VIEWPORT.width, height: captureHeight })
     await resizeHostFrame(page, captureHeight)
@@ -204,6 +208,10 @@ async function fillCaptureFixture(frame, fixtureName) {
   const fixtureText = await fs.readFile(fixturePath, "utf8")
   await frame.locator('textarea[aria-label="JSON token source"]').fill(fixtureText)
   await frame.waitForTimeout(CAPTURE_DELAY_MS)
+}
+
+function isSummaryCaptureRoute(route) {
+  return route.includes("capture=summary-")
 }
 
 function buildFramerHostPage(frameUrl) {

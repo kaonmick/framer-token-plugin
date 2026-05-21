@@ -26,6 +26,11 @@ Issue: local only
 - [ ] 公開名を確定する
 - [ ] 短い説明文を確定する
 - [ ] 詳細説明文を確定する
+- [ ] README が「color token import」以上の機能を約束していないか確認する
+- [ ] Marketplace description に未実装の audit / sync / variables manager を含めない
+- [ ] alias は参照先が存在する color token のみ解決する、と説明できている
+- [ ] conflict は自動解決しない、と説明できている
+- [ ] OKLCH は Framer 互換のため rgba へ変換する、と説明できている
 - [ ] category を確定する
 - [ ] tags を確定する
 - [ ] pricing を確定する
