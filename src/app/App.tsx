@@ -323,7 +323,7 @@ export function App() {
 
   return (
     <main
-      className="flex min-h-screen flex-col gap-6 bg-surface-base px-5 pb-28 pt-8 font-['Jost','Noto_Sans_JP'] text-text-default md:gap-16 md:px-16 md:pb-32 md:pt-20"
+      className="flex h-screen min-h-[520px] flex-col gap-6 bg-surface-base px-5 pb-28 pt-8 font-['Jost','Noto_Sans_JP'] text-text-default md:gap-16 md:px-16 md:pb-32 md:pt-20"
       data-capture-mode={captureMode ?? undefined}
       data-ready="true"
       lang={language}
@@ -331,7 +331,7 @@ export function App() {
       <AppHeader language={language} title={t.title} onLanguageChange={setLanguage} />
 
       {currentPage === "editor" ? (
-        <section className="flex flex-col gap-3" aria-label={t.json}>
+        <section className="flex min-h-0 flex-1 flex-col gap-3" aria-label={t.json}>
           <JsonFileDropZone
             labels={{
               button: t.uploadJsonButton,
@@ -343,7 +343,9 @@ export function App() {
           {fileAlert ? <MessageBox tone="danger">{fileAlert}</MessageBox> : null}
 
           <JsonTokenEditor
+            className="min-h-0 flex-1"
             diagnostics={editorDiagnostics}
+            fillAvailableHeight
             labels={{
               copied: t.copiedJson,
               copy: t.copyJson,
