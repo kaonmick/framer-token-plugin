@@ -61,6 +61,11 @@
   - [Issue 36 公開申請前の最終チェックリスト](/issues/36-final-publish-checklist.md)
   - [Issue 37 公開までのタスクリスト](/issues/37-publish-to-marketplace-tasks.md)
 
+- 公開申請
+
+  - [Marketplace Assets](/marketplace-assets/README.md)
+  - [Marketplace Submission Copy](/marketplace-assets/description.md)
+
 - 図・モック
 
   - [Status Header Concept](/mockups/status-header-concept.html)
