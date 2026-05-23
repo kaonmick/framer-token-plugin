@@ -23,29 +23,29 @@ Issue: local only
 
 ### 1. 申請情報を確定する
 
-- [ ] 公開名を確定する
-- [ ] 短い説明文を確定する
-- [ ] 詳細説明文を確定する
-- [ ] README が「color token import」以上の機能を約束していないか確認する
-- [ ] Marketplace description に未実装の audit / sync / variables manager を含めない
-- [ ] alias は参照先が存在する color token のみ解決する、と説明できている
-- [ ] conflict は自動解決しない、と説明できている
-- [ ] OKLCH は Framer 互換のため rgba へ変換する、と説明できている
+- [x] 公開名を確定する
+- [x] 短い説明文を確定する
+- [x] 詳細説明文を確定する
+- [x] README が「color token import」以上の機能を約束していないか確認する
+- [x] Marketplace description に未実装の audit / sync / variables manager を含めない
+- [x] alias は参照先が存在する color token のみ解決する、と説明できている
+- [x] conflict は自動解決しない、と説明できている
+- [x] OKLCH は Framer 互換のため rgba へ変換する、と説明できている
 - [ ] category を確定する
 - [ ] tags を確定する
-- [ ] pricing を確定する
+- [x] pricing を確定する
 - [ ] support URL を確定する
 - [ ] docs URL を確定する
 - [ ] screenshot / visual asset を確定する
 
 ### 2. 申請用 package を作る
 
-- [ ] `npm run check` を実行する
-- [ ] `npm run test` を実行する
-- [ ] `npm run build` を実行する
-- [ ] Framer 公式手順の `npm run pack` または同等の pack 手順を実行する
-- [ ] `plugin.zip` が作成されていることを確認する
-- [ ] `plugin.zip` の中身に申請不要なファイルが混ざっていないか確認する
+- [x] `npm run check` を実行する
+- [x] `npm run test` を実行する
+- [x] `npm run build` を実行する
+- [x] Framer 公式手順の `npm run pack` または同等の pack 手順を実行する
+- [x] `plugin.zip` が作成されていることを確認する
+- [x] `plugin.zip` の中身に申請不要なファイルが混ざっていないか確認する
 
 ### 3. Marketplace dashboard で申請する
 
@@ -90,8 +90,37 @@ Issue: local only
 ## 申請ログ
 
 - 申請日:
-- plugin version:
-- plugin.zip 作成方法:
+- plugin version: `0.1.0`
+- plugin.zip 作成方法: `npm run pack`
 - Marketplace status:
 - 公開 URL:
 - レビュー指摘:
+
+## 申請情報
+
+- 公開名 / 申請文面: [Marketplace Submission Copy](../marketplace-assets/description.md)
+- pricing: Free
+- category: 未確定。候補は color token import の実装範囲を超えないカテゴリにする
+- tags: 未確定。候補は `color`, `tokens`, `design system`, `import`
+- support URL: 未確定。候補は `https://github.com/kaonmick/framer-token-plugin/issues`
+- docs URL: 未確定。公開 URL が必要。repo docs / README を公開導線にできるか確認する
+- screenshot / visual asset: 未確定。`docs/marketplace-assets/visuals/` に格納する。現在の docs screenshot は plugin UI 確認用で、Marketplace の visual は 1600 x 1200 が必要
+
+## 作業ログ
+
+### 2026-05-21
+
+- branch: `codex/issue-37-publish-marketplace`
+- Framer 公式の公開手順を再確認。申請時は Marketplace dashboard で `New Plugin` を選び、root で `npm run pack` を実行して作成した `plugin.zip` をアップロードする流れ。
+- Creator Dashboard の plugin 申請情報を再確認。plugin 申請では code、details、category、visual が必要で、visual は 1600 x 1200 の画像を使う。
+- `framer.json` の `name` が `Json Color Importer` であることを確認し、公開名として採用。
+- README と release docs を確認し、公開文言は color token import に限定する方針にした。
+- `docs/marketplace-assets/` を作成し、説明文と visual asset の置き場を分けた。
+- `docs/marketplace-assets/description.md` に英語 / 日本語の説明文を記載した。
+- pricing は `docs/specs/05-business-model.md` と `docs/specs/08-technical-validation-plan.md` の方針に合わせ、初回公開は Free とした。
+- `npm run check` は成功。
+- `npm run test` は成功。3 files / 23 tests passed。
+- `npm run build` は成功。
+- `npm run pack` は成功。root に `plugin.zip` を作成。
+- `plugin.zip` は 174KB。`index.html`、`icon.svg`、`framer.json`、current bundle、font / css assets のみで、docs / fixtures / source files は含まれていない。
+- 既存 screenshot は 420 x 620 または 420 x 833 の plugin UI 確認用だったため、Marketplace visual としては未確定のまま残す。
