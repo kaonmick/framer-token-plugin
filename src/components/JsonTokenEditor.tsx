@@ -58,7 +58,10 @@ const jsonSyntaxClass: Record<JsonSyntaxKind, string> = {
 }
 
 interface JsonTokenEditorProps {
+  className?: string
   diagnostics?: EditorDiagnostic[]
+  fillAvailableHeight?: boolean
+  height?: number | string
   labels: {
     copy: string
     copied: string
@@ -72,7 +75,10 @@ interface JsonTokenEditorProps {
 }
 
 export function JsonTokenEditor({
+  className,
   diagnostics = [],
+  fillAvailableHeight = false,
+  height = DEFAULT_EDITOR_HEIGHT,
   labels,
   lineNumbersRef,
   placeholder = "",
@@ -80,7 +86,7 @@ export function JsonTokenEditor({
   onScroll,
   onTextChange,
 }: JsonTokenEditorProps) {
-  const editorHeight = DEFAULT_EDITOR_HEIGHT
+  const [measuredEditorHeight, setMeasuredEditorHeight] = useState(DEFAULT_EDITOR_HEIGHT)
   const [copyState, setCopyState] = useState<CopyState>("idle")
   const [isCopyTooltipVisible, setIsCopyTooltipVisible] = useState(false)
   const [copyToastPosition, setCopyToastPosition] = useState<CopyToastPosition | null>(null)
@@ -97,6 +103,7 @@ export function JsonTokenEditor({
   const diagnosticsByLine = useMemo(() => groupDiagnosticsByLine(diagnostics), [diagnostics])
   const isPlaceholderVisible = value.length === 0 && placeholder.length > 0
   const displayValue = isPlaceholderVisible ? placeholder : value
+  const editorHeight = measuredEditorHeight
   const lineNumbers = useMemo(
     () => Array.from({ length: displayValue.split("\n").length }, (_, index) => index + 1),
     [displayValue]
@@ -115,6 +122,25 @@ export function JsonTokenEditor({
       if (copyTooltipTimerRef.current !== null) {
         window.clearTimeout(copyTooltipTimerRef.current)
       }
+    }
+  }, [])
+
+  useLayoutEffect(() => {
+    const editorElement = editorRef.current
+    if (!editorElement) return
+
+    function updateMeasuredEditorHeight() {
+      if (!editorElement) return
+      setMeasuredEditorHeight(Math.max(1, editorElement.clientHeight))
+    }
+
+    updateMeasuredEditorHeight()
+
+    const resizeObserver = new ResizeObserver(updateMeasuredEditorHeight)
+    resizeObserver.observe(editorElement)
+
+    return () => {
+      resizeObserver.disconnect()
     }
   }, [])
 
@@ -251,12 +277,12 @@ export function JsonTokenEditor({
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className={`flex flex-col gap-2 ${className ?? ""}`}>
       <div
-        className="relative grid min-h-[180px] w-full grid-cols-[48px_minmax(0,1fr)] overflow-hidden rounded border border-border-default bg-surface-subtle"
+        className={`relative grid min-h-[180px] w-full grid-cols-[48px_minmax(0,1fr)] overflow-hidden rounded border border-border-default bg-surface-subtle ${fillAvailableHeight ? "flex-1" : ""}`}
         data-json-editor="true"
         ref={editorRef}
-        style={{ height: editorHeight }}
+        style={fillAvailableHeight ? undefined : { height }}
       >
         <div
           className="overflow-hidden border-r border-border-muted bg-elevated-default p-2 text-right font-['Fira_Code','Noto_Sans_JP'] text-[11px] leading-4 text-text-subtle select-none"
