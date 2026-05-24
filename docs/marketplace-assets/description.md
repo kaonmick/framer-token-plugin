@@ -37,25 +37,23 @@ Json Color Importerは、個人やチームのJSONで管理しているカラー
 
 ---
 
-What it supports:
+### What it supports / 対応内容
 
-- Primitive color tokens ($type: "color" with $value)
-- Semantic alias tokens that reference other color tokens
-- Light and dark theme values mapped to Framer Color Style themes
-- Preview before importing — see exactly what will be created or updated
-- Conflict handling — choose skip or replace for each existing Color Style
-- Import summary showing created, replaced, skipped, and failed counts
-- English and Japanese UI
+Primitive color tokens ($type: "color" with $value)
+Semantic alias tokens that reference other color tokens
+Light and dark theme values mapped to Framer Color Style themes
+Preview before importing — see exactly what will be created or updated
+Conflict handling — choose skip or replace for each existing Color Style
+Import summary showing created, replaced, skipped, and failed counts
+English and Japanese UI
 
-対応内容:
-
-- $type: "color" と $value を持つプリミティブカラートークン
-- 他のカラートークンを参照するセマンティックエイリアス
-- ライト / ダークテーマ値をFramer カラースタイルのテーマへマッピング
-- インポート前のプレビュー（作成・更新される内容を事前確認）
-- コンフリクト処理
-- インポート後のサマリー（作成・更新・スキップ・失敗数）
-- 英語 / 日本語の言語切り替え
+$type: "color" と $value を持つプリミティブカラートークン
+他のカラートークンを参照するセマンティックエイリアス
+ライト / ダークテーマ値をFramer カラースタイルのテーマへマッピング
+インポート前のプレビュー（作成・更新される内容を事前確認）
+コンフリクト処理
+インポート後のサマリー（作成・更新・スキップ・失敗数）
+英語 / 日本語の言語切り替え
 
 ---
 
@@ -67,19 +65,16 @@ Color token import only. This release does not cover spacing, typography, border
 
 ---
 
-Known behavior:
+Known behavior / 既知の挙動
+Alias tokens resolve only when the referenced token exists in the same file.
+Conflicts with existing Color Styles require a manual choice before importing — existing styles are kept by default.
+OKLCH values are converted to rgba for Framer compatibility.
+Dark-only tokens without a matching light value are imported as regular styles.
 
-- Alias tokens resolve only when the referenced token exists in the same file.
-- Conflicts with existing Color Styles require a manual choice before importing — existing styles are kept by default.
-- OKLCH values are converted to rgba for Framer compatibility.
-- Dark-only tokens without a matching light value are imported as regular styles.
-
-既知の挙動:
-
-- エイリアスは参照先トークンが同じファイル内に存在する場合のみ解決します。
-- 既存カラースタイルとのコンフリクトは、インポート前にどのカラートークンをインポートするかを手動で選ぶ必要があります（デフォルトは既存のトークンが選択されます）。
-- OKLCHはFramer互換性のためrgbaへ変換します。
-- 対応するライトモードがないダークのみのトークンは通常スタイルとしてインポートされます。
+エイリアスは参照先トークンが同じファイル内に存在する場合のみ解決します。
+既存カラースタイルとのコンフリクトは、インポート前にどのカラートークンをインポートするかを手動で選ぶ必要があります（デフォルトは既存のトークンが選択されます）。
+OKLCHはFramer互換性のためrgbaへ変換します。
+対応するライトモードがないダークのみのトークンは通常スタイルとしてインポートされます。
 ```
 
 ## Review Instructions
