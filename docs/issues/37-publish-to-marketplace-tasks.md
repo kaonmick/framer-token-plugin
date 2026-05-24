@@ -31,12 +31,12 @@ Issue: local only
 - [x] alias は参照先が存在する color token のみ解決する、と説明できている
 - [x] conflict は自動解決しない、と説明できている
 - [x] OKLCH は Framer 互換のため rgba へ変換する、と説明できている
-- [ ] category を確定する
-- [ ] tags を確定する
+- [x] category を確定する
+- [x] tags を確定する
 - [x] pricing を確定する
-- [ ] support URL を確定する
-- [ ] docs URL を確定する
-- [ ] screenshot / visual asset を確定する
+- [x] support URL を確定する
+- [x] docs URL を確定する
+- [x] screenshot / visual asset を確定する
 
 ### 2. 申請用 package を作る
 
@@ -49,19 +49,19 @@ Issue: local only
 
 ### 3. Marketplace dashboard で申請する
 
-- [ ] Marketplace dashboard で `New Plugin` を選ぶ
-- [ ] `plugin.zip` をアップロードする
-- [ ] 申請情報を入力する
-- [ ] description が実装済み scope を超えていないか最後に読む
-- [ ] support / docs のリンクが開けるか確認する
-- [ ] submit する
+- [x] Marketplace dashboard で `New Plugin` を選ぶ
+- [x] `plugin.zip` をアップロードする
+- [x] 申請情報を入力する
+- [x] description が実装済み scope を超えていないか最後に読む
+- [x] support / docs のリンクが開けるか確認する
+- [x] submit する
 
 ### 4. レビュー待ち中に記録する
 
-- [ ] 申請日をこの issue に追記する
-- [ ] 申請時の plugin version を追記する
-- [ ] 申請時の説明文を追記する
-- [ ] Framer からの返信や status 変更を追記する
+- [x] 申請日をこの issue に追記する
+- [x] 申請時の plugin version を追記する
+- [x] 申請時の説明文を追記する
+- [x] Framer からの返信や status 変更を追記する
 
 ### 5. 指摘が来た場合に対応する
 
@@ -89,10 +89,10 @@ Issue: local only
 
 ## 申請ログ
 
-- 申請日:
+- 申請日: 2026-05-24
 - plugin version: `0.1.0`
 - plugin.zip 作成方法: `npm run pack`
-- Marketplace status:
+- Marketplace status: レビュー待ち
 - 公開 URL:
 - レビュー指摘:
 
@@ -100,11 +100,10 @@ Issue: local only
 
 - 公開名 / 申請文面: [Marketplace Submission Copy](../marketplace-assets/description.md)
 - pricing: Free
-- category: 未確定。候補は color token import の実装範囲を超えないカテゴリにする
-- tags: 未確定。候補は `color`, `tokens`, `design system`, `import`
-- support URL: 未確定。候補は `https://github.com/kaonmick/framer-token-plugin/issues`
-- docs URL: 未確定。公開 URL が必要。repo docs / README を公開導線にできるか確認する
-- screenshot / visual asset: 未確定。`docs/marketplace-assets/visuals/` に格納する。現在の docs screenshot は plugin UI 確認用で、Marketplace の visual は 1600 x 1200 が必要
+- category: 申請済み
+- tags: 申請済み
+- support / docs: 申請済み
+- screenshot / visual asset: [cover-1.png](../marketplace-assets/cover-1.png), [cover-2.png](../marketplace-assets/cover-2.png)
 
 ## 作業ログ
 
@@ -124,3 +123,11 @@ Issue: local only
 - `npm run pack` は成功。root に `plugin.zip` を作成。
 - `plugin.zip` は 174KB。`index.html`、`icon.svg`、`framer.json`、current bundle、font / css assets のみで、docs / fixtures / source files は含まれていない。
 - 既存 screenshot は 420 x 620 または 420 x 833 の plugin UI 確認用だったため、Marketplace visual としては未確定のまま残す。
+
+### 2026-05-24
+
+- Marketplace dashboard で申請完了。
+- 申請日は 2026-05-24。
+- Marketplace status はレビュー待ち。
+- 申請内容は `docs/marketplace-assets/description.md` に格納済み。
+- Marketplace 用 visual は `docs/marketplace-assets/cover-1.png` と `docs/marketplace-assets/cover-2.png` に格納済み。どちらも 1600 x 1200。
