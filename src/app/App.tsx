@@ -129,6 +129,20 @@ export function App() {
 
   useEffect(() => syncDocumentThemeFromFramer(document), [])
 
+  useEffect(() => {
+    if (currentPage !== "preview") return
+
+    const frame = window.requestAnimationFrame(() => {
+      window.scrollTo(0, 0)
+      document.documentElement.scrollTop = 0
+      document.body.scrollTop = 0
+    })
+
+    return () => {
+      window.cancelAnimationFrame(frame)
+    }
+  }, [currentPage])
+
   // Initialize conflict selections when parse result changes
   useEffect(() => {
     setConflictSelections(prev => {
@@ -323,7 +337,7 @@ export function App() {
 
   return (
     <main
-      className="flex h-screen min-h-[520px] flex-col gap-6 bg-surface-base px-5 pb-28 pt-8 font-['Jost','Noto_Sans_JP'] text-text-default md:gap-16 md:px-16 md:pb-32 md:pt-20"
+      className="flex min-h-screen flex-col gap-6 bg-surface-base px-5 pb-28 pt-8 font-['Jost','Noto_Sans_JP'] text-text-default md:gap-16 md:px-16 md:pb-32 md:pt-20"
       data-capture-mode={captureMode ?? undefined}
       data-ready="true"
       lang={language}

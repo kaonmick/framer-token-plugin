@@ -225,7 +225,7 @@ function resolveColorToken(
   const aliasPath = readAliasPath(token.value)
 
   if (aliasPath) {
-    const aliasTarget = tokensByPath.get(aliasPath) ?? findModeScopedAliasTarget(token, aliasPath, tokensByPath)
+    const aliasTarget = findAliasTarget(token, aliasPath, tokensByPath, warnings)
 
     if (!aliasTarget) {
       warnings.push({
@@ -596,6 +596,28 @@ function asPlainToken(token: ResolvedRawColorToken): ResolvedRawColorToken {
   }
 }
 
+function findAliasTarget(
+  token: RawColorToken,
+  aliasPath: string,
+  tokensByPath: Map<string, RawColorToken>,
+  warnings: ParseWarning[]
+): RawColorToken | undefined {
+  const exactTarget = tokensByPath.get(aliasPath) ?? findModeScopedAliasTarget(token, aliasPath, tokensByPath)
+  if (exactTarget) return exactTarget
+
+  const relativeTarget = findRelativeAliasTarget(aliasPath, tokensByPath)
+  if (relativeTarget === "ambiguous") {
+    warnings.push({
+      code: "unresolved-alias",
+      path: token.sourcePath,
+      message: `Alias target "${aliasPath}" matched multiple tokens.`,
+    })
+    return undefined
+  }
+
+  return relativeTarget
+}
+
 function findModeScopedAliasTarget(
   token: RawColorToken,
   aliasPath: string,
@@ -616,6 +638,20 @@ function findModeScopedAliasTarget(
   ])
 
   return tokensByPath.get(modeScopedPath)
+}
+
+function findRelativeAliasTarget(
+  aliasPath: string,
+  tokensByPath: Map<string, RawColorToken>
+): RawColorToken | "ambiguous" | undefined {
+  const suffix = `.${aliasPath}`
+  const matches = [...tokensByPath.entries()]
+    .filter(([sourcePath]) => sourcePath.endsWith(suffix))
+    .map(([, token]) => token)
+
+  if (matches.length === 0) return undefined
+  if (matches.length > 1) return "ambiguous"
+  return matches[0]
 }
 
 function readColorMode(path: string[]): { mode: ColorTokenMode; index: number } | null {
