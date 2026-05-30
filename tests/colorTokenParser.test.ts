@@ -206,6 +206,49 @@ describe("parseColorTokenJson", () => {
     })
   })
 
+  it("resolves rootless semantic aliases to primitive tokens", () => {
+    const result = parseColorTokenJson(`{
+      "primitive": {
+        "slate": {
+          "100": {
+            "value": "#f1f5f9",
+            "type": "color"
+          },
+          "900": {
+            "value": "#0f172a",
+            "type": "color"
+          }
+        }
+      },
+      "semantic": {
+        "background": {
+          "value": {
+            "light": "{slate.100}",
+            "dark": "{slate.900}"
+          },
+          "type": "color"
+        }
+      },
+      "primitive/alpha": {},
+      "$metadata": {
+        "tokenSetOrder": ["primitive", "primitive/alpha", "semantic"]
+      }
+    }`)
+
+    const backgroundToken = result.tokens.find(token => token.styleName === "semantic/background")
+
+    expect(result.warnings).toHaveLength(0)
+    expect(backgroundToken).toMatchObject({
+      sourcePath: "semantic.background.light",
+      darkSourcePath: "semantic.background.dark",
+      value: "rgba(241, 245, 249, 1)",
+      darkValue: "rgba(15, 23, 42, 1)",
+      aliasPath: "primitive.slate.100",
+      darkAliasPath: "primitive.slate.900",
+      modes: ["light", "dark"],
+    })
+  })
+
   it("keeps a dark-only token as a separate style with a warning", () => {
     const result = parseColorTokenJson(`{
       "color": {
